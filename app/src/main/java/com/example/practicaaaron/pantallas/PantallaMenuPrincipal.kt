@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import com.example.practicaaaron.objetos.Opcion
+import com.example.practicaaaron.clases.usuarios.Opcion
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -37,6 +37,12 @@ fun VentanaPrincipal(
     navHostController: NavHostController? = null,
     opcionesViewModel: OpcionesViewModel? = null
 ){
+    var opciones = listOf(
+        Opcion(R.drawable.imagen2,"Pedidos","pedidos"),
+        Opcion(R.drawable.imagen3,"Rutas","ruta"),
+        Opcion(R.drawable.imagen4,"Logistica","logistica")
+    )
+
         Column(
                 modifier = Modifier
                     .padding(0.dp, 60.dp)
@@ -50,7 +56,7 @@ fun VentanaPrincipal(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.padding(20.dp,0.dp)) {
 
-                    opcionesViewModel?.opciones?.forEach(){
+                    opciones.forEach(){
                         item {
                             cartaMenuPr(
                                 navHostController,

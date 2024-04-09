@@ -217,7 +217,7 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             startDestination = Pantallas.Login.route
         ) {
             composable(Pantallas.Login.route){
-                ventanaLogin(navHostController = navController)
+                ventanaLogin(navHostController = navController,opcionesViewModel)
             }
             composable(Pantallas.Pedidos.route){
                 ventanaPedidos(navHostController = navController)

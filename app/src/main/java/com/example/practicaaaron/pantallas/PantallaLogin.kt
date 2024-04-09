@@ -43,21 +43,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import com.example.practicaaaron.objetos.Data
-import com.example.practicaaaron.objetos.DataUser
-import com.example.practicaaaron.objetos.Usuario
+import com.example.practicaaaron.clases.usuarios.Data
+import com.example.practicaaaron.clases.usuarios.DataUser
+import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-@Preview
-fun ventanaLogin(navHostController: NavHostController? = null){
+fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel: OpcionesViewModel){
     var campoEmail = remember { mutableStateOf("") }
     var campoContrasena = remember { mutableStateOf("") }
     var mensaje by remember { mutableStateOf("") }
@@ -91,9 +89,9 @@ fun ventanaLogin(navHostController: NavHostController? = null){
 
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
         ElevatedButton(onClick = {
-            mensaje = verificar(campoEmail.value,campoContrasena.value)
             firstTimeButton = true
             showBottomSheet = true
+            opcionesViewModel.obtenerPedidos()
         }, modifier = Modifier.size(250.dp,80.dp),shape = CutCornerShape(10)
         ) {
             Text("Entrar", fontSize = 25.sp)
@@ -113,29 +111,10 @@ fun ventanaLogin(navHostController: NavHostController? = null){
         }
     }
 
-    if(mensaje == "Logeado!")
+    if(mensaje == "Logeado!"){
         navHostController?.navigate("menu")
-
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun verificar(campoEmail: String, campoContrasena: String):String{
-    var retorno = "Logeado!"
-    val user = Data(DataUser(
-        Usuario(1,1,"Prueba","1"
-        ,"Aaron","1",true,
-        LocalDate.now(), LocalDate.now()),0,""))
-
-    if(campoEmail.isEmpty() || campoContrasena.isEmpty()){
-        retorno = ""
-    }else{
-        if(campoEmail != user.dataUser.Usuario.Email)
-            retorno = "No se ha encontrado el email"
-        else if (campoContrasena != user.dataUser.Usuario.Email)
-            retorno = "La contraseña es incorrecta"
     }
 
-    return retorno
 }
 
 fun validacion(campo: String, firstTimeButton: Boolean):Boolean{

@@ -1,4 +1,4 @@
-package com.example.practicaaaron.objetos
+package com.example.practicaaaron.clases.usuarios
 
 data class Opcion (
     val idImagen:Int,

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,7 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import com.example.practicaaaron.clases.PedidoLin
+import com.example.practicaaaron.clases.pedidos.PedidoLin
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,7 +60,7 @@ fun PantallaInfoProducto(navHostController: NavHostController? = null){
 
             Column (modifier = Modifier
                 .fillMaxSize()
-                .padding(0.dp, 60.dp)
+                .padding(0.dp, 60.dp, 0.dp, 0.dp)
                 .verticalScroll(state), horizontalAlignment = Alignment.CenterHorizontally){
 
                 Image(painter = painterResource(id = R.drawable.imagen), contentDescription = "Descripcion de la imagen",
@@ -78,12 +77,12 @@ fun PantallaInfoProducto(navHostController: NavHostController? = null){
                 vistaInformacionBulto(info = "Bultos",0xFFcf9cd9)
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                Row {
+                Row (modifier = Modifier.padding(3.dp,10.dp)){
                     botonInfo(valor = "Confirmar Pedido")
-                    Spacer(modifier = Modifier.padding(15.dp,0.dp))
+                    Spacer(modifier = Modifier.padding(13.dp,0.dp))
 
                     Button(onClick = { openAlertDialog.value = true }, modifier = Modifier.size(170.dp,60.dp)) {
-                        Text(text = "Marcar incidencia", fontSize = 15.sp)
+                        Text(text = "Marcar incidencia", fontSize = 13.sp)
                     }
                 }
 
@@ -190,7 +189,7 @@ fun AlertDialogExample(
 fun RadioButtonSample() {
     val radioOptions = listOf("Ausente", "Rechazo", "Pérdida","dirección errónea")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1] ) }
-    LazyColumn (modifier = Modifier.fillMaxHeight(0.8f)){
+    LazyColumn (){
         item { radioOptions.forEach { text ->
             Row(
                 Modifier

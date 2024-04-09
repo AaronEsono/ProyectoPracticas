@@ -4,11 +4,14 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,7 +45,7 @@ import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 @Preview
 fun ventanaPedidos(navHostController: NavHostController? = null) {
             LazyColumn(
-                modifier = Modifier.padding(0.dp,60.dp),
+                modifier = Modifier.padding(0.dp,60.dp,0.dp,0.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Add 5 items
@@ -73,7 +76,8 @@ fun carta(navHostController: NavHostController? = null) {
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
         modifier = Modifier
-            .size(width = 400.dp, height = 135.dp)
+            .width(400.dp)
+            .height(intrinsicSize = IntrinsicSize.Max)
             .padding(15.dp, 0.dp), onClick = {navHostController?.navigate("infoPedido")}
     ) {
         Row {
@@ -83,7 +87,9 @@ fun carta(navHostController: NavHostController? = null) {
                     .size(80.dp)
                     .clip(RoundedCornerShape(5.dp)))
             Column (){
-                Text(text = "Nombre objeto", fontSize = 25.sp,modifier = Modifier.padding(60.dp,2.dp,0.dp,0.dp), fontWeight = FontWeight.Black)
+                    Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
+                        Text(text = "Nombre objeto", fontSize = 25.sp,fontWeight = FontWeight.Black)
+                    }
 
                 Row (modifier = Modifier.padding(0.dp,5.dp)){
                     Icon(Icons.Rounded.LocationOn, contentDescription = "Icono destino")

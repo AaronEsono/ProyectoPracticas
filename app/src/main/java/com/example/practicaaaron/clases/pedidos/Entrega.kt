@@ -1,4 +1,4 @@
-package com.example.practicaaaron.clases
+package com.example.practicaaaron.clases.pedidos
 
 data class Entrega(
     val idEntrega:Int,
