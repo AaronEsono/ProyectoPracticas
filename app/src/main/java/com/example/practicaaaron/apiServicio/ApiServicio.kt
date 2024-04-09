@@ -4,6 +4,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoCab
+import com.example.practicaaaron.clases.usuarios.Data
+import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import okhttp3.Call
@@ -23,6 +25,8 @@ import java.time.format.DateTimeFormatter
 interface ApiServicio {
     @GET("Pedidos/{ID_USUARIO}")
     suspend fun obtenerPedidos(@Path("ID_USUARIO") ID_USUARIO:Int): Response<DataPedido>
+    @POST("Login")
+    suspend fun hacerLogin(@Body user:UsuarioLogin):Response<Data>
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

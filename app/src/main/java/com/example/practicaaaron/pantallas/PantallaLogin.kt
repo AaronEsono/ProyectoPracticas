@@ -47,10 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import com.example.practicaaaron.clases.usuarios.Data
-import com.example.practicaaaron.clases.usuarios.DataUser
+import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
-import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -65,6 +63,7 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
 
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var usuarioLogin by remember { mutableStateOf(UsuarioLogin()) }
 
     Column (modifier = Modifier
         .fillMaxSize()
@@ -91,7 +90,10 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
         ElevatedButton(onClick = {
             firstTimeButton = true
             showBottomSheet = true
-            opcionesViewModel.obtenerPedidos()
+            usuarioLogin.password = campoContrasena.value
+            usuarioLogin.email = campoEmail.value
+
+            opcionesViewModel.hacerLogin(usuarioLogin)
         }, modifier = Modifier.size(250.dp,80.dp),shape = CutCornerShape(10)
         ) {
             Text("Entrar", fontSize = 25.sp)
@@ -111,6 +113,7 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
         }
     }
 
+    //Mostrar posible error y conectar si el usuario se mete
     if(mensaje == "Logeado!"){
         navHostController?.navigate("menu")
     }

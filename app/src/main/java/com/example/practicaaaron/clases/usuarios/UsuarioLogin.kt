@@ -1,5 +1,10 @@
 package com.example.practicaaaron.clases.usuarios
 
-class UsuarioLogin{
+import com.google.gson.annotations.SerializedName
 
-}
+data class UsuarioLogin (
+    @SerializedName("username")
+    var email:String = "",
+    @SerializedName("password")
+    var password:String = "",
+)
