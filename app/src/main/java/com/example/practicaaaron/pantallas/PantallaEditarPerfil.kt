@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 @Composable
 @Preview
 fun ventanaEditarPerfil(navHostController: NavHostController? = null){
+    //Variables que guardan la informacion del label y si se ha clickeado la primera vez
     val estadoCampo1 by remember { mutableStateOf(false) }
     val mensajeCampo1 = remember { mutableStateOf("") }
 
@@ -68,7 +69,7 @@ fun ventanaEditarPerfil(navHostController: NavHostController? = null){
         Column (horizontalAlignment = AbsoluteAlignment.Left, modifier = Modifier
             .fillMaxWidth()
             .padding(30.dp, 10.dp)){
-            ElevatedButton(onClick = { }, colors = ButtonDefaults.buttonColors(
+            ElevatedButton(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4eb3cc)
             ),modifier = Modifier.size(200.dp,70.dp)) {
                 Text("Cambiar contraseña", fontSize = 16.sp)

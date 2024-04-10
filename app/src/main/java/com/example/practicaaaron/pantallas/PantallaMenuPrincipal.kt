@@ -30,13 +30,14 @@ import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.Opcion
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation")
 @Composable
 @Preview
 fun VentanaPrincipal(
     navHostController: NavHostController? = null,
     opcionesViewModel: OpcionesViewModel? = null
 ){
+    // Distintas funciones que tiene el usuario para elegir
     var opciones = listOf(
         Opcion(R.drawable.imagen2,"Pedidos","pedidos"),
         Opcion(R.drawable.imagen3,"Rutas","ruta"),
@@ -51,6 +52,7 @@ fun VentanaPrincipal(
             ) {
                 Spacer(modifier = Modifier.padding(0.dp,15.dp))
 
+                //Layout para mostrar las diferentes opciones
                 LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(minSize = 130.dp)
                 , verticalItemSpacing = 13.dp,
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -70,9 +72,9 @@ fun VentanaPrincipal(
             }
         }
 
+//Funcion composable que muestra en formato carta cada opcion del menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-//Pasar parametros del obteto a la carta
 fun cartaMenuPr(navHostController: NavHostController? = null,
                 imagen:Int,
                 nombre:String,

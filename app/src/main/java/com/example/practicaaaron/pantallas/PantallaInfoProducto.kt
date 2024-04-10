@@ -1,6 +1,9 @@
 package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,54 +30,68 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.pedidos.Cliente
 import com.example.practicaaaron.clases.pedidos.PedidoLin
+import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-//Pasar los parametros de cada objeto con el ViewModel para luego mostrarlos
-fun PantallaInfoProducto(navHostController: NavHostController? = null){
+fun PantallaInfoProducto(
+    navHostController: NavHostController? = null,
+    opcionesViewModel: OpcionesViewModel? = null
+){
     val openAlertDialog = remember { mutableStateOf(false) }
             val state = rememberScrollState()
+
+            //Variable que guarda el pedido seleccionado por el cliente
+            val pedido = opcionesViewModel?.pedido?.collectAsState()?.value
+
+            val context = LocalContext.current
+            //Imagen relacionada con el pedido elegido
+            val imagen = pedido?.imagenDescripcion?.let { loadImageFromBase64(context, it) }
 
             Column (modifier = Modifier
                 .fillMaxSize()
                 .padding(0.dp, 60.dp, 0.dp, 0.dp)
                 .verticalScroll(state), horizontalAlignment = Alignment.CenterHorizontally){
 
-                Image(painter = painterResource(id = R.drawable.imagen), contentDescription = "Descripcion de la imagen",
-                    Modifier
-                        .size(200.dp)
-                        .padding(10.dp))
+                if (imagen != null) {
+                    Image(bitmap = imagen, contentDescription = "Descripcion de la imagen",
+                        Modifier
+                            .height(200.dp)
+                            .fillMaxWidth(0.8f)
+                            .padding(10.dp), contentScale = ContentScale.FillHeight)
+                }
 
-                Text(text = "Nombre del pedido", fontSize = 30.sp, fontWeight = FontWeight.Black)
+                Text(text = "${pedido?.nombre}", fontSize = 30.sp, fontWeight = FontWeight.Black)
                 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                vistaInformacionCliente(info = "Cliente", l = 0xFF49c6e6)
+                vistaInformacionCliente(info = "Cliente", l = 0xFF49c6e6, pedido?.cliente)
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                vistaInformacionBulto(info = "Bultos",0xFFcf9cd9)
+                vistaInformacionBulto(info = "Bultos",0xFFcf9cd9, pedido?.bultos)
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
                 Row (modifier = Modifier.padding(3.dp,10.dp)){
@@ -95,48 +112,46 @@ fun PantallaInfoProducto(navHostController: NavHostController? = null){
                                 openAlertDialog.value = false
                             },
                             dialogTitle = "Seleccione incidencia",
+                            opcionesViewModel
                         )
                     }
                 }
             }
 }
 
+//Funcion composable que muestra todos los bultos de un pedido
 @Composable
-fun vistaInformacionBulto(info: String, l: Long){
-    var bultos:List<PedidoLin> = listOf(
-        PedidoLin(1,"Raton","Descripcion del raton",5),
-        PedidoLin(2,"Teclado","Descripcion del teclado",8),
-        PedidoLin(3,"Lapices","Descripcion de los lapices",50)
-    )
+fun vistaInformacionBulto(info: String, l: Long, bultos: List<PedidoLin>?){
 
     Column (
         Modifier
             .background(Color(l))
             .padding(20.dp, 10.dp)
             .fillMaxWidth(0.95f)){
-        Text(text = "$info", fontWeight = FontWeight.Black, fontSize = 18.sp)
+        Text(text = "Descripción: $info", fontWeight = FontWeight.Black, fontSize = 18.sp)
 
-        bultos.forEach {
+        bultos?.forEach {
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
             informacionBulto(it.refBulto,it.descripcion,it.unidades)
         }
     }
 }
 
+//Funcion composable que muestra toda la informacion del cliente
 @Composable
-@Preview
-fun vistaInformacionCliente(info: String = "Cliente", l: Long = 0xFF49c6e6 ){
+fun vistaInformacionCliente(info: String = "Cliente", l: Long = 0xFF49c6e6, cliente: Cliente?){
         Column (modifier = Modifier
             .fillMaxWidth(0.95f)
             .background(Color(l))
             .padding(0.dp, 0.dp, 0.dp, 15.dp)){
             Text(text = "$info", fontWeight = FontWeight.Black, fontSize = 18.sp, modifier = Modifier.padding(20.dp, 10.dp))
 
-            cartaCliente()
+            cartaCliente(cliente)
         }
 }
 
 
+//Funcion que muestra un boton con el texto seleccionado
 @Composable
 fun botonInfo(valor:String){
     Button(onClick = { /*TODO*/ }, modifier = Modifier.size(170.dp,60.dp)) {
@@ -144,12 +159,14 @@ fun botonInfo(valor:String){
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+//Funcion que muestra un dialogo cuando el usuario le da a la opcion de marcar incidencia
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AlertDialogExample(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
-    dialogTitle: String
+    dialogTitle: String,
+    opcionesViewModel: OpcionesViewModel?
 ) {
     Dialog(
         onDismissRequest = {
@@ -166,7 +183,7 @@ fun AlertDialogExample(
                 Text(text = dialogTitle, fontSize = 23.sp, fontWeight = FontWeight.Medium
                     , modifier = Modifier.padding(0.dp, 10.dp))
 
-                RadioButtonSample()
+                RadioButtonSample(opcionesViewModel)
 
                 Row (verticalAlignment = Alignment.Bottom,modifier = Modifier
                     .fillMaxSize()
@@ -184,9 +201,10 @@ fun AlertDialogExample(
     }
 }
 
-@Preview
+//Funcion con todos los posibles elecciones que va a tener el dialogo
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RadioButtonSample() {
+fun RadioButtonSample(opcionesViewModel: OpcionesViewModel?) {
     val radioOptions = listOf("Ausente", "Rechazo", "Pérdida","dirección errónea")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1] ) }
     LazyColumn (){
@@ -197,13 +215,16 @@ fun RadioButtonSample() {
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
-                    onClick = { onOptionSelected(text) }
+                    onClick = { onOptionSelected(text)
+                    opcionesViewModel?.setIncidencia(text)
+                    }
                 )
                 Text(
                     text = text,
                     modifier = Modifier
                         .padding(0.dp, 14.dp)
-                        .clickable { onOptionSelected(text) }
+                        .clickable { onOptionSelected(text)
+                            opcionesViewModel?.setIncidencia(text)}
                 )
             }
         }
@@ -211,6 +232,7 @@ fun RadioButtonSample() {
     }
 }
 
+//Funcion que muestra en forma de carta toda la informacion de un bulto
 @Composable
 @Preview
 fun informacionBulto(referencia:String = "Nombre", descripcion:String = "Esto es una descripcion", unidades:Int = 1){
@@ -241,16 +263,16 @@ fun informacionBulto(referencia:String = "Nombre", descripcion:String = "Esto es
     }
 }
 
+//Funcion que muestra toda la informacion del cliente en una carta elevada
 @Composable
-@Preview
-fun cartaCliente(){
+fun cartaCliente(cliente: Cliente?) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .height(210.dp)
+            .height(intrinsicSize = IntrinsicSize.Max)
             .padding(20.dp, 0.dp)
     ) {
         Column (modifier = Modifier
@@ -259,23 +281,24 @@ fun cartaCliente(){
             ){
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            filaInformacion(Icons.Rounded.Person,"Nombre")
+            filaInformacion(Icons.Rounded.Person,"${cliente?.nombre}")
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            filaInformacion(Icons.Rounded.AccountCircle,"12345678L")
+            filaInformacion(Icons.Rounded.AccountCircle,"${cliente?.dni}")
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            filaInformacion(Icons.Rounded.Call,"577345757")
+            filaInformacion(Icons.Rounded.Call,"${cliente?.telefono}")
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            filaInformacion(Icons.Rounded.LocationOn,"Torrejón de Ardoz, Madrid, 28850")
+            filaInformacion(Icons.Rounded.LocationOn,"${cliente?.direccion?.poblacion}, ${cliente?.direccion?.municipio}, ${cliente?.direccion?.codigoPostal}")
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            filaInformacion(Icons.Rounded.LocationOn,"Calle Sevilla, 5ºF")
+            filaInformacion(Icons.Rounded.LocationOn,"${cliente?.direccion?.tipoCalle} ${cliente?.direccion?.nombreCalle}, ${cliente?.direccion?.portal} ${cliente?.direccion?.numero}")
         }
     }
 }
 
+//Funcion que muestra en una fila un icono con su descripcion, en este caso para el cliente
 @Composable
 fun filaInformacion(icono: ImageVector, s: String) {
     Row (modifier = Modifier

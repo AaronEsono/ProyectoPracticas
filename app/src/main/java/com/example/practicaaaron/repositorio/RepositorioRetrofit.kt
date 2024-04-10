@@ -13,8 +13,8 @@ import retrofit2.Retrofit
 class RepositorioRetrofit(
     private val apiServicio: Retrofit = getRetrofitClient()
 ) {
-    suspend fun recuperarPedidos():DataPedido?{
-        return apiServicio.create(ApiServicio::class.java).obtenerPedidos(1).body()
+    suspend fun recuperarPedidos(idUsuario: Int):DataPedido?{
+        return apiServicio.create(ApiServicio::class.java).obtenerPedidos(idUsuario).body()
     }
 
     suspend fun hacerLogin(usuarioLogin: UsuarioLogin):Data?{

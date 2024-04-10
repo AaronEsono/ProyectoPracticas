@@ -1,5 +1,6 @@
 package com.example.practicaaaron.pantallas
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +30,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,28 +50,42 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel: OpcionesViewModel){
-    var campoEmail = remember { mutableStateOf("") }
-    var campoContrasena = remember { mutableStateOf("") }
-    var mensaje by remember { mutableStateOf("") }
-    var firstTimeButton by remember { mutableStateOf(false) }
 
+    //Variables que controlan el estado de los campos del login
+    var campoUsername = remember { mutableStateOf("") }
+    var campoContrasena = remember { mutableStateOf("") }
+
+    //Gradiente de colores para el color de fondo del login
     val listColors = listOf(Color.Cyan, Color.Blue)
+
+    // Variable que controla cuando se le ha dado por primera vez al boton
+    var firstTimeButton by remember { mutableStateOf(false) }
 
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    // Objeto que tiene los dos parametros del login
     var usuarioLogin by remember { mutableStateOf(UsuarioLogin()) }
+
+    // Variable que controla si alguien se ha logeado correctamente o no
+    var isLog = opcionesViewModel.isLogged.collectAsState().value
+
+    // Variable que muestra el error en el login
+    var mensaje = opcionesViewModel.mensaje.collectAsState().value
 
     Column (modifier = Modifier
         .fillMaxSize()
         .background(Brush.verticalGradient(listColors))
-        .padding(0.dp, 50.dp, 0.dp, 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        .padding(0.dp, 40.dp, 0.dp, 0.dp), horizontalAlignment = Alignment.CenterHorizontally) {
 
         Image(painter = painterResource(id = R.drawable.icono), contentDescription = "Icono prueba"
             ,modifier= Modifier
@@ -77,9 +94,8 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
 
         Text(text = "Nombre empresa", fontSize = 34.sp,modifier = Modifier.padding(0.dp, 0.dp,0.dp,50.dp), fontWeight = FontWeight.Black,fontStyle = FontStyle.Italic)
 
-        //Cambiar los colores de los errores a algo más legible
         Column(modifier = Modifier.padding(25.dp,0.dp)){
-            campoFuncion(campoEmail,firstTimeButton,"Email","Rellene el email",accountCircle = Icons.Rounded.Email)
+            campoFuncion(campoUsername,firstTimeButton,"Usuario","Rellene el usuario",accountCircle = Icons.Rounded.Person)
             Spacer(modifier = Modifier.padding(0.dp,10.dp))
 
             campoFuncion(campoContrasena,firstTimeButton,"Contraseña","Rellene la contraseña", PasswordVisualTransformation(),KeyboardType.Password,Icons.Rounded.Lock)
@@ -91,16 +107,20 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
             firstTimeButton = true
             showBottomSheet = true
             usuarioLogin.password = campoContrasena.value
-            usuarioLogin.email = campoEmail.value
+            usuarioLogin.username = campoUsername.value
 
-            opcionesViewModel.hacerLogin(usuarioLogin)
+            //Si los campos no estan vacios, se hace la peticion
+            if(usuarioLogin.password.isNotEmpty() && usuarioLogin.username.isNotEmpty())
+                opcionesViewModel.hacerLogin(usuarioLogin)
+
         }, modifier = Modifier.size(250.dp,80.dp),shape = CutCornerShape(10)
         ) {
             Text("Entrar", fontSize = 25.sp)
         }
     }
 
-    if(showBottomSheet && mensaje.isNotEmpty() && !mensaje.equals("Logeado!")){
+    //Ventana modal que muestra el error encontrado en el login
+    if(showBottomSheet && mensaje?.isNotEmpty() == true){
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false
@@ -113,17 +133,18 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
         }
     }
 
-    //Mostrar posible error y conectar si el usuario se mete
-    if(mensaje == "Logeado!"){
+    //Si se logea correctamente, pasar a la siguiente pantalla
+    if(isLog == true){
         navHostController?.navigate("menu")
     }
-
 }
 
+// Funcion que retorna si se debe mostrar los errores en los label
 fun validacion(campo: String, firstTimeButton: Boolean):Boolean{
     return campo.isEmpty() && firstTimeButton
 }
 
+// Funcion composable que muestra en textField con los parametros indicados
 @Composable
 fun campoFuncion(
     campo: MutableState<String>,

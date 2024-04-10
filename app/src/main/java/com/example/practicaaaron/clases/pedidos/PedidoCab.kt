@@ -22,7 +22,7 @@ data class PedidoCab(
     @SerializedName("DESCRIPCION")
     val descripcion:String = "",
     @SerializedName("IMAGEN")
-    val imagenDescripcion:String,
+    val imagenDescripcion:String = "",
     @SerializedName("BULTOS")
     val bultos: List<PedidoLin> = listOf(),
     @SerializedName("CLIENTE")
