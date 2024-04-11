@@ -3,11 +3,11 @@ package com.example.practicaaaron.ui.ViewModel
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
 import com.example.practicaaaron.clases.pedidos.DataPedido
+import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
@@ -38,7 +38,7 @@ class OpcionesViewModel(
         ColoresIncidencias(0xFF1fff87,100,"Entregado"),
         ColoresIncidencias(0xFFf7941b,10,"Ausente"),
         ColoresIncidencias(0xFFf7351b,20,"Pérdida"),
-        ColoresIncidencias(0xFFf7c01b,30,"Rechazo"),
+        ColoresIncidencias(0xFF3492eb,30,"Rechazo"),
         ColoresIncidencias(0xFFf71b56,40,"dirección errónea")
     )
 
@@ -75,24 +75,34 @@ class OpcionesViewModel(
     }
 
     fun indicarColorPedido(incidencia:Int):Long{
-        var colorLong:Long = 0
+        var colorLong:Long = 0xFFcf8ac6
 
         coloresIncidencias.forEach{
             if(it.incidencia == incidencia){
                 colorLong = it.color
             }
         }
-
         return colorLong
     }
 
-    fun setIncidencia(valor:String){
-        coloresIncidencias.forEach{
-            if(it.nombre == valor){
-                //Conseguir hacer ese cambio de color en los pedidos
+    fun actualizarPedido(valorIncidencia: String?) {
+        var pedido = PedidoActualizar(_pedido.value?.idPedido?: 1,getIntIncidencia(valorIncidencia?:""))
 
-            }
+        viewModelScope.launch {
+            repositorio.actualizarPedido(pedido)
         }
+    }
+
+    fun getIntIncidencia(valor:String):Int{
+        var defecto:Int = 30
+        Log.i("incidencia",valor)
+
+        coloresIncidencias.forEach {
+            if(it.nombre == valor)
+                defecto = it.incidencia
+        }
+
+        return defecto
     }
 
 }

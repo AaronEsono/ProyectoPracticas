@@ -50,6 +50,7 @@ import com.example.practicaaaron.pantallas.VentanaPrincipal
 import com.example.practicaaaron.pantallas.ventanaLogin
 import com.example.practicaaaron.pantallas.VentanaPerfil
 import com.example.practicaaaron.pantallas.ventanaEditarPerfil
+import com.example.practicaaaron.pantallas.ventanaEntregaPedido
 import com.example.practicaaaron.pantallas.ventanaPedidos
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -62,6 +63,7 @@ sealed class Pantallas(var route:String){
     data object Perfil: Pantallas("perfil")
     data object Info: Pantallas("infoPedido")
     data object Editar: Pantallas("editar")
+    data object Entregar:Pantallas("entregar")
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -211,6 +213,9 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             composable(Pantallas.Editar.route){
                 ventanaEditarPerfil(navHostController = navController)
             }
+            composable(Pantallas.Entregar.route){
+                ventanaEntregaPedido()
+            }
         }
 }
 
@@ -228,10 +233,10 @@ fun filaInformacionDrawer(
 ){
      Row(modifier = Modifier
          .padding(0.dp, 10.dp)
-            //Si el usuario le da a cerrar sesion, borrar todos los datos del viewModel del usuario
+         //Si el usuario le da a cerrar sesion, borrar todos los datos del viewModel del usuario
          .clickable {
-             if(ruta== "login"){
-                opcionesViewModel?.cerrarSesion()
+             if (ruta == "login") {
+                 opcionesViewModel?.cerrarSesion()
              }
              navController?.navigate("$ruta")
              scope.launch { drawerState.apply { close() } }

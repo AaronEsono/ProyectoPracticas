@@ -1,12 +1,12 @@
+@file:Suppress("UNUSED_VALUE")
+
 package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,11 +64,13 @@ fun PantallaInfoProducto(
     navHostController: NavHostController? = null,
     opcionesViewModel: OpcionesViewModel? = null
 ){
-    val openAlertDialog = remember { mutableStateOf(false) }
+            val openAlertDialog = remember { mutableStateOf(false) }
             val state = rememberScrollState()
 
             //Variable que guarda el pedido seleccionado por el cliente
             val pedido = opcionesViewModel?.pedido?.collectAsState()?.value
+
+            var valorOpcion = remember { mutableStateOf("") }
 
             val context = LocalContext.current
             //Imagen relacionada con el pedido elegido
@@ -95,7 +99,7 @@ fun PantallaInfoProducto(
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
                 Row (modifier = Modifier.padding(3.dp,10.dp)){
-                    botonInfo(valor = "Confirmar Pedido")
+                    botonInfo(valor = "Confirmar Pedido",navHostController)
                     Spacer(modifier = Modifier.padding(13.dp,0.dp))
 
                     Button(onClick = { openAlertDialog.value = true }, modifier = Modifier.size(170.dp,60.dp)) {
@@ -108,11 +112,13 @@ fun PantallaInfoProducto(
                         AlertDialogExample(
                             onDismissRequest = { openAlertDialog.value = false },
                             onConfirmation = {
+                                opcionesViewModel?.actualizarPedido(valorOpcion.value)
                                 navHostController?.navigate("pedidos")
                                 openAlertDialog.value = false
                             },
                             dialogTitle = "Seleccione incidencia",
-                            opcionesViewModel
+                            opcionesViewModel,
+                            valorOpcion
                         )
                     }
                 }
@@ -153,8 +159,8 @@ fun vistaInformacionCliente(info: String = "Cliente", l: Long = 0xFF49c6e6, clie
 
 //Funcion que muestra un boton con el texto seleccionado
 @Composable
-fun botonInfo(valor:String){
-    Button(onClick = { /*TODO*/ }, modifier = Modifier.size(170.dp,60.dp)) {
+fun botonInfo(valor: String, navHostController: NavHostController?){
+    Button(onClick = { navHostController?.navigate("entregar") }, modifier = Modifier.size(170.dp,60.dp)) {
         Text(text = "$valor", fontSize = 15.sp)
     }
 }
@@ -166,7 +172,8 @@ fun AlertDialogExample(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,
-    opcionesViewModel: OpcionesViewModel?
+    opcionesViewModel: OpcionesViewModel?,
+    valorOpcion: MutableState<String>
 ) {
     Dialog(
         onDismissRequest = {
@@ -183,7 +190,7 @@ fun AlertDialogExample(
                 Text(text = dialogTitle, fontSize = 23.sp, fontWeight = FontWeight.Medium
                     , modifier = Modifier.padding(0.dp, 10.dp))
 
-                RadioButtonSample(opcionesViewModel)
+                RadioButtonSample(opcionesViewModel,valorOpcion)
 
                 Row (verticalAlignment = Alignment.Bottom,modifier = Modifier
                     .fillMaxSize()
@@ -192,7 +199,7 @@ fun AlertDialogExample(
                         Text(text = "Cancelar", fontSize = 20.sp)
                     }
 
-                    TextButton(onClick = { onConfirmation() }) {
+                    TextButton(onClick = { onConfirmation()}) {
                         Text(text = "Confirmar", fontSize = 20.sp)
                     }
                 }
@@ -204,27 +211,27 @@ fun AlertDialogExample(
 //Funcion con todos los posibles elecciones que va a tener el dialogo
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RadioButtonSample(opcionesViewModel: OpcionesViewModel?) {
+fun RadioButtonSample(opcionesViewModel: OpcionesViewModel?, valorOpcion: MutableState<String>) {
     val radioOptions = listOf("Ausente", "Rechazo", "Pérdida","dirección errónea")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1] ) }
+
+    valorOpcion.value = selectedOption
     LazyColumn (){
         item { radioOptions.forEach { text ->
             Row(
                 Modifier
                     .fillMaxWidth()
+                    .selectable(selected = (text == selectedOption),
+                        onClick = { onOptionSelected(text) })
             ) {
                 RadioButton(
                     selected = (text == selectedOption),
-                    onClick = { onOptionSelected(text)
-                    opcionesViewModel?.setIncidencia(text)
-                    }
+                    onClick = { onOptionSelected(text) }
                 )
                 Text(
                     text = text,
                     modifier = Modifier
                         .padding(0.dp, 14.dp)
-                        .clickable { onOptionSelected(text)
-                            opcionesViewModel?.setIncidencia(text)}
                 )
             }
         }

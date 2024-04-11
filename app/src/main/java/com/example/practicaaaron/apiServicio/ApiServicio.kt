@@ -3,6 +3,7 @@ package com.example.practicaaaron.apiServicio
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.practicaaaron.clases.pedidos.DataPedido
+import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
@@ -16,6 +17,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.time.LocalDate
@@ -27,6 +29,10 @@ interface ApiServicio {
     suspend fun obtenerPedidos(@Path("ID_USUARIO") ID_USUARIO:Int): Response<DataPedido>
     @POST("Login")
     suspend fun hacerLogin(@Body user:UsuarioLogin):Response<Data>
+
+    @PUT("PedidosActualizar")
+    suspend fun actualizarPedido(@Body cuerpo:PedidoActualizar)
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
