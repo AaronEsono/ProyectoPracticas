@@ -2,10 +2,9 @@ package com.example.practicaaaron
 
 
 import android.os.Build
-
-
 import android.os.Bundle
-import android.provider.MediaStore
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -14,10 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.practicaaaron.ui.theme.PracticaAaronTheme
 import androidx.navigation.compose.rememberNavController
 import com.example.practicaaaron.navegador.AppNavHost
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.theme.PracticaAaronTheme
+//import com.google.mlkit.vision.barcode.common.Barcode
+//import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+//import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+
 
 /**
  * @author Aarón Esono Borreguero

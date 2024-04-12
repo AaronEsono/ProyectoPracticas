@@ -21,6 +21,8 @@ data class PedidoCab(
     var incidencia:Int = 0,
     @SerializedName("DESCRIPCION")
     val descripcion:String = "",
+    @SerializedName("ID_ENTREGA")
+    val idEntrega:Int = 0,
     @SerializedName("IMAGEN")
     val imagenDescripcion:String = "",
     @SerializedName("BULTOS")

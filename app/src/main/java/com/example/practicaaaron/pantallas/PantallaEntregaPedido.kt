@@ -9,19 +9,22 @@ import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -44,19 +47,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import kotlinx.coroutines.CoroutineStart
-import java.io.ByteArrayOutputStream
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
+import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun ventanaEntregaPedido() {
+fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
 
     //Variable para pillar una foto de la galeria
     var imageUri by remember {mutableStateOf<Uri?>(null)}
@@ -65,9 +71,8 @@ fun ventanaEntregaPedido() {
     val content = LocalContext.current
     val img: Bitmap = BitmapFactory.decodeResource(Resources.getSystem(), android.R.drawable.ic_menu_report_image)
 
-    //Variables que guardan las fotos
+    //Variable que guarda la foto
     val imagenCamara = remember { mutableStateOf(img) }
-    val imagenGaleria = remember{ mutableStateOf(img) }
 
     //Variable que almacena tanto la imagen de la galeria como la de la camara
     val pintador = remember { mutableStateOf(BitmapPainter(imagenCamara.value.asImageBitmap())) }
@@ -81,40 +86,93 @@ fun ventanaEntregaPedido() {
         }
     }
 
-    // Variable que se inizializa cuando se va a elegir una foto de la galeria
+    // Variable que se inicializa cuando se va a elegir una foto de la galeria
     val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()
         , onResult = {
                 uri -> uri?.let { imageUri = it }
                 //Transforma la imagen de la galeria de uri a bitmap
-                transformar(imageUri,imagenGaleria,content,pintador)
+                transformar(imageUri,imagenCamara,content,pintador)
         })
 
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
+    //Variables para realizar el scanner del codigo de barras
+    val opciones = GmsBarcodeScannerOptions.Builder().setBarcodeFormats(
+        Barcode.FORMAT_ALL_FORMATS
+    ).build()
+
+    val scanner = GmsBarcodeScanning.getClient(content,opciones)
+
+    //Variable para guardar el estado del codigo de barras
+    val valorBarras = remember { mutableStateOf("0000000000") }
+
     Column(
         modifier = Modifier
             .padding(0.dp, 70.dp, 0.dp, 0.dp)
             .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ){
 
-        Column (horizontalAlignment = Alignment.CenterHorizontally, modifier=Modifier.fillMaxWidth()){
-            Text(text = "Numero de pedido: Pedido 1", fontSize = 24.sp, fontWeight = FontWeight.Black)
-        }
+        Text(text = "Numero de pedido: Pedido 1", fontSize = 24.sp, fontWeight = FontWeight.Black)
 
-        Column (modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 10.dp), horizontalAlignment = Alignment.CenterHorizontally){
-            obtenerImagenUsuario(painter = pintador)
-        }
+        Spacer(modifier = Modifier.padding(0.dp,10.dp))
+
+        obtenerImagenUsuario(painter = pintador)
 
         Button(onClick = {
             showBottomSheet = true
-        }, modifier = Modifier.padding(20.dp,0.dp)) {
+        }, modifier = Modifier.padding(20.dp,10.dp)) {
             Text(text = "Subir foto entrega")
         }
 
-        //Mirar lectura de barras y convertir de bitmap a base64
+        Text(text = "${valorBarras.value}", fontSize = 25.sp)
+
+        Spacer(modifier = Modifier.padding(0.dp,0.dp,0.dp,10.dp))
+
+        Button(onClick = {    scanner.startScan()
+            .addOnSuccessListener { barcode: Barcode ->
+                Toast.makeText(
+                    content,
+                    "SUCCESS: " + barcode.rawValue, Toast.LENGTH_LONG
+                ).show()
+                valorBarras.value = barcode.rawValue ?: "0000000000"
+            }
+            .addOnFailureListener { e: Exception ->
+                Log.d(
+                    "CODE_SCAN_FAILED",
+                    e.message!!
+                )
+            }}) {
+            Text(text = "Lectura código barras")
+        }
+
+        Column (verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxSize()){
+            Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp)){
+                botonCancelarPedido(valor = "pedidos",navHostController = navController,texto = "cancelar")
+
+                Button(onClick = {
+                    if(valorBarras.value != "0000000000" && imagenCamara.value != img){
+
+                        opcionesViewModel.hacerEntrega(imagenCamara.value,valorBarras.value)
+                        navController.navigate("pedidos")
+
+                    }else{
+                        Toast.makeText(
+                            content,
+                            "Mete la foto y el codigo de barras", Toast.LENGTH_LONG
+                        ).show()
+                    }
+
+                }, modifier = Modifier.size(130.dp,60.dp)) {
+                    Text(text = "Confirmar")
+                }
+            }
+        }
+    }
+
 
         if(showBottomSheet){
             ModalBottomSheet(
@@ -127,7 +185,8 @@ fun ventanaEntregaPedido() {
                     //Hacer en una funcion en un futuro, intertar meter las funciones en la funcion
                     Column (horizontalAlignment = Alignment.CenterHorizontally){
                         Image(painter = painterResource(id =R.drawable.galeriaicono), contentDescription = "edq",
-                            modifier = Modifier.size(80.dp)
+                            modifier = Modifier
+                                .size(80.dp)
                                 .clickable {
                                     galleryLauncher.launch("image/*")
                                     showBottomSheet = false
@@ -137,7 +196,8 @@ fun ventanaEntregaPedido() {
 
                     Column (horizontalAlignment = Alignment.CenterHorizontally){
                         Image(painter = painterResource(id =R.drawable.camaraicono), contentDescription = "edq",
-                            modifier = Modifier.size(80.dp)
+                            modifier = Modifier
+                                .size(80.dp)
                                 .clickable {
                                     launcher.launch()
                                     showBottomSheet = false
@@ -147,15 +207,30 @@ fun ventanaEntregaPedido() {
                 }
             }
         }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun botonCancelarPedido(
+    valor: String,
+    navHostController: NavHostController,
+    texto: String,
+){
+    //Verificar que se ha metido una foto
+    Button(onClick = {
+            navHostController.navigate(valor)
+        }, modifier = Modifier.size(130.dp,60.dp)) {
+        Text(text = "$texto")
     }
 }
+
 @Composable
 fun obtenerImagenUsuario(painter: MutableState<BitmapPainter>? = null){
     if (painter != null) {
         Image(painter = painter.value, contentDescription = "", modifier = Modifier
-            .height(200.dp)
+            .size(200.dp)
             .fillMaxWidth(0.9f)
-            .background(Color.Black),contentScale = ContentScale.FillHeight)
+            .background(Color.Black),contentScale = ContentScale.FillBounds)
     }
 
 }

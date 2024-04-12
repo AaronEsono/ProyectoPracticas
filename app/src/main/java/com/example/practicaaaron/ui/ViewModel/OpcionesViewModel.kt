@@ -1,10 +1,13 @@
 package com.example.practicaaaron.ui.ViewModel
 
+import android.graphics.Bitmap
 import android.os.Build
+import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 
 @RequiresApi(Build.VERSION_CODES.O)
 class OpcionesViewModel(
@@ -105,4 +109,24 @@ class OpcionesViewModel(
         return defecto
     }
 
+    //Falta la longitud y altitud
+    fun hacerEntrega(foto:Bitmap,valorBarras:String){
+        var entrega = Entrega()
+        var fotoBase64 = encodeImage(foto)
+
+        entrega.idPedido = _pedido.value?.idPedido?:0
+        entrega.lecturaBarcode = valorBarras
+        entrega.fotoEntrega = fotoBase64?:""
+
+        viewModelScope.launch {
+            repositorio.hacerEntrega(entrega)
+        }
+    }
+}
+
+private fun encodeImage(bm: Bitmap): String? {
+    val baos = ByteArrayOutputStream()
+    bm.compress(Bitmap.CompressFormat.JPEG, 20, baos)
+    val b = baos.toByteArray()
+    return Base64.encodeToString(b, Base64.DEFAULT)
 }

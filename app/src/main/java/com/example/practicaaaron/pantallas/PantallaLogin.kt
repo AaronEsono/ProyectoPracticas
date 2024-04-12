@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ElevatedButton
@@ -50,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
@@ -63,6 +61,7 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
     //Variables que controlan el estado de los campos del login
     var campoUsername = remember { mutableStateOf("") }
     var campoContrasena = remember { mutableStateOf("") }
+
 
     //Gradiente de colores para el color de fondo del login
     val listColors = listOf(Color.Cyan, Color.Blue)

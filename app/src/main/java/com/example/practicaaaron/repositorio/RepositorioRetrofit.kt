@@ -1,10 +1,11 @@
 package com.example.practicaaaron.repositorio
 
-import android.app.PendingIntent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.practicaaaron.apiServicio.ApiServicio
 import com.example.practicaaaron.apiServicio.getRetrofitClient
+import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.usuarios.Data
@@ -25,6 +26,11 @@ class RepositorioRetrofit(
 
     suspend fun actualizarPedido(pedido:PedidoActualizar){
         apiServicio.create(ApiServicio::class.java).actualizarPedido(pedido)
+    }
+
+    suspend fun hacerEntrega(entrega: Entrega){
+        Log.i("entro","entroAqui2")
+        apiServicio.create(ApiServicio::class.java).hacerEntrega(entrega)
     }
 
 }

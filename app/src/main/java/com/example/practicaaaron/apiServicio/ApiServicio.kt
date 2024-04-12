@@ -2,14 +2,13 @@ package com.example.practicaaaron.apiServicio
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
-import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
-import okhttp3.Call
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -19,8 +18,6 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
-import retrofit2.http.Query
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -32,6 +29,9 @@ interface ApiServicio {
 
     @PUT("PedidosActualizar")
     suspend fun actualizarPedido(@Body cuerpo:PedidoActualizar)
+
+    @PUT("hacerEntrega")
+    suspend fun hacerEntrega(@Body cuerpo:Entrega)
 
 }
 

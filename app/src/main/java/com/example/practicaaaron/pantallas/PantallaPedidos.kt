@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -80,6 +81,7 @@ fun ventanaPedidos(
                         fontWeight = FontWeight.Black
                     )
                 }
+                Log.i("pedidos","${pedidos?.data}")
 
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
                 if(pedidos?.data?.pedidos != null){
@@ -91,7 +93,6 @@ fun ventanaPedidos(
                         }
                     }
                 }
-
             }
         }
 

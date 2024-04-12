@@ -214,7 +214,7 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
                 ventanaEditarPerfil(navHostController = navController)
             }
             composable(Pantallas.Entregar.route){
-                ventanaEntregaPedido()
+                ventanaEntregaPedido(navController,opcionesViewModel)
             }
         }
 }
