@@ -1,5 +1,6 @@
 package com.example.practicaaaron.ui.ViewModel
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.Base64
@@ -14,6 +15,7 @@ import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
+import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,6 +38,8 @@ class OpcionesViewModel(
     val isLogged: StateFlow<Boolean?> get() = _isLogged.asStateFlow()
     val mensaje: StateFlow<String?> get() = _mensaje.asStateFlow()
     val pedido: StateFlow<PedidoCab?> get() = _pedido.asStateFlow()
+
+    val conseguirLocalizacion = LocationService()
 
     val coloresIncidencias = listOf(
         ColoresIncidencias(0xFFcf8ac6,0,"Normal"),
@@ -110,7 +114,7 @@ class OpcionesViewModel(
     }
 
     //Falta la longitud y altitud
-    fun hacerEntrega(foto:Bitmap,valorBarras:String){
+    fun hacerEntrega(foto: Bitmap, valorBarras: String, content: Context){
         var entrega = Entrega()
         var fotoBase64 = encodeImage(foto)
 
@@ -119,7 +123,15 @@ class OpcionesViewModel(
         entrega.fotoEntrega = fotoBase64?:""
 
         viewModelScope.launch {
-            repositorio.hacerEntrega(entrega)
+            val resultado = conseguirLocalizacion.getUserLocation(content)
+            Log.i("resultado","$resultado")
+
+            if(resultado != null){
+                entrega.latitud = resultado.latitude.toFloat()
+                entrega.longitud = resultado.longitude.toFloat()
+            }
+
+            //repositorio.hacerEntrega(entrega)
         }
     }
 }

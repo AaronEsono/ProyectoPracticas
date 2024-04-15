@@ -20,7 +20,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Preview
 fun ventanaEditarPerfil(navHostController: NavHostController? = null){
@@ -38,6 +41,8 @@ fun ventanaEditarPerfil(navHostController: NavHostController? = null){
 
     val estadoCampo2 by remember { mutableStateOf(false) }
     val mensajeCampo2 = remember { mutableStateOf("") }
+
+    val (focusRequester) = FocusRequester.createRefs()
 
     Column (modifier = Modifier
         .fillMaxSize()
@@ -50,7 +55,8 @@ fun ventanaEditarPerfil(navHostController: NavHostController? = null){
             textoError = "Rellena el campo",
             transformacion = VisualTransformation.None,
             teclado = KeyboardType.Ascii,
-            accountCircle = Icons.Rounded.AccountCircle
+            accountCircle = Icons.Rounded.AccountCircle,
+            focusRequester = focusRequester
         )
 
         campoFuncion(
@@ -60,7 +66,8 @@ fun ventanaEditarPerfil(navHostController: NavHostController? = null){
             textoError = "Rellena el nombre",
             transformacion = VisualTransformation.None,
             teclado = KeyboardType.Ascii,
-            accountCircle = Icons.Rounded.Face
+            accountCircle = Icons.Rounded.Face,
+            focusRequester = focusRequester
         )
 
         Column (horizontalAlignment = AbsoluteAlignment.Left, modifier = Modifier

@@ -17,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.practicaaaron.navegador.AppNavHost
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.PracticaAaronTheme
+import com.example.practicaaaron.ui.theme.colorPrimario
+
 //import com.google.mlkit.vision.barcode.common.Barcode
 //import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 //import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
             PracticaAaronTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = colorPrimario
                 ) {
                     //Función para navegar entre las distintas pantallas
                     AppNavHost(navController = navController, opcionesViewModel)

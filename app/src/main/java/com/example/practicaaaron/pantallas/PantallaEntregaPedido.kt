@@ -51,9 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -105,7 +104,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
     val scanner = GmsBarcodeScanning.getClient(content,opciones)
 
     //Variable para guardar el estado del codigo de barras
-    val valorBarras = remember { mutableStateOf("0000000000") }
+    val valorBarras = remember { mutableStateOf("566487456") }
 
     Column(
         modifier = Modifier
@@ -130,7 +129,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
         Spacer(modifier = Modifier.padding(0.dp,0.dp,0.dp,10.dp))
 
-        Button(onClick = {    scanner.startScan()
+        Button(onClick = {scanner.startScan()
             .addOnSuccessListener { barcode: Barcode ->
                 Toast.makeText(
                     content,
@@ -141,7 +140,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             .addOnFailureListener { e: Exception ->
                 Log.d(
                     "CODE_SCAN_FAILED",
-                    e.message!!
+                    "${e.message}"
                 )
             }}) {
             Text(text = "Lectura código barras")
@@ -155,8 +154,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
                 Button(onClick = {
                     if(valorBarras.value != "0000000000" && imagenCamara.value != img){
-
-                        opcionesViewModel.hacerEntrega(imagenCamara.value,valorBarras.value)
+                        opcionesViewModel.hacerEntrega(imagenCamara.value,valorBarras.value,content)
                         navController.navigate("pedidos")
 
                     }else{

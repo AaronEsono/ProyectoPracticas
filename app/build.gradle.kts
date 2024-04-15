@@ -84,4 +84,5 @@ dependencies {
     implementation ("com.google.android.gms:play-services-code-scanner:16.1.0")
     implementation("com.google.android.gms:play-services-location:21.1.0")
     implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.5")
 }

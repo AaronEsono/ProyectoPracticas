@@ -81,7 +81,6 @@ fun ventanaPedidos(
                         fontWeight = FontWeight.Black
                     )
                 }
-                Log.i("pedidos","${pedidos?.data}")
 
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
                 if(pedidos?.data?.pedidos != null){

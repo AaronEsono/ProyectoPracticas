@@ -74,15 +74,19 @@ fun AppNavHost(
 ) {
     val showToolbar = remember {mutableStateOf(false)}
 
-    interfazScaffold(navHostController = navController, showToolbar = showToolbar, opcionesViewModel)
     hideOrShowToolbar(navController = navController, showToolbar = showToolbar)
+
+    if(showToolbar.value)
+        interfazScaffold(navHostController = navController, showToolbar = showToolbar, opcionesViewModel)
+    else
+        navegacion(navController = navController, opcionesViewModel = opcionesViewModel)
 }
 
 //Funcion que controlar en qué pantallas se va a mostrar el scaffold
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun hideOrShowToolbar(
-    navController: NavController,
+    navController: NavHostController,
     showToolbar: MutableState<Boolean>
 ){
     // Funcion que devuelve el destino actual cada vez que cambia

@@ -3,89 +3,46 @@ package com.example.practicaaaron.clases.utilidades
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Looper
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
-import com.google.android.datatransport.runtime.dagger.Module
-import com.google.android.datatransport.runtime.dagger.Provides
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
+import android.location.Location
+import android.location.LocationManager
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
 
-interface ILocationService {
-    fun requestLocationUpdates(): Flow<LatLng?>
-    fun requestCurrentLocation(): Flow<LatLng?>
-}
-
-class LocationService @Inject constructor(
-    private val context: Context,
-    private val locationClient: FusedLocationProviderClient
-): ILocationService {
+class LocationService{
+    @OptIn(ExperimentalCoroutinesApi::class)
     @SuppressLint("MissingPermission")
-    @RequiresApi(Build.VERSION_CODES.S)
-    override fun requestLocationUpdates(): Flow<LatLng?> = callbackFlow {
+    suspend fun getUserLocation(context: Context): Location?{
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+        val isUserLocationPermissionGranted = true
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val isGPSEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
-        if (!context.hasLocationPermission()) {
-            trySend(null)
-            return@callbackFlow
+        if(!isGPSEnabled || isUserLocationPermissionGranted){
+            return null
         }
 
-        val request = LocationRequest.Builder(10000L)
-            .setIntervalMillis(10000L)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .build()
-
-        val locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                locationResult.locations.lastOrNull()?.let {
-                    trySend(LatLng(it.latitude, it.longitude))
+        return suspendCancellableCoroutine { cont ->
+            fusedLocationProviderClient.lastLocation.apply {
+                if(isComplete){
+                    if(isSuccessful){
+                        cont.resume(result){}
+                    }else{
+                        cont.resume(null){}
+                    }
+                    return@suspendCancellableCoroutine
+                }
+                addOnSuccessListener {
+                    cont.resume(it){}
+                }
+                addOnFailureListener{
+                    cont.resume(null){}
+                }
+                addOnCanceledListener {
+                    cont.resume(null){}
                 }
             }
         }
-
-        locationClient.requestLocationUpdates(
-            request,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-
-        awaitClose {
-            locationClient.removeLocationUpdates(locationCallback)
-        }
     }
-
-    override fun requestCurrentLocation(): Flow<LatLng?> {
-        TODO("Not yet implemented")
-    }
-
-
-    fun Context.hasLocationPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-}
-
-class GetLocationUseCase @Inject constructor(
-    private val locationService: ILocationService
-) {
-    @RequiresApi(Build.VERSION_CODES.S)
-    operator fun invoke(): Flow<LatLng?> = locationService.requestLocationUpdates()
-
 }
