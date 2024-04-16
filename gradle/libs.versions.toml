@@ -8,14 +8,14 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.7.0"
 composeBom = "2023.08.00"
-code-scanner = "16.0.0"
-gpsCoroutines = "1.6.4"
+code-scanner = "16.1.0"
 appcompat = "1.6.1"
 material = "1.10.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
 roomKtx = "2.6.1"
 playServicesMaps = "18.2.0"
+media3Common = "1.3.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,18 +32,14 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
-
-# Here are my barcode scanning dependencies. I add kotlinx-coroutines-play-services so I can use
-# Task<T>.await() instead of the addOnSuccessListener Task pattern.
 codescanner = {module = "com.google.android.gms:play-services-code-scanner", version.ref = "code-scanner"}
-gpsCoroutines = {module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "gpsCoroutines"}
-
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+androidx-media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3Common" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

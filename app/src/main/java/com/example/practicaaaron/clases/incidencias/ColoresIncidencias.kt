@@ -1,7 +1,8 @@
 package com.example.practicaaaron.clases.incidencias
 
 data class ColoresIncidencias (
-    var color:Long = 0,
+    var imagen:Int = 0,
     var incidencia:Int = -1,
+    var texto:String = "",
     var nombre:String = ""
 )

@@ -240,8 +240,8 @@ fun campoFuncion(
                 }
             else if(campo.value.isNotEmpty() && teclado == KeyboardType.Password ) {
                 var image = if (passwordVisible)
-                    Icons.Filled.Visibility
-                else Icons.Filled.VisibilityOff
+                    Icons.Filled.VisibilityOff
+                else Icons.Filled.Visibility
 
                 val description = if (passwordVisible) "Hide password" else "Show password"
 

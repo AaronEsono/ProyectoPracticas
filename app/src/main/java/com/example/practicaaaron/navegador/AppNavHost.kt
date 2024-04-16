@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,8 +38,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,6 +51,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.practicaaaron.R
 import com.example.practicaaaron.pantallas.PantallaInfoProducto
 import com.example.practicaaaron.pantallas.VentanaPrincipal
 import com.example.practicaaaron.pantallas.ventanaLogin
@@ -53,6 +60,8 @@ import com.example.practicaaaron.pantallas.ventanaEditarPerfil
 import com.example.practicaaaron.pantallas.ventanaEntregaPedido
 import com.example.practicaaaron.pantallas.ventanaPedidos
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.theme.colorBarraEncima
+import com.example.practicaaaron.ui.theme.colorPrimario
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -124,7 +133,7 @@ fun interfazScaffold(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer)) {
+            ModalDrawerSheet(drawerContainerColor = colorBarraEncima) {
                 //Fila que muestra el icono para abrir el menú lateral y un texto indicativo
                 Row(modifier = Modifier.padding(0.dp, 10.dp)) {
                     IconButton(onClick = {
@@ -136,16 +145,18 @@ fun interfazScaffold(
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Menu,
-                            contentDescription = "Localized description"
+                            contentDescription = "Localized description",
+                            modifier = Modifier.size(50.dp)
                         )
                     }
-                    Text(text = "Opciones", fontSize = 35.sp, fontWeight = FontWeight.Black)
                 }
 
-                Column(modifier = Modifier.padding(15.dp, 20.dp)) {
+                Column(modifier = Modifier
+                    .padding(0.dp, 5.dp)
+                    .fillMaxWidth(0.7f)) {
                     filaInformacionDrawer(navController = navHostController,drawerState,scope,Icons.Rounded.Home,"menu","Menú principal")
                     filaInformacionDrawer(navController = navHostController,drawerState,scope,Icons.Rounded.AccountCircle,"perfil","Mi perfil")
-                    filaInformacionDrawer(navController = navHostController,drawerState,scope,Icons.Rounded.Close,"login","Cerrar sesion",opcionesViewModel)
+                    filaInformacionDrawer(navController = navHostController,drawerState,scope,Icons.Rounded.Close,"login","Cerrar sesión",opcionesViewModel)
                 }
             }
         },
@@ -156,16 +167,13 @@ fun interfazScaffold(
 
                     CenterAlignedTopAppBar(
                         colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            titleContentColor = MaterialTheme.colorScheme.primary,
+                            containerColor = colorPrimario,
+                            titleContentColor = Color.White,
                         ),
                         title = {
-                            Text(
-                                "Bienvenido, ${nombre?.dataUser?.nombre}",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.clickable { navHostController?.navigate("menu") }
-                            )
+                            Image(painter = painterResource(id = R.drawable.iconoapp), contentDescription = "iconoApp",modifier = Modifier
+                                .clickable { navHostController?.navigate("menu") }
+                                .size(75.dp))
                         },
                         navigationIcon = {
                             IconButton(onClick = {
@@ -177,7 +185,9 @@ fun interfazScaffold(
                             }) {
                                 Icon(
                                     imageVector = Icons.Filled.Menu,
-                                    contentDescription = "Localized description"
+                                    contentDescription = "Localized description",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(50.dp)
                                 )
                             }
                         },
@@ -235,16 +245,17 @@ fun filaInformacionDrawer(
     texto: String,
     opcionesViewModel: OpcionesViewModel? = null
 ){
-     Row(modifier = Modifier
-         .padding(0.dp, 10.dp)
+     Row(verticalAlignment = Alignment.CenterVertically,
          //Si el usuario le da a cerrar sesion, borrar todos los datos del viewModel del usuario
-         .clickable {
-             if (ruta == "login") {
-                 opcionesViewModel?.cerrarSesion()
-             }
-             navController?.navigate("$ruta")
-             scope.launch { drawerState.apply { close() } }
-         }) {
+         modifier = Modifier
+             .padding(15.dp, 10.dp)
+             .clickable {
+                 if (ruta == "login") {
+                     opcionesViewModel?.cerrarSesion()
+                 }
+                 navController?.navigate("$ruta")
+                 scope.launch { drawerState.apply { close() } }
+             }) {
          Icon(
              accountCircle,
              contentDescription = "PerfilIcono",
@@ -252,9 +263,9 @@ fun filaInformacionDrawer(
          )
          Text(
              text = "$texto",
-             fontSize = 25.sp,
+             fontSize = 20.sp,
              fontWeight = FontWeight.Medium,
              modifier = Modifier
-                 .padding(10.dp, 0.dp))
+                 .padding(20.dp, 0.dp))
      }
 }

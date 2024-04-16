@@ -6,8 +6,11 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -43,13 +46,18 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
 import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.theme.colorPrimario
 import java.util.Base64
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -73,22 +81,19 @@ fun ventanaPedidos(
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                item {
-                    Text(
-                        text = "Pedidos de hoy",
-                        modifier = Modifier.padding(0.dp, 10.dp, 10.dp, 0.dp),
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Black
-                    )
-                }
-
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
                 if(pedidos?.data?.pedidos != null){
                     pedidos?.data?.let {
                         items(it.pedidos){
                             Spacer(modifier = Modifier.padding(0.dp,5.dp))
                             carta(navHostController,it,opcionesViewModel)
-                            Spacer(modifier = Modifier.padding(0.dp,5.dp))
+                            Divider(thickness = 3.dp, color = colorPrimario)
+                        }
+                    }
+                }else{
+                    item {
+                        Column (modifier = Modifier.fillMaxSize(),horizontalAlignment = Alignment.CenterHorizontally){
+                            Text(text = "No hay pedidos", fontSize = 35.sp)
                         }
                     }
                 }
@@ -111,70 +116,72 @@ fun loadImageFromBase64(context: Context,texto:String):ImageBitmap?{
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Preview
 fun carta(
     navHostController: NavHostController? = null,
-    pedidoCab: PedidoCab,
-    opcionesViewModel: OpcionesViewModel?,
+    pedidoCab: PedidoCab = PedidoCab(),
+    opcionesViewModel: OpcionesViewModel? = null,
     ) {
 
     val context = LocalContext.current
     //Imagen que tenemos que convertir a bitmap para mostrarla
     val imagen = loadImageFromBase64(context,pedidoCab.imagenDescripcion)
-
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-        ),
-        modifier = Modifier
-            .width(400.dp)
-            .height(intrinsicSize = IntrinsicSize.Max)
-            .padding(15.dp, 0.dp),
-            onClick = {navHostController?.navigate("infoPedido")
-                opcionesViewModel?.obtenerPedido(pedidoCab)
-            }
-    ) {
-
         //Poner el color segun el estado
-        var color = opcionesViewModel?.indicarColorPedido(pedidoCab.incidencia)?:0
+    //var color = opcionesViewModel?.indicarColorPedido(pedidoCab.incidencia)?:0
 
-        Column (modifier = Modifier.background(Color(color)).fillMaxSize()){
+    val estado:ColoresIncidencias = opcionesViewModel?.indicarColorPedido(pedidoCab.incidencia)?: ColoresIncidencias()
+
+    Column (modifier = Modifier.fillMaxSize()){
             Row {
-                if (imagen != null) {
-                    Image(bitmap = imagen, contentDescription = "Imagen producto", modifier = Modifier
-                        .padding(5.dp, 5.dp, 0.dp, 5.dp)
-                        .size(80.dp, 80.dp)
-                        .height(intrinsicSize = IntrinsicSize.Max)
-                        .clip(RoundedCornerShape(5.dp)), contentScale = ContentScale.FillHeight)
-                }
-                Column (){
-                    Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
-                        Text(text = "${pedidoCab.nombre}", fontSize = 25.sp,fontWeight = FontWeight.Black)
-                    }
+                Column (modifier = Modifier.clickable {
+                    opcionesViewModel?.obtenerPedido(pedidoCab)
+                    navHostController?.navigate("infoPedido")
+                }){
+                    Row (modifier = Modifier.fillMaxWidth()){
+                        Column (modifier = Modifier
+                            .fillMaxWidth(0.75f)
+                            .padding(10.dp, 0.dp, 0.dp, 0.dp)){
+                            Text(text = "${pedidoCab.nombre}", fontSize = 25.sp,fontWeight = FontWeight.Black)
 
-                    Row (modifier = Modifier.padding(0.dp,5.dp)){
-                        Icon(Icons.Rounded.LocationOn, contentDescription = "Icono destino")
-                        Text(text = "${pedidoCab.cliente.direccion.poblacion}, ${pedidoCab.cliente.direccion.municipio}", fontWeight = FontWeight.Medium, fontSize = 18.sp)
-                    }
-                    Text(text = "${pedidoCab.cliente.direccion.tipoCalle} ${pedidoCab.cliente.direccion.nombreCalle}, ${pedidoCab.cliente.direccion.portal} ${pedidoCab.cliente.direccion.numero}", fontWeight = FontWeight.Medium, fontSize = 18.sp
-                        , modifier = Modifier.padding(10.dp,0.dp))
-                }
-            }
-            Divider(color = Color.Black, modifier = Modifier.padding(10.dp,3.dp), thickness = 3.dp)
+                            Row (modifier = Modifier.padding(0.dp,5.dp)){
+                                Icon(Icons.Rounded.LocationOn, contentDescription = "Icono destino")
+                                Text(text = "${pedidoCab.cliente.direccion.poblacion}, ${pedidoCab.cliente.direccion.municipio}", fontWeight = FontWeight.Medium, fontSize = 18.sp)
+                            }
+                            Text(text = "${pedidoCab.cliente.direccion.tipoCalle} ${pedidoCab.cliente.direccion.nombreCalle}, ${pedidoCab.cliente.direccion.portal} ${pedidoCab.cliente.direccion.numero}", fontWeight = FontWeight.Medium, fontSize = 18.sp
+                                , modifier = Modifier.padding(0.dp,5.dp))
 
-            Row (horizontalArrangement = Arrangement.Absolute.SpaceAround, modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 2.dp)){
-                Row {
-                    Icon(Icons.Rounded.Call, contentDescription = "Icono telefono")
-                    Spacer(modifier = Modifier.padding(5.dp,0.dp))
-                    Text(text = "${pedidoCab.cliente.telefono}", fontWeight = FontWeight.Medium, fontSize = 18.sp)
-                }
-                Row {
-                    Icon(Icons.Rounded.DateRange, contentDescription = "Icono telefono")
-                    Spacer(modifier = Modifier.padding(5.dp,0.dp))
-                    Text(text = "${pedidoCab.fechaEntrega.dayOfMonth}-${pedidoCab.fechaEntrega.monthValue}-${pedidoCab.fechaEntrega.year}", fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                        }
+                        Column (modifier= Modifier
+                            .fillMaxSize()
+                            .padding(0.dp, 0.dp, 15.dp, 5.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+                            if (imagen != null) {
+                            Image(bitmap = imagen, contentDescription = "Imagen producto", modifier = Modifier
+                                .size(70.dp)
+                                .border(BorderStroke(2.dp, colorResource(id = R.color.black)))
+                                , contentScale = ContentScale.FillHeight)
+                            }
+                        }
+                    }
+                    Row (horizontalArrangement = Arrangement.Absolute.SpaceBetween, modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp, 2.dp, 10.dp, 0.dp)){
+                        Row {
+                            Icon(Icons.Rounded.Call, contentDescription = "Icono telefono")
+                            Spacer(modifier = Modifier.padding(5.dp,0.dp))
+                            Text(text = "${pedidoCab.cliente.telefono}", fontWeight = FontWeight.Medium, fontSize = 18.sp)
+                        }
+                        Row {
+                            Icon(Icons.Rounded.DateRange, contentDescription = "Icono telefono")
+                            Spacer(modifier = Modifier.padding(5.dp,0.dp))
+                            Text(text = "${pedidoCab.fechaEntrega.dayOfMonth}-${pedidoCab.fechaEntrega.monthValue}-${pedidoCab.fechaEntrega.year}", fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                        }
+                    }
+                    Divider(thickness = 1.dp, color = Color.Gray, modifier = Modifier.padding(0.dp,10.dp,0.dp,0.dp))
+                    Row (modifier = Modifier.fillMaxWidth().padding(10.dp,5.dp), verticalAlignment = Alignment.CenterVertically){
+                        Image(painter = painterResource(id = estado.imagen), contentDescription ="", modifier = Modifier.size(30.dp), contentScale = ContentScale.FillBounds)
+                        Text(text = "${estado.texto}", modifier = Modifier.padding(20.dp,0.dp), fontSize = 20.sp)
+                    }
                 }
             }
         }
-    }
 }

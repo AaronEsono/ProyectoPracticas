@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
 import com.example.practicaaaron.clases.pedidos.DataPedido
@@ -42,12 +43,12 @@ class OpcionesViewModel(
     val conseguirLocalizacion = LocationService()
 
     val coloresIncidencias = listOf(
-        ColoresIncidencias(0xFFcf8ac6,0,"Normal"),
-        ColoresIncidencias(0xFF1fff87,100,"Entregado"),
-        ColoresIncidencias(0xFFf7941b,10,"Ausente"),
-        ColoresIncidencias(0xFFf7351b,20,"Pérdida"),
-        ColoresIncidencias(0xFF3492eb,30,"Rechazo"),
-        ColoresIncidencias(0xFFf71b56,40,"dirección errónea")
+        ColoresIncidencias(R.drawable.delivery,0,"Por entregar","Normal"),
+        ColoresIncidencias(R.drawable.check,100,"Entregado","Entregado"),
+        ColoresIncidencias(R.drawable.ausente,10,"Ausente","Ausente"),
+        ColoresIncidencias(R.drawable.perdido,20,"Perdido","Pérdida"),
+        ColoresIncidencias(R.drawable.rechazo,30,"Rechazo","Rechazo"),
+        ColoresIncidencias(R.drawable.direccionerronea,40,"Dirección errónea","dirección errónea")
     )
 
     fun obtenerPedidos(){
@@ -82,12 +83,12 @@ class OpcionesViewModel(
         _pedidosRepartidor.value = null
     }
 
-    fun indicarColorPedido(incidencia:Int):Long{
-        var colorLong:Long = 0xFFcf8ac6
+    fun indicarColorPedido(incidencia:Int):ColoresIncidencias{
+        var colorLong:ColoresIncidencias = ColoresIncidencias()
 
         coloresIncidencias.forEach{
             if(it.incidencia == incidencia){
-                colorLong = it.color
+                colorLong = it
             }
         }
         return colorLong
@@ -124,11 +125,13 @@ class OpcionesViewModel(
 
         viewModelScope.launch {
             val resultado = conseguirLocalizacion.getUserLocation(content)
-            Log.i("resultado","$resultado")
 
             if(resultado != null){
                 entrega.latitud = resultado.latitude.toFloat()
                 entrega.longitud = resultado.longitude.toFloat()
+
+                Log.i("latitud","${entrega.latitud}")
+                Log.i("longitud","${entrega.longitud}")
             }
 
             //repositorio.hacerEntrega(entrega)

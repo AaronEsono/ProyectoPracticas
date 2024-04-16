@@ -3,9 +3,11 @@ package com.example.practicaaaron.clases.pedidos
 import android.os.Build
 import android.os.Parcelable
 import androidx.annotation.RequiresApi
+import com.example.practicaaaron.R
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
 import java.time.LocalDateTime
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 data class PedidoCab(
@@ -16,11 +18,11 @@ data class PedidoCab(
     @SerializedName("ESTADO")
     val entregado:Boolean = true,
     @SerializedName("NOMBRE")
-    val nombre:String = "",
+    val nombre:String = "Pedido 1",
     @SerializedName("INCIDENCIA")
     var incidencia:Int = 0,
     @SerializedName("DESCRIPCION")
-    val descripcion:String = "",
+    val descripcion:String = "descripcion del pedido",
     @SerializedName("ID_ENTREGA")
     val idEntrega:Int = 0,
     @SerializedName("IMAGEN")

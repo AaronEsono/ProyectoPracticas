@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
+//Modificar el diseño y los botones
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Preview

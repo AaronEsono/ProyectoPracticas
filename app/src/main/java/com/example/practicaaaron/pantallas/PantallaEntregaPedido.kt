@@ -1,5 +1,6 @@
 package com.example.practicaaaron.pantallas
 
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -45,21 +46,27 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.google.mlkit.vision.common.InputImage
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
 
@@ -79,7 +86,6 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
     // Variable que se inizializa cuando se va a sacar una foto
     val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
         if(it != null){
-
             imagenCamara.value = it
             pintador.value = BitmapPainter(imagenCamara.value.asImageBitmap())
         }
@@ -106,6 +112,8 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
     //Variable para guardar el estado del codigo de barras
     val valorBarras = remember { mutableStateOf("566487456") }
 
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+
     Column(
         modifier = Modifier
             .padding(0.dp, 70.dp, 0.dp, 0.dp)
@@ -129,20 +137,9 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
         Spacer(modifier = Modifier.padding(0.dp,0.dp,0.dp,10.dp))
 
-        Button(onClick = {scanner.startScan()
-            .addOnSuccessListener { barcode: Barcode ->
-                Toast.makeText(
-                    content,
-                    "SUCCESS: " + barcode.rawValue, Toast.LENGTH_LONG
-                ).show()
-                valorBarras.value = barcode.rawValue ?: "0000000000"
-            }
-            .addOnFailureListener { e: Exception ->
-                Log.d(
-                    "CODE_SCAN_FAILED",
-                    "${e.message}"
-                )
-            }}) {
+        Button(onClick = {
+            //TO-DO
+        }) {
             Text(text = "Lectura código barras")
         }
 
@@ -153,6 +150,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                 botonCancelarPedido(valor = "pedidos",navHostController = navController,texto = "cancelar")
 
                 Button(onClick = {
+                    Log.i("etiqueta","${imagenCamara.value}")
                     if(valorBarras.value != "0000000000" && imagenCamara.value != img){
                         opcionesViewModel.hacerEntrega(imagenCamara.value,valorBarras.value,content)
                         navController.navigate("pedidos")

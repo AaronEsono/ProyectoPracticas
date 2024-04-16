@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.Card
@@ -29,6 +32,8 @@ import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.Opcion
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.theme.colorPrimario
+import com.example.practicaaaron.ui.theme.colorTerciario
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation")
 @Composable
@@ -39,24 +44,23 @@ fun VentanaPrincipal(
 ){
     // Distintas funciones que tiene el usuario para elegir
     var opciones = listOf(
-        Opcion(R.drawable.imagen2,"Pedidos","pedidos"),
-        Opcion(R.drawable.imagen3,"Rutas","ruta"),
-        Opcion(R.drawable.imagen4,"Logistica","logistica")
+        Opcion(R.drawable.iconopedidos,"Pedidos","pedidos"),
+        Opcion(R.drawable.iconorutas,"Rutas","ruta"),
+        Opcion(R.drawable.iconologistica,"Logística","logística"),
+
+        Opcion(R.drawable.iconorutas,"Rutas 2","ruta")
     )
 
         Column(
                 modifier = Modifier
-                    .padding(0.dp, 60.dp)
+                    .padding(0.dp, 50.dp,0.dp,0.dp)
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.padding(0.dp,15.dp))
 
                 //Layout para mostrar las diferentes opciones
-                LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(minSize = 130.dp)
-                , verticalItemSpacing = 13.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.padding(20.dp,0.dp)) {
+                LazyColumn(modifier = Modifier.padding(20.dp,0.dp)) {
 
                     opciones.forEach(){
                         item {
@@ -66,6 +70,7 @@ fun VentanaPrincipal(
                                 nombre = it.nombre,
                                 descripcion = it.descripcionImagen
                             )
+                            Spacer(modifier = Modifier.padding(0.dp,10.dp))
                         }
                     }
                 }
@@ -75,26 +80,31 @@ fun VentanaPrincipal(
 //Funcion composable que muestra en formato carta cada opcion del menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Preview
 fun cartaMenuPr(navHostController: NavHostController? = null,
-                imagen:Int,
-                nombre:String,
-                descripcion:String) {
+                imagen:Int = R.drawable.iconopedidos,
+                nombre:String = "Rutas",
+                descripcion:String = "Descripcion rutas") {
     val listColors = listOf(Color.Transparent, Color.Black)
 
     Card(
-        modifier = Modifier.size(170.dp,170.dp),onClick = {navHostController?.navigate("pedidos")}
+        modifier = Modifier
+            .height(170.dp)
+            .fillMaxWidth(),onClick = {navHostController?.navigate("pedidos")}
     ) {
-        Box (){
-            Image(painter = painterResource(id = imagen), contentDescription = "$descripcion", contentScale = ContentScale.FillHeight)
-
-            Box(modifier = Modifier
+        Column (modifier = Modifier
+            .background(colorPrimario)
+            .fillMaxSize()
+            .padding(0.dp, 10.dp)){
+            Column (horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom, modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.verticalGradient(listColors, startY = 125f)))
-
-            Box (contentAlignment = Alignment.BottomCenter, modifier = Modifier
-                .fillMaxSize()
-                .padding(6.dp)){
-                Text(text = "$nombre", color = Color.White, fontSize = 25.sp)
+                .padding()){
+                Column (horizontalAlignment = Alignment.End, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(30.dp, 0.dp)){
+                    Text(text = "$nombre", color = Color.White, fontSize = 30.sp)
+                }
+                Image(painter = painterResource(id = imagen), contentDescription = "$descripcion", modifier = Modifier.size(200.dp))
             }
         }
     }
