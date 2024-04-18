@@ -12,5 +12,7 @@ data class Entrega(
     @SerializedName("BARCODE")
     var lecturaBarcode:String = "",
     @SerializedName("ID_PEDIDO")
-    var idPedido:Int = 0
+    var idPedido:Int = 0,
+    @SerializedName("FIRMA")
+    var firma:String = ""
 )

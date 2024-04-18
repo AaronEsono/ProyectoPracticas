@@ -21,6 +21,10 @@ data class PedidoCab(
     val nombre:String = "Pedido 1",
     @SerializedName("INCIDENCIA")
     var incidencia:Int = 0,
+    @SerializedName("LATITUD")
+    var latitud:String = "",
+    @SerializedName("ALTITUD")
+    var altitud:String = "",
     @SerializedName("DESCRIPCION")
     val descripcion:String = "descripcion del pedido",
     @SerializedName("ID_ENTREGA")

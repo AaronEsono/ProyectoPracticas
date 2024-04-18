@@ -5,8 +5,10 @@ package com.example.practicaaaron.pantallas
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -20,16 +22,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.PermIdentity
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.PersonPin
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
@@ -42,19 +48,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.pedidos.Cliente
 import com.example.practicaaaron.clases.pedidos.PedidoLin
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.theme.colorPrimario
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
@@ -83,19 +93,17 @@ fun PantallaInfoProducto(
 
                 if (imagen != null) {
                     Image(bitmap = imagen, contentDescription = "Descripcion de la imagen",
-                        Modifier
-                            .height(200.dp)
-                            .fillMaxWidth(0.8f)
-                            .padding(10.dp), contentScale = ContentScale.FillHeight)
+                        modifier = Modifier
+                            .size(120.dp)
+                            .padding(10.dp,10.dp,0.dp,0.dp),contentScale = ContentScale.FillHeight)
                 }
 
                 Text(text = "${pedido?.nombre}", fontSize = 30.sp, fontWeight = FontWeight.Black)
                 
-                Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                vistaInformacionCliente(info = "Cliente", l = 0xFF49c6e6, pedido?.cliente)
+                Spacer(modifier = Modifier.padding(0.dp,5.dp))
+                vistaInformacionCliente(info = "Cliente", pedido?.cliente)
 
-                Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                vistaInformacionBulto(info = "Bultos",0xFFcf9cd9, pedido?.bultos)
+                vistaInformacionBulto(info = "Bultos",pedido?.bultos)
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
                 Row (modifier = Modifier.padding(3.dp,10.dp)){
@@ -127,14 +135,13 @@ fun PantallaInfoProducto(
 
 //Funcion composable que muestra todos los bultos de un pedido
 @Composable
-fun vistaInformacionBulto(info: String, l: Long, bultos: List<PedidoLin>?){
+fun vistaInformacionBulto(info: String, bultos: List<PedidoLin>?){
 
     Column (
         Modifier
-            .background(Color(l))
             .padding(20.dp, 10.dp)
             .fillMaxWidth(0.95f)){
-        Text(text = "Descripción: $info", fontWeight = FontWeight.Black, fontSize = 18.sp)
+        Text(text = "$info", fontWeight = FontWeight.Black, fontSize = 18.sp)
 
         bultos?.forEach {
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
@@ -145,10 +152,9 @@ fun vistaInformacionBulto(info: String, l: Long, bultos: List<PedidoLin>?){
 
 //Funcion composable que muestra toda la informacion del cliente
 @Composable
-fun vistaInformacionCliente(info: String = "Cliente", l: Long = 0xFF49c6e6, cliente: Cliente?){
+fun vistaInformacionCliente(info: String = "Cliente", cliente: Cliente?){
         Column (modifier = Modifier
             .fillMaxWidth(0.95f)
-            .background(Color(l))
             .padding(0.dp, 0.dp, 0.dp, 15.dp)){
             Text(text = "$info", fontWeight = FontWeight.Black, fontSize = 18.sp, modifier = Modifier.padding(20.dp, 10.dp))
 
@@ -243,9 +249,10 @@ fun RadioButtonSample(opcionesViewModel: OpcionesViewModel?, valorOpcion: Mutabl
 @Composable
 @Preview
 fun informacionBulto(referencia:String = "Nombre", descripcion:String = "Esto es una descripcion", unidades:Int = 1){
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
+    Card(
+        colors = CardDefaults.cardColors(
+            contentColor = Color.Black,
+            containerColor = Color(0xFFc8cddb)
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -273,9 +280,10 @@ fun informacionBulto(referencia:String = "Nombre", descripcion:String = "Esto es
 //Funcion que muestra toda la informacion del cliente en una carta elevada
 @Composable
 fun cartaCliente(cliente: Cliente?) {
-    ElevatedCard(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
+    Card(
+        colors = CardDefaults.cardColors(
+            contentColor = Color.Black,
+            containerColor = Color(0xFFc8cddb)
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -291,7 +299,7 @@ fun cartaCliente(cliente: Cliente?) {
             filaInformacion(Icons.Rounded.Person,"${cliente?.nombre}")
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            filaInformacion(Icons.Rounded.AccountCircle,"${cliente?.dni}")
+            filaInformacion(Icons.Rounded.PersonPin,"${cliente?.dni}")
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
             filaInformacion(Icons.Rounded.Call,"${cliente?.telefono}")

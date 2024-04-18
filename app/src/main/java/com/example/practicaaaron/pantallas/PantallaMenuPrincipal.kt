@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -44,11 +41,9 @@ fun VentanaPrincipal(
 ){
     // Distintas funciones que tiene el usuario para elegir
     var opciones = listOf(
-        Opcion(R.drawable.iconopedidos,"Pedidos","pedidos"),
-        Opcion(R.drawable.iconorutas,"Rutas","ruta"),
-        Opcion(R.drawable.iconologistica,"Logística","logística"),
-
-        Opcion(R.drawable.iconorutas,"Rutas 2","ruta")
+        Opcion(R.drawable.iconopedidos,"Pedidos","pedidos","pedidos"),
+        Opcion(R.drawable.iconorutas, "Rutas", "ruta", "rutas"),
+        Opcion(R.drawable.iconologistica, "Logística", "logística", "pedidos"),
     )
 
         Column(
@@ -68,7 +63,8 @@ fun VentanaPrincipal(
                                 navHostController,
                                 imagen = it.idImagen,
                                 nombre = it.nombre,
-                                descripcion = it.descripcionImagen
+                                descripcion = it.descripcionImagen,
+                                ruta = it.ruta
                             )
                             Spacer(modifier = Modifier.padding(0.dp,10.dp))
                         }
@@ -84,13 +80,14 @@ fun VentanaPrincipal(
 fun cartaMenuPr(navHostController: NavHostController? = null,
                 imagen:Int = R.drawable.iconopedidos,
                 nombre:String = "Rutas",
-                descripcion:String = "Descripcion rutas") {
+                descripcion:String = "Descripcion rutas",
+                ruta:String = "") {
     val listColors = listOf(Color.Transparent, Color.Black)
 
     Card(
         modifier = Modifier
             .height(170.dp)
-            .fillMaxWidth(),onClick = {navHostController?.navigate("pedidos")}
+            .fillMaxWidth(),onClick = {navHostController?.navigate("$ruta")}
     ) {
         Column (modifier = Modifier
             .background(colorPrimario)

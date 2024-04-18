@@ -55,6 +55,8 @@ android {
 
 dependencies {
 
+    implementation(libs.codescanner)
+    implementation(libs.sain)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -86,4 +88,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.1.0")
     implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
     implementation ("androidx.compose.material:material-icons-extended:1.6.5")
+    implementation("io.github.joelkanyi:sain:2.0.2")
+    implementation ("com.google.maps.android:maps-compose:4.3.3")
+
+    implementation ("com.dynamsoft:dynamsoftcameraenhancer:2.3.11@aar")
+    implementation ("com.dynamsoft:dynamsoftbarcodereader:9.6.20@aar")
 }

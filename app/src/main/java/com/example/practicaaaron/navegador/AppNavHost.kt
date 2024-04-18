@@ -5,7 +5,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,18 +17,17 @@ import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -44,7 +42,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -56,6 +53,7 @@ import com.example.practicaaaron.pantallas.PantallaInfoProducto
 import com.example.practicaaaron.pantallas.VentanaPrincipal
 import com.example.practicaaaron.pantallas.ventanaLogin
 import com.example.practicaaaron.pantallas.VentanaPerfil
+import com.example.practicaaaron.pantallas.pantallaMapa
 import com.example.practicaaaron.pantallas.ventanaEditarPerfil
 import com.example.practicaaaron.pantallas.ventanaEntregaPedido
 import com.example.practicaaaron.pantallas.ventanaPedidos
@@ -73,22 +71,40 @@ sealed class Pantallas(var route:String){
     data object Info: Pantallas("infoPedido")
     data object Editar: Pantallas("editar")
     data object Entregar:Pantallas("entregar")
+
+    data object Rutas:Pantallas("rutas")
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     opcionesViewModel: OpcionesViewModel,
 ) {
-    val showToolbar = remember {mutableStateOf(false)}
+    val showToolbar = remember {mutableStateOf(1)}
 
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    // 1. todo, 2. solo Scaffold, 3. Navegacion
     hideOrShowToolbar(navController = navController, showToolbar = showToolbar)
 
-    if(showToolbar.value)
+    if(showToolbar.value == 3)
         interfazScaffold(navHostController = navController, showToolbar = showToolbar, opcionesViewModel)
-    else
+    else if(showToolbar.value == 1)
         navegacion(navController = navController, opcionesViewModel = opcionesViewModel)
+    else{
+        barraArriba(
+            navHostController = navController,
+            showToolbar = showToolbar,
+            opcionesViewModel = opcionesViewModel,
+            scope = scope,
+            drawerState = drawerState,
+            scrollBehavior = scrollBehavior
+        )
+    }
 }
 
 //Funcion que controlar en qué pantallas se va a mostrar el scaffold
@@ -96,7 +112,7 @@ fun AppNavHost(
 @Composable
 fun hideOrShowToolbar(
     navController: NavHostController,
-    showToolbar: MutableState<Boolean>
+    showToolbar: MutableState<Int>
 ){
     // Funcion que devuelve el destino actual cada vez que cambia
     navController.addOnDestinationChangedListener(NavController.OnDestinationChangedListener { controller, destination, arguments ->
@@ -104,10 +120,13 @@ fun hideOrShowToolbar(
         when(controller.currentDestination?.route){
             Pantallas.Login.route ->{
                 Log.i("entro","entro Aqui")
-                showToolbar.value = false
+                showToolbar.value = 1
+            }
+            Pantallas.Rutas.route ->{
+                showToolbar.value = 2
             }
             else ->{
-                showToolbar.value = true
+                showToolbar.value = 3
             }
         }
     })
@@ -120,7 +139,7 @@ fun hideOrShowToolbar(
 @Composable
 fun interfazScaffold(
     navHostController: NavHostController,
-    showToolbar: MutableState<Boolean>,
+    showToolbar: MutableState<Int>,
     opcionesViewModel: OpcionesViewModel
 ){
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
@@ -161,43 +180,7 @@ fun interfazScaffold(
             }
         },
     ) {
-        Scaffold(
-            topBar = {
-                if (showToolbar.value){
-
-                    CenterAlignedTopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = colorPrimario,
-                            titleContentColor = Color.White,
-                        ),
-                        title = {
-                            Image(painter = painterResource(id = R.drawable.iconoapp), contentDescription = "iconoApp",modifier = Modifier
-                                .clickable { navHostController?.navigate("menu") }
-                                .size(75.dp))
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
-                                    }
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Menu,
-                                    contentDescription = "Localized description",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(50.dp)
-                                )
-                            }
-                        },
-                        scrollBehavior = scrollBehavior,
-                    )
-                }
-            },
-        ){
-                navegacion(navController = navHostController, opcionesViewModel)
-        }
+        barraArriba(navHostController = navHostController, showToolbar = showToolbar, opcionesViewModel = opcionesViewModel, scope, drawerState, scrollBehavior)
 }
 }
 
@@ -229,6 +212,9 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             }
             composable(Pantallas.Entregar.route){
                 ventanaEntregaPedido(navController,opcionesViewModel)
+            }
+            composable(Pantallas.Rutas.route){
+                pantallaMapa(navController,opcionesViewModel)
             }
         }
 }
@@ -268,4 +254,54 @@ fun filaInformacionDrawer(
              modifier = Modifier
                  .padding(20.dp, 0.dp))
      }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun barraArriba(
+    navHostController: NavHostController,
+    showToolbar: MutableState<Int>,
+    opcionesViewModel: OpcionesViewModel,
+    scope: CoroutineScope,
+    drawerState: DrawerState,
+    scrollBehavior: TopAppBarScrollBehavior
+){
+    Scaffold(
+        topBar = {
+                CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = colorPrimario,
+                        titleContentColor = Color.White,
+                    ),
+                    title = {
+                        Image(painter = painterResource(id = R.drawable.iconoapp), contentDescription = "iconoApp",modifier = Modifier
+                            .clickable { navHostController?.navigate("menu") }
+                            .size(75.dp))
+                    },
+                    navigationIcon = {
+                        if (showToolbar.value == 3){
+                        IconButton(onClick = {
+                            scope.launch {
+                                drawerState.apply {
+                                    if (isClosed) open() else close()
+                                }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = "Localized description",
+                                tint = Color.White,
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                )
+        },
+    ){
+        navegacion(navController = navHostController, opcionesViewModel)
+    }
 }

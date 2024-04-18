@@ -1,6 +1,6 @@
 package com.example.practicaaaron.pantallas
 
-import android.content.ContentValues.TAG
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -16,8 +16,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,45 +28,51 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
-import com.google.mlkit.vision.common.InputImage
+import io.github.joelkanyi.sain.Sain
+import io.github.joelkanyi.sain.SignatureAction
+import io.github.joelkanyi.sain.SignatureState
 
-
+@SuppressLint("RememberReturnType")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
@@ -99,7 +107,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                 transformar(imageUri,imagenCamara,content,pintador)
         })
 
-    var showBottomSheet by remember { mutableStateOf(false) }
+    var showBottomSheet = remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
     //Variables para realizar el scanner del codigo de barras
@@ -112,37 +120,111 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
     //Variable para guardar el estado del codigo de barras
     val valorBarras = remember { mutableStateOf("566487456") }
 
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    val pedido = opcionesViewModel?.pedido?.collectAsState()?.value
+
+    val state = rememberScrollState()
+
+    //Variable que guarda la firma
+    var imageBitmap: ImageBitmap? by remember {
+        mutableStateOf(null)
+    }
+
+    val stateFirma = remember {
+        SignatureState()
+    }
 
     Column(
         modifier = Modifier
-            .padding(0.dp, 70.dp, 0.dp, 0.dp)
-            .fillMaxSize(),
+            .padding(0.dp, 60.dp, 0.dp, 0.dp)
+            .fillMaxSize()
+            .verticalScroll(state),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
 
-        Text(text = "Numero de pedido: Pedido 1", fontSize = 24.sp, fontWeight = FontWeight.Black)
+        Text(text = "${pedido?.nombre}", fontSize = 24.sp, fontWeight = FontWeight.Black)
 
         Spacer(modifier = Modifier.padding(0.dp,10.dp))
 
-        obtenerImagenUsuario(painter = pintador)
+        obtenerImagenUsuario(painter = pintador, showBottomSheet)
 
-        Button(onClick = {
-            showBottomSheet = true
-        }, modifier = Modifier.padding(20.dp,10.dp)) {
-            Text(text = "Subir foto entrega")
+        Spacer(modifier = Modifier.padding(0.dp,10.dp))
+        Divider()
+
+        Row (modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp, 10.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+            Button(onClick = {
+                scanner.startScan()
+                    .addOnSuccessListener { barcode ->
+                        valorBarras.value = barcode.rawValue?:"0000000000"
+                    }
+                    .addOnCanceledListener {
+                        // Task canceled
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(content,"No furula",Toast.LENGTH_LONG).show()
+                    }
+            }, modifier = Modifier.height(50.dp)) {
+                Text(text = "Lectura barras")
+            }
+            Text(text = "${valorBarras.value}", fontSize = 25.sp)
         }
 
-        Text(text = "${valorBarras.value}", fontSize = 25.sp)
+        Divider()
 
         Spacer(modifier = Modifier.padding(0.dp,0.dp,0.dp,10.dp))
 
-        Button(onClick = {
-            //TO-DO
-        }) {
-            Text(text = "Lectura código barras")
+        Text(text = "Firma",fontSize = 17.sp, modifier = Modifier.padding(0.dp,10.dp))
+        //Funcion con la que dibujas la firma
+        Column (modifier = Modifier.fillMaxWidth(0.9f), horizontalAlignment = Alignment.CenterHorizontally){
+            Sain(
+                state = stateFirma,
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .padding(10.dp, 0.dp)
+                    .height(250.dp)
+                    .border(
+                        BorderStroke(
+                            width = .5.dp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(0.dp, 10.dp),
+                onComplete = { signatureBitmap ->
+                    if (signatureBitmap != null) {
+                        imageBitmap = signatureBitmap
+                    } else {
+                        println("Signature is empty")
+                    }
+                },
+            ) { action ->
+                Row(
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            imageBitmap = null
+                            action(SignatureAction.CLEAR)
+                        }) {
+                        Text("Limpiar")
+                    }
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            action(SignatureAction.COMPLETE)
+                        }) {
+                        Text("Completar")
+                    }
+                }
+            }
         }
 
+        Spacer(modifier = Modifier.padding(0.dp,20.dp))
         Column (verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxSize()){
             Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
                 .fillMaxWidth()
@@ -151,8 +233,10 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
                 Button(onClick = {
                     Log.i("etiqueta","${imagenCamara.value}")
-                    if(valorBarras.value != "0000000000" && imagenCamara.value != img){
-                        opcionesViewModel.hacerEntrega(imagenCamara.value,valorBarras.value,content)
+                    if(valorBarras.value != "0000000000" && imagenCamara.value != img && imageBitmap != null){
+                        opcionesViewModel.hacerEntrega(imagenCamara.value,valorBarras.value,content,
+                            imageBitmap!!
+                        )
                         navController.navigate("pedidos")
 
                     }else{
@@ -169,11 +253,10 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
         }
     }
 
-
-        if(showBottomSheet){
+        if(showBottomSheet.value){
             ModalBottomSheet(
                 onDismissRequest = {
-                    showBottomSheet = false
+                    showBottomSheet.value = false
                 },
                 sheetState = sheetState, modifier = Modifier.fillMaxHeight(0.3f)
             ) {
@@ -185,7 +268,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                                 .size(80.dp)
                                 .clickable {
                                     galleryLauncher.launch("image/*")
-                                    showBottomSheet = false
+                                    showBottomSheet.value = false
                                 })
                         Text(text = "Galeria")
                     }
@@ -196,7 +279,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                                 .size(80.dp)
                                 .clickable {
                                     launcher.launch()
-                                    showBottomSheet = false
+                                    showBottomSheet.value = false
                                 })
                         Text(text = "Foto")
                     }
@@ -221,11 +304,13 @@ fun botonCancelarPedido(
 }
 
 @Composable
-fun obtenerImagenUsuario(painter: MutableState<BitmapPainter>? = null){
+fun obtenerImagenUsuario(painter: MutableState<BitmapPainter>? = null, showBottomSheet: MutableState<Boolean>){
     if (painter != null) {
         Image(painter = painter.value, contentDescription = "", modifier = Modifier
-            .size(200.dp)
+            .size(150.dp)
             .fillMaxWidth(0.9f)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { showBottomSheet.value = true }
             .background(Color.Black),contentScale = ContentScale.FillBounds)
     }
 
