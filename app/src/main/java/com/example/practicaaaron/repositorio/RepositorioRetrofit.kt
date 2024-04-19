@@ -10,6 +10,7 @@ import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
+import com.example.practicaaaron.clases.usuarios.Usuarios
 import retrofit2.Retrofit
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -31,6 +32,10 @@ class RepositorioRetrofit(
     suspend fun hacerEntrega(entrega: Entrega){
         Log.i("entro","entroAqui2")
         apiServicio.create(ApiServicio::class.java).hacerEntrega(entrega)
+    }
+
+    suspend fun obtenerTodos():Usuarios{
+        return apiServicio.create(ApiServicio::class.java).obtenerTodos()
     }
 
 }

@@ -91,6 +91,8 @@ dependencies {
     implementation("io.github.joelkanyi:sain:2.0.2")
     implementation ("com.google.maps.android:maps-compose:4.3.3")
 
-    implementation ("com.dynamsoft:dynamsoftcameraenhancer:2.3.11@aar")
-    implementation ("com.dynamsoft:dynamsoftbarcodereader:9.6.20@aar")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation ("com.google.zxing:core:3.4.1")
+
+    implementation ("androidx.appcompat:appcompat:1.3.1")
 }

@@ -1,6 +1,8 @@
 package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +18,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,8 +31,8 @@ import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.Opcion
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
-import com.example.practicaaaron.ui.theme.colorTerciario
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation")
 @Composable
 @Preview
@@ -40,38 +41,54 @@ fun VentanaPrincipal(
     opcionesViewModel: OpcionesViewModel? = null
 ){
     // Distintas funciones que tiene el usuario para elegir
-    var opciones = listOf(
+    var opcionesUser = listOf(
         Opcion(R.drawable.iconopedidos,"Pedidos","pedidos","pedidos"),
         Opcion(R.drawable.iconorutas, "Rutas", "ruta", "rutas"),
-        Opcion(R.drawable.iconologistica, "Logística", "logística", "pedidos"),
+        Opcion(R.drawable.iconologistica, "Logística", "ruta", "rutas"),
     )
+
+    var opcionesAdmin = listOf(
+        Opcion(R.drawable.iconoconsultar,"Consultar","pedidos","usuarios"),
+        Opcion(R.drawable.icono2,"Horarios","pedidos","usuarios"),
+        Opcion(R.drawable.icono3,"Transportes","pedidos","usuarios"),
+    )
+
+    var tipoPerfil = opcionesViewModel?.isLogged?.collectAsState()?.value
 
         Column(
                 modifier = Modifier
-                    .padding(0.dp, 50.dp,0.dp,0.dp)
+                    .padding(0.dp, 50.dp, 0.dp, 0.dp)
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.padding(0.dp,15.dp))
-
                 //Layout para mostrar las diferentes opciones
-                LazyColumn(modifier = Modifier.padding(20.dp,0.dp)) {
-
-                    opciones.forEach(){
-                        item {
-                            cartaMenuPr(
-                                navHostController,
-                                imagen = it.idImagen,
-                                nombre = it.nombre,
-                                descripcion = it.descripcionImagen,
-                                ruta = it.ruta
-                            )
-                            Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                        }
-                    }
-                }
+            if(tipoPerfil == 1)
+                mostrarOpciones(opcionesUser,navHostController)
+            else
+                mostrarOpciones(opcionesAdmin,navHostController)
             }
         }
+
+ @Composable
+fun mostrarOpciones(opcionesUser: List<Opcion>, navHostController: NavHostController?) {
+    LazyColumn(modifier = Modifier.padding(20.dp,0.dp)) {
+
+        opcionesUser.forEach(){
+            item {
+                cartaMenuPr(
+                    navHostController,
+                    imagen = it.idImagen,
+                    nombre = it.nombre,
+                    descripcion = it.descripcionImagen,
+                    ruta = it.ruta
+                )
+                Spacer(modifier = Modifier.padding(0.dp,10.dp))
+            }
+        }
+    }
+}
+
 
 //Funcion composable que muestra en formato carta cada opcion del menu
 @OptIn(ExperimentalMaterial3Api::class)

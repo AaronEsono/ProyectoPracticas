@@ -9,6 +9,8 @@ data class DataUser (
     val username:String,
     @SerializedName("ID_PERFIL")
     val idPerfil:Int,
+    @SerializedName("TIPO_PERFIL")
+    val tipoPerfil:Int = 0,
     @SerializedName("NOMBRE")
     val nombre:String,
     @SerializedName("EMAIL")

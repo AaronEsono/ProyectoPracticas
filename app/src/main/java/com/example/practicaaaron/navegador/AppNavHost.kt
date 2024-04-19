@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BusinessCenter
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Close
@@ -54,6 +55,7 @@ import com.example.practicaaaron.pantallas.VentanaPrincipal
 import com.example.practicaaaron.pantallas.ventanaLogin
 import com.example.practicaaaron.pantallas.VentanaPerfil
 import com.example.practicaaaron.pantallas.pantallaMapa
+import com.example.practicaaaron.pantallas.pantallaUsuarios
 import com.example.practicaaaron.pantallas.ventanaEditarPerfil
 import com.example.practicaaaron.pantallas.ventanaEntregaPedido
 import com.example.practicaaaron.pantallas.ventanaPedidos
@@ -73,6 +75,7 @@ sealed class Pantallas(var route:String){
     data object Entregar:Pantallas("entregar")
 
     data object Rutas:Pantallas("rutas")
+    data object Usuarios:Pantallas("usuarios")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -216,6 +219,9 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             composable(Pantallas.Rutas.route){
                 pantallaMapa(navController,opcionesViewModel)
             }
+            composable(Pantallas.Usuarios.route){
+                pantallaUsuarios(navController,opcionesViewModel)
+            }
         }
 }
 
@@ -268,6 +274,8 @@ fun barraArriba(
     drawerState: DrawerState,
     scrollBehavior: TopAppBarScrollBehavior
 ){
+    var estado = opcionesViewModel.isLogged.collectAsState()
+
     Scaffold(
         topBar = {
                 CenterAlignedTopAppBar(
@@ -299,6 +307,17 @@ fun barraArriba(
                         }
                     },
                     scrollBehavior = scrollBehavior,
+
+                    actions = {
+                        if(estado.value == 2){
+                            Icon(
+                                imageVector = Icons.Filled.BusinessCenter,
+                                contentDescription = "Localized description",
+                                tint = Color.White,
+                                modifier = Modifier.size(50.dp)
+                            )
+                        }
+                    }
                 )
         },
     ){

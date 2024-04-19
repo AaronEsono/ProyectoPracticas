@@ -2,6 +2,7 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -12,6 +13,7 @@ import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -68,8 +70,12 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import io.github.joelkanyi.sain.Sain
 import io.github.joelkanyi.sain.SignatureAction
+import androidx.core.content.ContextCompat
+import com.journeyapps.barcodescanner.ScanIntentResult
 import io.github.joelkanyi.sain.SignatureState
 
 @SuppressLint("RememberReturnType")
@@ -79,11 +85,12 @@ import io.github.joelkanyi.sain.SignatureState
 fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
 
     //Variable para pillar una foto de la galeria
-    var imageUri by remember {mutableStateOf<Uri?>(null)}
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     //Variables para pillar una foto con la camara
     val content = LocalContext.current
-    val img: Bitmap = BitmapFactory.decodeResource(Resources.getSystem(), android.R.drawable.ic_menu_report_image)
+    val img: Bitmap =
+        BitmapFactory.decodeResource(Resources.getSystem(), android.R.drawable.ic_menu_report_image)
 
     //Variable que guarda la foto
     val imagenCamara = remember { mutableStateOf(img) }
@@ -92,19 +99,21 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
     val pintador = remember { mutableStateOf(BitmapPainter(imagenCamara.value.asImageBitmap())) }
 
     // Variable que se inizializa cuando se va a sacar una foto
-    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
-        if(it != null){
-            imagenCamara.value = it
-            pintador.value = BitmapPainter(imagenCamara.value.asImageBitmap())
+    val launcher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
+            if (it != null) {
+                imagenCamara.value = it
+                pintador.value = BitmapPainter(imagenCamara.value.asImageBitmap())
+            }
         }
-    }
 
     // Variable que se inicializa cuando se va a elegir una foto de la galeria
-    val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()
-        , onResult = {
-                uri -> uri?.let { imageUri = it }
-                //Transforma la imagen de la galeria de uri a bitmap
-                transformar(imageUri,imagenCamara,content,pintador)
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let { imageUri = it }
+            //Transforma la imagen de la galeria de uri a bitmap
+            transformar(imageUri, imagenCamara, content, pintador)
         })
 
     var showBottomSheet = remember { mutableStateOf(false) }
@@ -115,10 +124,10 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
         Barcode.FORMAT_ALL_FORMATS
     ).build()
 
-    val scanner = GmsBarcodeScanning.getClient(content,opciones)
+    val scanner = GmsBarcodeScanning.getClient(content, opciones)
 
     //Variable para guardar el estado del codigo de barras
-    val valorBarras = remember { mutableStateOf("566487456") }
+    val valorBarras = remember { mutableStateOf("0000000000") }
 
     val pedido = opcionesViewModel?.pedido?.collectAsState()?.value
 
@@ -133,37 +142,50 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
         SignatureState()
     }
 
+    //Variables para iniciar el codigo de barras
+    val barCodeLanzador = rememberLauncherForActivityResult(ScanContract()) { result ->
+        if (result.contents == null) {
+            Toast.makeText(content, "Cancelled", Toast.LENGTH_SHORT).show()
+        } else {
+            valorBarras.value = result.contents
+        }
+    }
+
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                showCamera(barCodeLanzador)
+            }
+        }
+
+    var colorBorde = remember { mutableStateOf(Color.Black) }
+
     Column(
         modifier = Modifier
             .padding(0.dp, 60.dp, 0.dp, 0.dp)
             .fillMaxSize()
             .verticalScroll(state),
         horizontalAlignment = Alignment.CenterHorizontally
-    ){
+    ) {
 
         Text(text = "${pedido?.nombre}", fontSize = 24.sp, fontWeight = FontWeight.Black)
 
-        Spacer(modifier = Modifier.padding(0.dp,10.dp))
+        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
 
         obtenerImagenUsuario(painter = pintador, showBottomSheet)
 
-        Spacer(modifier = Modifier.padding(0.dp,10.dp))
+        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
         Divider()
 
-        Row (modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp, 10.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp, 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Button(onClick = {
-                scanner.startScan()
-                    .addOnSuccessListener { barcode ->
-                        valorBarras.value = barcode.rawValue?:"0000000000"
-                    }
-                    .addOnCanceledListener {
-                        // Task canceled
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(content,"No furula",Toast.LENGTH_LONG).show()
-                    }
+                checkCameraPermission(content, barCodeLanzador, requestPermissionLauncher)
             }, modifier = Modifier.height(50.dp)) {
                 Text(text = "Lectura barras")
             }
@@ -172,27 +194,32 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
         Divider()
 
-        Spacer(modifier = Modifier.padding(0.dp,0.dp,0.dp,10.dp))
+        Spacer(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp))
 
-        Text(text = "Firma",fontSize = 17.sp, modifier = Modifier.padding(0.dp,10.dp))
+        Text(text = "Firma", fontSize = 17.sp, modifier = Modifier.padding(0.dp, 10.dp))
         //Funcion con la que dibujas la firma
-        Column (modifier = Modifier.fillMaxWidth(0.9f), horizontalAlignment = Alignment.CenterHorizontally){
+        Column(
+            modifier = Modifier.fillMaxWidth(0.9f),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Sain(
                 state = stateFirma,
+                signatureThickness = 1.dp,
                 modifier = Modifier
                     .fillMaxWidth(1f)
                     .padding(10.dp, 0.dp)
                     .height(250.dp)
                     .border(
                         BorderStroke(
-                            width = .5.dp,
-                            color = MaterialTheme.colorScheme.onSurface
+                            width = 2.dp,
+                            color = colorBorde.value
                         ),
                         shape = RoundedCornerShape(8.dp)
                     )
                     .padding(0.dp, 10.dp),
                 onComplete = { signatureBitmap ->
                     if (signatureBitmap != null) {
+                        colorBorde.value = Color.Black
                         imageBitmap = signatureBitmap
                     } else {
                         println("Signature is empty")
@@ -209,6 +236,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                         modifier = Modifier.weight(1f),
                         onClick = {
                             imageBitmap = null
+                            colorBorde.value = Color.Black
                             action(SignatureAction.CLEAR)
                         }) {
                         Text("Limpiar")
@@ -217,6 +245,8 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                         modifier = Modifier.weight(1f),
                         onClick = {
                             action(SignatureAction.COMPLETE)
+                            if (imageBitmap != null)
+                                colorBorde.value = Color.Green
                         }) {
                         Text("Completar")
                     }
@@ -224,68 +254,80 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             }
         }
 
-        Spacer(modifier = Modifier.padding(0.dp,20.dp))
-        Column (verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxSize()){
-            Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
-                .fillMaxWidth()
-                .padding(15.dp)){
-                botonCancelarPedido(valor = "pedidos",navHostController = navController,texto = "cancelar")
+        Spacer(modifier = Modifier.padding(0.dp, 20.dp))
+        Column(verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxSize()) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(15.dp)
+            ) {
+                botonCancelarPedido(
+                    valor = "pedidos",
+                    navHostController = navController,
+                    texto = "cancelar"
+                )
 
                 Button(onClick = {
-                    Log.i("etiqueta","${imagenCamara.value}")
-                    if(valorBarras.value != "0000000000" && imagenCamara.value != img && imageBitmap != null){
-                        opcionesViewModel.hacerEntrega(imagenCamara.value,valorBarras.value,content,
+                    Log.i("etiqueta", "${imagenCamara.value}")
+                    if (valorBarras.value != "0000000000" && imagenCamara.value != img && imageBitmap != null) {
+                        opcionesViewModel.hacerEntrega(
+                            imagenCamara.value, valorBarras.value, content,
                             imageBitmap!!
                         )
                         navController.navigate("pedidos")
 
-                    }else{
+                    } else {
                         Toast.makeText(
                             content,
                             "Mete la foto y el codigo de barras", Toast.LENGTH_LONG
                         ).show()
                     }
 
-                }, modifier = Modifier.size(130.dp,60.dp)) {
+                }, modifier = Modifier.size(130.dp, 60.dp)) {
                     Text(text = "Confirmar")
                 }
             }
         }
     }
 
-        if(showBottomSheet.value){
-            ModalBottomSheet(
-                onDismissRequest = {
-                    showBottomSheet.value = false
-                },
-                sheetState = sheetState, modifier = Modifier.fillMaxHeight(0.3f)
+    if (showBottomSheet.value) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet.value = false
+            },
+            sheetState = sheetState, modifier = Modifier.fillMaxHeight(0.3f)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly){
-                    //Hacer en una funcion en un futuro, intertar meter las funciones en la funcion
-                    Column (horizontalAlignment = Alignment.CenterHorizontally){
-                        Image(painter = painterResource(id =R.drawable.galeriaicono), contentDescription = "edq",
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clickable {
-                                    galleryLauncher.launch("image/*")
-                                    showBottomSheet.value = false
-                                })
-                        Text(text = "Galeria")
-                    }
+                //Hacer en una funcion en un futuro, intertar meter las funciones en la funcion
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(painter = painterResource(id = R.drawable.galeriaicono),
+                        contentDescription = "edq",
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clickable {
+                                galleryLauncher.launch("image/*")
+                                showBottomSheet.value = false
+                            })
+                    Text(text = "Galeria")
+                }
 
-                    Column (horizontalAlignment = Alignment.CenterHorizontally){
-                        Image(painter = painterResource(id =R.drawable.camaraicono), contentDescription = "edq",
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clickable {
-                                    launcher.launch()
-                                    showBottomSheet.value = false
-                                })
-                        Text(text = "Foto")
-                    }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(painter = painterResource(id = R.drawable.camaraicono),
+                        contentDescription = "edq",
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clickable {
+                                launcher.launch()
+                                showBottomSheet.value = false
+                            })
+                    Text(text = "Foto")
                 }
             }
         }
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -294,24 +336,27 @@ fun botonCancelarPedido(
     valor: String,
     navHostController: NavHostController,
     texto: String,
-){
+) {
     //Verificar que se ha metido una foto
     Button(onClick = {
-            navHostController.navigate(valor)
-        }, modifier = Modifier.size(130.dp,60.dp)) {
+        navHostController.navigate(valor)
+    }, modifier = Modifier.size(130.dp, 60.dp)) {
         Text(text = "$texto")
     }
 }
 
 @Composable
-fun obtenerImagenUsuario(painter: MutableState<BitmapPainter>? = null, showBottomSheet: MutableState<Boolean>){
+fun obtenerImagenUsuario(
+    painter: MutableState<BitmapPainter>? = null,
+    showBottomSheet: MutableState<Boolean>
+) {
     if (painter != null) {
         Image(painter = painter.value, contentDescription = "", modifier = Modifier
             .size(150.dp)
             .fillMaxWidth(0.9f)
             .clip(RoundedCornerShape(16.dp))
             .clickable { showBottomSheet.value = true }
-            .background(Color.Black),contentScale = ContentScale.FillBounds)
+            .background(Color.Black), contentScale = ContentScale.FillBounds)
     }
 
 }
@@ -323,13 +368,13 @@ fun transformar(
     pintador: MutableState<BitmapPainter>
 ) {
     imageUri?.let {
-        if(Build.VERSION.SDK_INT < 28){
-            imagenGaleria.value = MediaStore.Images.Media.getBitmap(content.contentResolver,it)
-        }else{
-            val source = ImageDecoder.createSource(content.contentResolver,it)
-            imagenGaleria.value =  ImageDecoder.decodeBitmap(source)
+        if (Build.VERSION.SDK_INT < 28) {
+            imagenGaleria.value = MediaStore.Images.Media.getBitmap(content.contentResolver, it)
+        } else {
+            val source = ImageDecoder.createSource(content.contentResolver, it)
+            imagenGaleria.value = ImageDecoder.decodeBitmap(source)
         }
-        imagenGaleria.value = rotateBitmap(imagenGaleria.value,90F)
+        imagenGaleria.value = rotateBitmap(imagenGaleria.value, 90F)
         pintador.value = BitmapPainter(imagenGaleria.value.asImageBitmap())
     }
 }
@@ -340,4 +385,31 @@ fun rotateBitmap(source: Bitmap, degrees: Float): Bitmap {
     return Bitmap.createBitmap(
         source, 0, 0, source.width, source.height, matrix, true
     )
+}
+
+fun showCamera(barCodeLanzador: ManagedActivityResultLauncher<ScanOptions, ScanIntentResult>) {
+    val options = ScanOptions()
+    options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
+    options.setPrompt("Escanea el codigo de barras")
+    options.setCameraId(0)
+    options.setBeepEnabled(false)
+    options.setOrientationLocked(false)
+
+    barCodeLanzador.launch(options)
+}
+
+fun checkCameraPermission(
+    context: Context,
+    barCodeLanzador: ManagedActivityResultLauncher<ScanOptions, ScanIntentResult>,
+    requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>
+) {
+    if (ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        showCamera(barCodeLanzador)
+    } else {
+        requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+    }
 }

@@ -3,6 +3,7 @@ package com.example.practicaaaron.pantallas
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,81 +59,114 @@ import java.time.format.TextStyle
 fun VentanaPerfil(
     navHostController: NavHostController? = null,
     opcionesViewModel: OpcionesViewModel? = null
-){
-            // Variable que guarda la informacion del usuario
-            var infoUsuario = opcionesViewModel?.informacionUsuario?.collectAsState()?.value
+) {
+    // Variable que guarda la informacion del usuario
+    var infoUsuario = opcionesViewModel?.informacionUsuario?.collectAsState()?.value
 
-            Column (modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp, 80.dp, 0.dp, 0.dp)
-                .verticalScroll(rememberScrollState())){
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(0.dp, 60.dp, 0.dp, 0.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
 
-                Column  (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()){
-                    Icon(Icons.Rounded.AccountCircle, contentDescription = "Imagen perfil", modifier = Modifier.size(130.dp))
-
-                    Text(text = "${infoUsuario?.dataUser?.nombre}", fontSize = 40.sp, fontWeight = FontWeight.Black)
-                }
-
-                Spacer(modifier = Modifier.padding(0.dp,0.dp,0.dp,20.dp))
-                informacion(
-                    campo = "Id_Usuario",
-                    valor = "${infoUsuario?.dataUser?.nombre}",
-                    Icons.Rounded.Person,
-                    20.sp
-                )
-
-                Divider(modifier = Modifier.padding(0.dp,10.dp,0.dp,0.dp), color = Color.Gray)
-
-                Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                informacion(
-                    campo = "Usuario",
-                    valor = "${infoUsuario?.dataUser?.username}",
-                    icono = Icons.Rounded.AccountCircle,
-                    20.sp
-                )
-
-                Divider(modifier = Modifier.padding(0.dp,10.dp,0.dp,0.dp), color = Color.Gray)
-
-                Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                informacion(
-                    campo = "Email",
-                    valor = "${infoUsuario?.dataUser?.email}",
-                    icono = Icons.Rounded.Email,
-                    20.sp
-                )
-
-                Divider(modifier = Modifier.padding(0.dp,10.dp,0.dp,0.dp), color = Color.Gray)
-
-                Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                Column (verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally){
-                    botonPerfil(navHostController = navHostController, ruta = "editar", texto = "Editar perfil")
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth().padding(0.dp,10.dp,0.dp,0.dp)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                translate(left = 0f, top = -250f) {
+                    drawCircle(colorPrimario, radius = 250.dp.toPx())
                 }
             }
+            Icon(
+                Icons.Rounded.AccountCircle,
+                contentDescription = "Imagen perfil",
+                modifier = Modifier.size(130.dp)
+            )
+
+            Text(
+                text = "${infoUsuario?.dataUser?.nombre}",
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Black
+            )
         }
+
+        Spacer(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp))
+        informacion(
+            campo = "Id_Usuario",
+            valor = "${infoUsuario?.dataUser?.nombre}",
+            Icons.Rounded.Person,
+            20.sp
+        )
+
+        Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
+
+        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+        informacion(
+            campo = "Usuario",
+            valor = "${infoUsuario?.dataUser?.username}",
+            icono = Icons.Rounded.AccountCircle,
+            20.sp
+        )
+
+        Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
+
+        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+        informacion(
+            campo = "Email",
+            valor = "${infoUsuario?.dataUser?.email}",
+            icono = Icons.Rounded.Email,
+            20.sp
+        )
+
+        Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
+
+        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            botonPerfil(
+                navHostController = navHostController,
+                ruta = "editar",
+                texto = "Editar perfil"
+            )
+        }
+    }
+}
 
 //Funcion composable que muestra una fila con su texto correspondiente
 @Composable
-fun informacion(campo: String, valor: String, icono: ImageVector, sp: TextUnit = 28.sp){
-    Row (verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp,0.dp)){
-        Icon(icono, contentDescription = "$campo",
+fun informacion(campo: String, valor: String, icono: ImageVector, sp: TextUnit = 28.sp) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp, 0.dp)) {
+        Icon(
+            icono, contentDescription = "$campo",
             Modifier
                 .size(30.dp)
-                .padding(0.dp, 0.dp))
-        Row( horizontalArrangement = Arrangement.Center, modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 0.dp, 25.dp, 0.dp)){
-            Text(text = "$valor", fontSize = sp,)
+                .padding(0.dp, 0.dp)
+        )
+        Row(
+            horizontalArrangement = Arrangement.Center, modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 0.dp, 25.dp, 0.dp)
+        ) {
+            Text(text = "$valor", fontSize = sp)
         }
     }
 }
 
 //Funcion composable que muestra un boton con el texto y ruta seleccionados
 @Composable
-fun botonPerfil(navHostController: NavHostController?,ruta:String,texto:String){
-    ElevatedButton(onClick = { navHostController?.navigate("$ruta") }, modifier = Modifier.size(170.dp,70.dp)
-        , colors = ButtonDefaults.buttonColors(
+fun botonPerfil(navHostController: NavHostController?, ruta: String, texto: String) {
+    ElevatedButton(
+        onClick = { navHostController?.navigate("$ruta") },
+        modifier = Modifier.size(170.dp, 70.dp),
+        colors = ButtonDefaults.buttonColors(
             containerColor = colorPrimario
-        )) {
-            Text(text = "$texto", fontSize = 20.sp)
+        )
+    ) {
+        Text(text = "$texto", fontSize = 20.sp)
     }
 }

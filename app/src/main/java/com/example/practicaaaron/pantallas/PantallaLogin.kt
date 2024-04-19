@@ -74,7 +74,10 @@ import com.example.practicaaaron.ui.theme.colorTerciario
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 @Preview
-fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel: OpcionesViewModel? = null){
+fun ventanaLogin(
+    navHostController: NavHostController? = null,
+    opcionesViewModel: OpcionesViewModel? = null
+) {
 
     //Variables que controlan el estado de los campos del login
     var campoUsername = remember { mutableStateOf("") }
@@ -82,7 +85,7 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
 
 
     //Gradiente de colores para el color de fondo del login
-    val listColors = listOf(colorSecundario,colorPrimario)
+    val listColors = listOf(colorSecundario, colorPrimario)
 
     // Variable que controla cuando se le ha dado por primera vez al boton
     var firstTimeButton by remember { mutableStateOf(false) }
@@ -101,39 +104,67 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
 
     val (focusRequester) = FocusRequester.createRefs()
 
-    Column (modifier = Modifier
-        .fillMaxSize()
-        .background(Brush.linearGradient(listColors)), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Brush.linearGradient(listColors)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-        Column (modifier = Modifier
-            .fillMaxHeight(0.4f)
-            .fillMaxWidth()
-        , verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
-            Image(painter = painterResource(id = R.drawable.iconoapp), contentDescription = "Icono prueba"
-                ,modifier= Modifier
+        Column(
+            modifier = Modifier
+                .fillMaxHeight(0.4f)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.iconoapp),
+                contentDescription = "Icono prueba",
+                modifier = Modifier
                     .padding(0.dp, 10.dp)
-                    .size(210.dp))
+                    .size(210.dp)
+            )
         }
 
-        Column(modifier = Modifier
-            .fillMaxHeight()
-            .fillMaxWidth()
-            .padding(0.dp, 20.dp, 0.dp, 0.dp)){
-            campoFuncion(campoUsername,firstTimeButton,"Usuario","Rellene el usuario",accountCircle = Icons.Rounded.Person,focusRequester = focusRequester)
-            Spacer(modifier = Modifier.padding(0.dp,10.dp))
-
-            campoFuncion(campoContrasena,firstTimeButton,"Contraseña","Rellene la contraseña", PasswordVisualTransformation(),KeyboardType.Password,Icons.Rounded.Lock,focusRequester)
-            Spacer(modifier = Modifier.padding(0.dp,10.dp,0.dp,35.dp))
-
-            ElevatedButton(onClick = {
-                firstTimeButton = true
-                showBottomSheet = true
-                hacerLlamada(usuarioLogin,campoContrasena,campoUsername,opcionesViewModel)
-            }, modifier = Modifier
-                .height(60.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
                 .fillMaxWidth()
-                .padding(15.dp, 0.dp),
-                shape = RoundedCornerShape(40.dp,0.dp,40.dp,0.dp),
+                .padding(0.dp, 20.dp, 0.dp, 0.dp)
+        ) {
+            campoFuncion(
+                campoUsername,
+                firstTimeButton,
+                "Usuario",
+                "Rellene el usuario",
+                accountCircle = Icons.Rounded.Person,
+                focusRequester = focusRequester
+            )
+            Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+
+            campoFuncion(
+                campoContrasena,
+                firstTimeButton,
+                "Contraseña",
+                "Rellene la contraseña",
+                PasswordVisualTransformation(),
+                KeyboardType.Password,
+                Icons.Rounded.Lock,
+                focusRequester
+            )
+            Spacer(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 35.dp))
+
+            ElevatedButton(
+                onClick = {
+                    firstTimeButton = true
+                    showBottomSheet = true
+                    hacerLlamada(usuarioLogin, campoContrasena, campoUsername, opcionesViewModel)
+                }, modifier = Modifier
+                    .height(60.dp)
+                    .fillMaxWidth()
+                    .padding(15.dp, 0.dp),
+                shape = RoundedCornerShape(40.dp, 0.dp, 40.dp, 0.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorTerciario
                 )
@@ -144,30 +175,38 @@ fun ventanaLogin(navHostController: NavHostController? = null, opcionesViewModel
     }
 
     //Ventana modal que muestra el error encontrado en el login
-    if(showBottomSheet && mensaje?.isNotEmpty() == true){
+    if (showBottomSheet && mensaje?.isNotEmpty() == true) {
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false
             },
             sheetState = sheetState, modifier = Modifier.fillMaxHeight(0.3f)
         ) {
-            Column (modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp, 0.dp, 0.dp, 40.dp)
-                ,horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
-                Text(text = "$mensaje", fontSize = 20.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(0.dp,10.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(0.dp, 0.dp, 0.dp, 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "$mensaje",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(0.dp, 10.dp)
+                )
             }
         }
     }
 
     //Si se logea correctamente, pasar a la siguiente pantalla
-    if(isLog == true){
+    if (isLog != -1) {
         navHostController?.navigate("menu")
     }
 }
 
 // Funcion que retorna si se debe mostrar los errores en los label
-fun validacion(campo: String, firstTimeButton: Boolean):Boolean{
+fun validacion(campo: String, firstTimeButton: Boolean): Boolean {
     return campo.isEmpty() && firstTimeButton
 }
 
@@ -188,13 +227,14 @@ fun campoFuncion(
     var showPassword by remember { mutableStateOf(teclado) }
     var passwordVisible by remember { mutableStateOf(false) }
     var campoUser = transformacion == VisualTransformation.None
-    val nextStage = if(campoUser) ImeAction.Next else ImeAction.Done
+    val nextStage = if (campoUser) ImeAction.Next else ImeAction.Done
 
     TextField(
         modifier = Modifier
             .fillMaxWidth()
             .padding(15.dp, 0.dp)
-            .height(tamano).focusRequester(focusRequester),
+            .height(tamano)
+            .focusRequester(focusRequester),
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
@@ -217,28 +257,27 @@ fun campoFuncion(
             errorContainerColor = Color.Transparent
         ),
         value = campo.value,
-        onValueChange = {campo.value = it},
+        onValueChange = { campo.value = it },
         label = { Text(labelTexto) },
         singleLine = true,
-        isError = validacion(campo.value,firstTimeButton),
+        isError = validacion(campo.value, firstTimeButton),
         supportingText = {
-            if (validacion(campo.value,firstTimeButton)) {
+            if (validacion(campo.value, firstTimeButton)) {
                 tamano = 100.dp
                 Text(
                     text = textoError,
-                    color = MaterialTheme.colorScheme.error
-                    ,fontSize = 17.sp
+                    color = MaterialTheme.colorScheme.error, fontSize = 17.sp
                 )
-            }else{
+            } else {
                 tamano = 80.dp
             }
         },
         trailingIcon = {
-            if(campo.value.isNotEmpty() && teclado == KeyboardType.Ascii )
+            if (campo.value.isNotEmpty() && teclado == KeyboardType.Ascii)
                 IconButton(onClick = { campo.value = "" }) {
-                    Icon(Icons.Filled.Close,"Borrar", tint = Color.White)
+                    Icon(Icons.Filled.Close, "Borrar", tint = Color.White)
                 }
-            else if(campo.value.isNotEmpty() && teclado == KeyboardType.Password ) {
+            else if (campo.value.isNotEmpty() && teclado == KeyboardType.Password) {
                 var image = if (passwordVisible)
                     Icons.Filled.VisibilityOff
                 else Icons.Filled.Visibility
@@ -252,12 +291,12 @@ fun campoFuncion(
         },
         leadingIcon = {
             var color = Color.White
-            if(validacion(campo.value,firstTimeButton))
+            if (validacion(campo.value, firstTimeButton))
                 color = MaterialTheme.colorScheme.error
 
-            Icon(accountCircle,"Usuario",tint = color)
+            Icon(accountCircle, "Usuario", tint = color)
         },
-        visualTransformation = if(campoUser) transformacion else if(passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+        visualTransformation = if (campoUser) transformacion else if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = showPassword, imeAction = nextStage),
     )
 }
@@ -273,6 +312,6 @@ fun hacerLlamada(
     usuarioLogin.username = campoUsername.value
 
     //Si los campos no estan vacios, se hace la peticion
-    if(usuarioLogin.password.isNotEmpty() && usuarioLogin.username.isNotEmpty())
+    if (usuarioLogin.password.isNotEmpty() && usuarioLogin.username.isNotEmpty())
         opcionesViewModel?.hacerLogin(usuarioLogin)
 }

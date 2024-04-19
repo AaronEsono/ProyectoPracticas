@@ -7,6 +7,7 @@ import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
+import com.example.practicaaaron.clases.usuarios.Usuarios
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import okhttp3.OkHttpClient
@@ -32,6 +33,9 @@ interface ApiServicio {
 
     @PUT("hacerEntrega")
     suspend fun hacerEntrega(@Body cuerpo:Entrega)
+
+    @GET("obtenerTodos")
+    suspend fun obtenerTodos():Usuarios
 
 }
 

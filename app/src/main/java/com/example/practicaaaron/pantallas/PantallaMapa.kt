@@ -36,17 +36,17 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
-fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesViewModel){
+fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
     val conseguirLocalizacion = LocationService()
     val contexto = LocalContext.current
     var latitudUser = remember { mutableStateOf(0f) }
     var altitudUser = remember { mutableStateOf(0f) }
-    var posicion by remember {mutableStateOf(LatLng(0.0,0.0))}
+    var posicion by remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
     //Intentar que cuando abras google maps salga las ubicaciones
     var ubicaciones = opcionesViewModel?.ubicaciones?.collectAsState()?.value
 
-    LaunchedEffect (Unit){
+    LaunchedEffect(Unit) {
         val resultado = conseguirLocalizacion.getUserLocation(contexto)
         if (resultado != null) {
             latitudUser.value = resultado.latitude.toFloat()
@@ -60,14 +60,14 @@ fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesVi
 
     //Hacer que la camara se centre automaticamente en el usuario
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(40.4495851,-3.6920861), 10f)
+        position = CameraPosition.fromLatLngZoom(LatLng(40.4495851, -3.6920861), 10f)
     }
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         cameraPositionState = cameraPositionState
     ) {
-       Marker(
+        Marker(
             state = MarkerState(position = posicion),
             title = "Estas aquí",
             snippet = "Estas aquí",
@@ -75,8 +75,9 @@ fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesVi
         )
         ubicaciones?.forEach {
             Marker(
-                state = MarkerState(position = LatLng(it.latitud,it.altitud)),
-                title = "${it.descripcion}",
+                state = MarkerState(position = LatLng(it.latitud, it.altitud)),
+                title = "${it.nombre}",
+                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
             )
         }
     }

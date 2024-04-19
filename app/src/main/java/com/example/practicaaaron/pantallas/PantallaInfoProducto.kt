@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_VALUE")
-
 package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
@@ -86,6 +84,8 @@ fun PantallaInfoProducto(
             //Imagen relacionada con el pedido elegido
             val imagen = pedido?.imagenDescripcion?.let { loadImageFromBase64(context, it) }
 
+            var esAdmin = opcionesViewModel?.isLogged?.collectAsState()?.value
+
             Column (modifier = Modifier
                 .fillMaxSize()
                 .padding(0.dp, 60.dp, 0.dp, 0.dp)
@@ -106,12 +106,15 @@ fun PantallaInfoProducto(
                 vistaInformacionBulto(info = "Bultos",pedido?.bultos)
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
-                Row (modifier = Modifier.padding(3.dp,10.dp)){
-                    botonInfo(valor = "Confirmar Pedido",navHostController)
-                    Spacer(modifier = Modifier.padding(13.dp,0.dp))
 
-                    Button(onClick = { openAlertDialog.value = true }, modifier = Modifier.size(170.dp,60.dp)) {
-                        Text(text = "Marcar incidencia", fontSize = 13.sp)
+                if(esAdmin == 1){
+                    Row (modifier = Modifier.padding(3.dp,10.dp)){
+                        botonInfo(valor = "Confirmar Pedido",navHostController)
+                        Spacer(modifier = Modifier.padding(13.dp,0.dp))
+
+                        Button(onClick = { openAlertDialog.value = true }, modifier = Modifier.size(170.dp,60.dp)) {
+                            Text(text = "Marcar incidencia", fontSize = 13.sp)
+                        }
                     }
                 }
 
