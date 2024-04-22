@@ -29,7 +29,7 @@ android {
             )
 
             debug{
-                isDebuggable = false
+                isDebuggable = true
             }
         }
     }
@@ -95,4 +95,6 @@ dependencies {
     implementation ("com.google.zxing:core:3.4.1")
 
     implementation ("androidx.appcompat:appcompat:1.3.1")
+
+    implementation("com.airbnb.android:lottie-compose:4.0.0")
 }

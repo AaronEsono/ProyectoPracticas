@@ -160,6 +160,9 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
     var colorBorde = remember { mutableStateOf(Color.Black) }
 
+    var entregado = opcionesViewModel?.entregado?.collectAsState()?.value
+    var info = opcionesViewModel?.informacion?.collectAsState()?.value
+
     Column(
         modifier = Modifier
             .padding(0.dp, 60.dp, 0.dp, 0.dp)
@@ -254,6 +257,17 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             }
         }
 
+        if(entregado?.retcode != -2){
+            var entregados = info?.entregados?.plus(info?.incidencia?:0)?:0
+
+            if(entregados >= info?.pedidos?:0){
+                navController.navigate("Hecho")
+            }else{
+                navController.navigate("pedidos")
+            }
+            opcionesViewModel?.resetearEntrega()
+        }
+
         Spacer(modifier = Modifier.padding(0.dp, 20.dp))
         Column(verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxSize()) {
             Row(
@@ -267,15 +281,14 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                     texto = "cancelar"
                 )
 
+                //valorBarras.value != "0000000000" && imagenCamara.value != img &&
                 Button(onClick = {
                     Log.i("etiqueta", "${imagenCamara.value}")
-                    if (valorBarras.value != "0000000000" && imagenCamara.value != img && imageBitmap != null) {
+                    if (imageBitmap != null) {
                         opcionesViewModel.hacerEntrega(
                             imagenCamara.value, valorBarras.value, content,
                             imageBitmap!!
                         )
-                        navController.navigate("pedidos")
-
                     } else {
                         Toast.makeText(
                             content,

@@ -65,7 +65,9 @@ import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState",
+    "SuspiciousIndentation"
+)
 @Composable
 @Preview
 fun PantallaInfoProducto(
@@ -85,6 +87,10 @@ fun PantallaInfoProducto(
             val imagen = pedido?.imagenDescripcion?.let { loadImageFromBase64(context, it) }
 
             var esAdmin = opcionesViewModel?.isLogged?.collectAsState()?.value
+
+
+        var entregado = opcionesViewModel?.entregado?.collectAsState()?.value
+        var info = opcionesViewModel?.informacion?.collectAsState()?.value
 
             Column (modifier = Modifier
                 .fillMaxSize()
@@ -124,7 +130,6 @@ fun PantallaInfoProducto(
                             onDismissRequest = { openAlertDialog.value = false },
                             onConfirmation = {
                                 opcionesViewModel?.actualizarPedido(valorOpcion.value)
-                                navHostController?.navigate("pedidos")
                                 openAlertDialog.value = false
                             },
                             dialogTitle = "Seleccione incidencia",
@@ -134,6 +139,17 @@ fun PantallaInfoProducto(
                     }
                 }
             }
+
+    if(entregado?.retcode != -2){
+        var entregados = info?.entregados?.plus(info?.incidencia?:0)?:0
+
+        if(entregados >= info?.pedidos?:0){
+            navHostController?.navigate("Hecho")
+        }else{
+            navHostController?.navigate("pedidos")
+        }
+        opcionesViewModel?.resetearEntrega()
+    }
 }
 
 //Funcion composable que muestra todos los bultos de un pedido

@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import com.example.practicaaaron.apiServicio.ApiServicio
 import com.example.practicaaaron.apiServicio.getRetrofitClient
 import com.example.practicaaaron.clases.entrega.Entrega
+import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.usuarios.Data
@@ -25,13 +26,13 @@ class RepositorioRetrofit(
         return apiServicio.create(ApiServicio::class.java).hacerLogin(usuarioLogin).body()
     }
 
-    suspend fun actualizarPedido(pedido:PedidoActualizar){
-        apiServicio.create(ApiServicio::class.java).actualizarPedido(pedido)
+    suspend fun actualizarPedido(pedido:PedidoActualizar):Entregado{
+        return apiServicio.create(ApiServicio::class.java).actualizarPedido(pedido)
     }
 
-    suspend fun hacerEntrega(entrega: Entrega){
+    suspend fun hacerEntrega(entrega: Entrega):Entregado{
         Log.i("entro","entroAqui2")
-        apiServicio.create(ApiServicio::class.java).hacerEntrega(entrega)
+        return apiServicio.create(ApiServicio::class.java).hacerEntrega(entrega)
     }
 
     suspend fun obtenerTodos():Usuarios{

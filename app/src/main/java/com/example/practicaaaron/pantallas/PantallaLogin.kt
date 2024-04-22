@@ -80,8 +80,8 @@ fun ventanaLogin(
 ) {
 
     //Variables que controlan el estado de los campos del login
-    var campoUsername = remember { mutableStateOf("") }
-    var campoContrasena = remember { mutableStateOf("") }
+    var campoUsername = remember { mutableStateOf("f.cambas") }
+    var campoContrasena = remember { mutableStateOf("1234") }
 
 
     //Gradiente de colores para el color de fondo del login

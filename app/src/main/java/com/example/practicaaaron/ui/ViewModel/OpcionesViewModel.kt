@@ -1,5 +1,6 @@
 package com.example.practicaaaron.ui.ViewModel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
@@ -13,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
+import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.Informacion
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
@@ -23,11 +25,14 @@ import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.util.stream.Collectors
+import kotlin.streams.toList
 
 @RequiresApi(Build.VERSION_CODES.O)
 class OpcionesViewModel(
@@ -41,6 +46,7 @@ class OpcionesViewModel(
     private val _ubicaciones = MutableStateFlow<MutableList<Ubicacion>>(mutableListOf())
     private val _usuarios = MutableStateFlow<Usuarios?>(null)
     private val _informacion = MutableStateFlow<Informacion?>(Informacion())
+    private val _entregado = MutableStateFlow<Entregado?>(Entregado())
 
     val pedidosRepartidor: StateFlow<DataPedido?> get() = _pedidosRepartidor.asStateFlow()
     val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
@@ -50,6 +56,7 @@ class OpcionesViewModel(
     val ubicaciones: StateFlow<MutableList<Ubicacion>> get() = _ubicaciones.asStateFlow()
     val usuarios: StateFlow<Usuarios?> get() = _usuarios.asStateFlow()
     val informacion:StateFlow<Informacion?> get() = _informacion.asStateFlow()
+    val entregado:StateFlow<Entregado?> get() = _entregado.asStateFlow()
 
 
     val conseguirLocalizacion = LocationService()
@@ -69,9 +76,13 @@ class OpcionesViewModel(
 
     //Obtener aqui todas las latitudes y altitudes
     fun obtenerPedidos() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val response =
                 informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario) }
+
+            if(response?.data?.pedidos != null){
+                response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
+            }
             _pedidosRepartidor.value = response
 
             setInfo(response)
@@ -93,13 +104,14 @@ class OpcionesViewModel(
     fun setInfo(response: DataPedido?) {
         if(response != null){
             _informacion.value?.pedidos = response.data.pedidos.size
+            _informacion.value?.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
             _informacion.value?.entregados = response.data.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
-            _informacion.value?.incidencia = response.data.pedidos.stream().filter{it.incidencia != 100 || it.incidencia != 0}.count().toInt()
+            _informacion.value?.incidencia = response.data.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
         }
     }
 
     fun obtenerPedidos(id: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val response =
                 informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id) }
             _pedidosRepartidor.value = response
@@ -118,7 +130,7 @@ class OpcionesViewModel(
     }
 
     fun hacerLogin(usuarioLogin: UsuarioLogin) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _isLogged.value = -1
             val response = repositorio.hacerLogin(usuarioLogin)
             _informacionUsuario.value = response
@@ -137,7 +149,7 @@ class OpcionesViewModel(
     }
 
     fun obtenerPedido(pedidoCab: PedidoCab) {
-        viewModelScope.launch {
+        viewModelScope.launch (Dispatchers.IO){
             _pedido.value = pedidoCab
         }
     }
@@ -164,8 +176,15 @@ class OpcionesViewModel(
         var pedido =
             PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""))
 
-        viewModelScope.launch {
-            repositorio.actualizarPedido(pedido)
+        viewModelScope.launch(Dispatchers.IO){
+            val response = repositorio.actualizarPedido(pedido)
+            _pedidosRepartidor.value = _informacionUsuario.value?.dataUser?.idUsuario?.let {
+                repositorio.recuperarPedidos(
+                    it
+                )
+            }
+            setInfo(_pedidosRepartidor.value)
+            _entregado.value = response
         }
     }
 
@@ -193,11 +212,11 @@ class OpcionesViewModel(
         var fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
 
         entrega.idPedido = _pedido.value?.idPedido ?: 0
-        entrega.lecturaBarcode = valorBarras
+        entrega.lecturaBarcode = valorBarras ?: ""
         entrega.fotoEntrega = fotoBase64 ?: ""
         entrega.firma = fotoFirma ?: ""
 
-        viewModelScope.launch {
+        viewModelScope.launch (Dispatchers.IO){
             val resultado = conseguirLocalizacion.getUserLocation(content)
 
             if (resultado != null) {
@@ -208,12 +227,24 @@ class OpcionesViewModel(
                 Log.i("longitud", "${entrega.longitud}")
             }
 
-            repositorio.hacerEntrega(entrega)
+            val response:Entregado = repositorio.hacerEntrega(entrega)
+            _pedidosRepartidor.value = _informacionUsuario.value?.dataUser?.idUsuario?.let {
+                repositorio.recuperarPedidos(
+                    it
+                )
+            }
+            setInfo(_pedidosRepartidor.value)
+            _entregado.value = response
         }
     }
 
+    fun resetearEntrega(){
+        _entregado.value?.retcode = -2
+        Log.i("valor2","${entregado.value}")
+    }
+
     fun obtenerTodos() {
-        viewModelScope.launch {
+        viewModelScope.launch (Dispatchers.IO){
             val response = repositorio.obtenerTodos()
             Log.i("entrada", "$response")
             _usuarios.value = response
@@ -223,8 +254,11 @@ class OpcionesViewModel(
 
 
 private fun encodeImage(bm: Bitmap): String? {
-    val baos = ByteArrayOutputStream()
-    bm.compress(Bitmap.CompressFormat.JPEG, 20, baos)
-    val b = baos.toByteArray()
-    return Base64.encodeToString(b, Base64.DEFAULT)
+    if(bm != null){
+        val baos = ByteArrayOutputStream()
+        bm.compress(Bitmap.CompressFormat.JPEG, 20, baos)
+        val b = baos.toByteArray()
+        return Base64.encodeToString(b, Base64.DEFAULT)
+    }else
+        return null
 }

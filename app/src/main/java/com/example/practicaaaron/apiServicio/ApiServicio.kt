@@ -3,6 +3,7 @@ package com.example.practicaaaron.apiServicio
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.practicaaaron.clases.entrega.Entrega
+import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.usuarios.Data
@@ -29,10 +30,10 @@ interface ApiServicio {
     suspend fun hacerLogin(@Body user:UsuarioLogin):Response<Data>
 
     @PUT("PedidosActualizar")
-    suspend fun actualizarPedido(@Body cuerpo:PedidoActualizar)
+    suspend fun actualizarPedido(@Body cuerpo:PedidoActualizar):Entregado
 
     @PUT("hacerEntrega")
-    suspend fun hacerEntrega(@Body cuerpo:Entrega)
+    suspend fun hacerEntrega(@Body cuerpo:Entrega):Entregado
 
     @GET("obtenerTodos")
     suspend fun obtenerTodos():Usuarios
