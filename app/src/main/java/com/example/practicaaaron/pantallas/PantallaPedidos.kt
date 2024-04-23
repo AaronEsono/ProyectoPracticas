@@ -25,8 +25,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.BusinessCenter
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.FolderCopy
+import androidx.compose.material.icons.rounded.GppBad
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.LocalShipping
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -55,6 +61,8 @@ import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
 import com.example.practicaaaron.clases.pedidos.PedidoCab
+import com.example.practicaaaron.clases.pedidos.Pedidos
+import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorBarraEncima
 import com.example.practicaaaron.ui.theme.colorPrimario
@@ -62,22 +70,31 @@ import java.util.Base64
 
 @OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation",
+    "StateFlowValueCalledInComposition"
+)
 @Composable
-@Preview
 fun ventanaPedidos(
-    navHostController: NavHostController? = null,
-    opcionesViewModel: OpcionesViewModel? = null
+    navHostController: NavHostController,
+    opcionesViewModel: OpcionesViewModel
 ) {
 
     //Variable que guarda los distintos pedidos de cada usuario
-    var pedidos = opcionesViewModel?.pedidosRepartidor?.collectAsState()?.value
-    var esAdmin = opcionesViewModel?.isLogged?.collectAsState()?.value
-    var info = opcionesViewModel?.informacion?.collectAsState()?.value
+    var pedidos = opcionesViewModel.pedidosRepartidor.value
+    var esAdmin = opcionesViewModel.isLogged.collectAsState().value
+    var info = opcionesViewModel.informacion.collectAsState().value
+    var done = opcionesViewModel.done.collectAsState().value
 
-    LaunchedEffect (esAdmin == 1){
-        opcionesViewModel?.obtenerPedidos()
+    LaunchedEffect(true) {
+        done = false
+
+        if (esAdmin == 1)
+            opcionesViewModel.obtenerPedidos()
+        else
+            opcionesViewModel.obtenerPedidos(opcionesViewModel.idUsuarioAdmin.value)
     }
+
+    Log.i("done","$done")
 
     LazyColumn(
         modifier = Modifier
@@ -85,57 +102,84 @@ fun ventanaPedidos(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
-        if (pedidos?.data?.pedidos != null) {
-            pedidos?.data?.let { it ->
-
-                stickyHeader {
-                    Column (modifier = Modifier
-                        .fillMaxWidth()
-                        .height(80.dp)
-                        .background(
-                            colorBarraEncima
-                        )){
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically){
-                            filaInformacion(imagen = R.drawable.pedidos, texto = "Pedidos: ${info?.pedidos}")
-                            filaInformacion(imagen = R.drawable.entrega, texto = "Por entregar: ${info?.porEntregar}")
-                            filaInformacion(imagen = R.drawable.incidencias, texto = "Incidencias: ${info?.incidencia}")
-                            filaInformacion(imagen = R.drawable.enviados, texto = "Entregados: ${info?.entregados}")
-                        }
-                    }
-                }
-
-                items(it.pedidos) {
-                    Spacer(modifier = Modifier.padding(0.dp, 5.dp))
-                    carta(navHostController, it, opcionesViewModel)
-                    Divider(thickness = 3.dp, color = colorPrimario)
-                }
+        if (!done) {
+            item {
+                AnimatedPreloader(
+                    Modifier.size(100.dp),
+                    animacioncompletado = R.raw.animacioncargando
+                )
             }
         } else {
-            item {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = "No hay pedidos", fontSize = 35.sp)
+            //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
+            if (pedidos?.data?.pedidos != null) {
+                pedidos?.data?.let { it ->
+
+                    stickyHeader {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(80.dp)
+                                .background(
+                                    colorBarraEncima
+                                )
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                filaInformacion(
+                                    texto = "Pedidos: ${info?.pedidos}",
+                                    Icons.Rounded.FolderCopy
+                                )
+                                filaInformacion(
+                                    texto = "Por entregar: ${info?.porEntregar}",
+                                    Icons.Rounded.LocalShipping
+                                )
+                                filaInformacion(
+                                    texto = "Incidencias: ${info?.incidencia}",
+                                    Icons.Rounded.GppBad
+                                )
+                                filaInformacion(
+                                    texto = "Entregados: ${info?.entregados}",
+                                    Icons.Rounded.LocationOn
+                                )
+                            }
+                        }
+                    }
+
+                    items(it.pedidos) {
+                        Spacer(modifier = Modifier.padding(0.dp, 5.dp))
+                        carta(navHostController, it, opcionesViewModel)
+                        Divider(thickness = 3.dp, color = colorPrimario)
+                    }
+                }
+            } else {
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "No hay pedidos", fontSize = 35.sp)
+                    }
                 }
             }
         }
+
     }
 }
 
 @Composable
-fun filaInformacion(imagen:Int,texto:String){
-        Column (modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
-            Image(painter = painterResource(id = imagen), contentDescription = "descripcion pedidos",Modifier.size(25.dp), colorFilter = ColorFilter.tint(Color.White))
-            Text(text = texto, fontSize = 13.sp, color = Color.White)
-        }
+fun filaInformacion(texto:String, icono: ImageVector){
+    Column (modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+        Icon(icono, contentDescription = "", tint = Color.White, modifier = Modifier.size(25.dp))
+        Text(text = texto, fontSize = 13.sp, color = Color.White)
+    }
 }
 
 // Funcion que que convierte un string en base64 a bitmap
 @RequiresApi(Build.VERSION_CODES.O)
-fun loadImageFromBase64(context: Context, texto: String): ImageBitmap? {
-    Log.i("hola33","rgreg")
+fun loadImageFromBase64(texto: String): ImageBitmap? {
     try {
         val decodebytes = Base64.getDecoder().decode(texto)
         val bitmap = BitmapFactory.decodeByteArray(decodebytes, 0, decodebytes.size)
@@ -147,28 +191,29 @@ fun loadImageFromBase64(context: Context, texto: String): ImageBitmap? {
 
 //Funcion que muestra en formato carta cada uno de los pedidos
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
 fun carta(
-    navHostController: NavHostController? = null,
+    navHostController: NavHostController,
     pedidoCab: PedidoCab = PedidoCab(),
-    opcionesViewModel: OpcionesViewModel? = null,
+    opcionesViewModel: OpcionesViewModel
 ) {
-    val context = LocalContext.current
     //Imagen que tenemos que convertir a bitmap para mostrarla
+    var imagen:ImageBitmap? = null
 
-    val imagen = loadImageFromBase64(context, pedidoCab.imagenDescripcion)
+    if(pedidoCab.imagenDescripcion != ""){
+        imagen = loadImageFromBase64(pedidoCab.imagenDescripcion)
+    }
+
     //Poner el color segun el estado
     //var color = opcionesViewModel?.indicarColorPedido(pedidoCab.incidencia)?:0
     val estado: ColoresIncidencias =
-        opcionesViewModel?.indicarColorPedido(pedidoCab.incidencia) ?: ColoresIncidencias()
+        opcionesViewModel.indicarColorPedido(pedidoCab.incidencia) ?: ColoresIncidencias()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row {
             Column(modifier = Modifier.clickable {
-                opcionesViewModel?.obtenerPedido(pedidoCab)
-                navHostController?.navigate("infoPedido")
+                opcionesViewModel.obtenerPedido(pedidoCab)
+                navHostController.navigate("infoPedido")
             }) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Column(
@@ -252,11 +297,12 @@ fun carta(
                         .padding(10.dp, 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = estado.imagen),
+                    var color = if(pedidoCab.incidencia != 100) Color.Black else Color.Green
+                    Icon(
+                        estado.imagen,
                         contentDescription = "",
                         modifier = Modifier.size(30.dp),
-                        contentScale = ContentScale.FillBounds
+                        tint = color
                     )
                     Text(
                         text = "${estado.texto}",

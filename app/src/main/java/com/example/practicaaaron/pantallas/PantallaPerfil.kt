@@ -72,7 +72,9 @@ fun VentanaPerfil(
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(0.dp,10.dp,0.dp,0.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp, 10.dp, 0.dp, 0.dp)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 translate(left = 0f, top = -250f) {
@@ -82,7 +84,8 @@ fun VentanaPerfil(
             Icon(
                 Icons.Rounded.AccountCircle,
                 contentDescription = "Imagen perfil",
-                modifier = Modifier.size(130.dp)
+                modifier = Modifier.size(130.dp),
+                tint = Color.White
             )
 
             Text(

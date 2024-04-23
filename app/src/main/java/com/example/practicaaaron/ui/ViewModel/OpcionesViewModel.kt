@@ -7,6 +7,15 @@ import android.os.Build
 import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.ArrowOutward
+import androidx.compose.material.icons.rounded.Block
+import androidx.compose.material.icons.rounded.CheckCircleOutline
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Commit
+import androidx.compose.material.icons.rounded.Commute
+import androidx.compose.material.icons.rounded.LocalPrintshop
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
@@ -19,6 +28,7 @@ import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.Informacion
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
+import com.example.practicaaaron.clases.resultados.InformacionUsuarios
 import com.example.practicaaaron.clases.ubicaciones.Ubicacion
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
@@ -47,6 +57,9 @@ class OpcionesViewModel(
     private val _usuarios = MutableStateFlow<Usuarios?>(null)
     private val _informacion = MutableStateFlow<Informacion?>(Informacion())
     private val _entregado = MutableStateFlow<Entregado?>(Entregado())
+    private val _done = MutableStateFlow<Boolean>(false)
+    private val _idUsuarioAdmin = MutableStateFlow<Int>(0)
+    private val _resultadosTrabajadores = MutableStateFlow<InformacionUsuarios>(InformacionUsuarios())
 
     val pedidosRepartidor: StateFlow<DataPedido?> get() = _pedidosRepartidor.asStateFlow()
     val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
@@ -57,26 +70,32 @@ class OpcionesViewModel(
     val usuarios: StateFlow<Usuarios?> get() = _usuarios.asStateFlow()
     val informacion:StateFlow<Informacion?> get() = _informacion.asStateFlow()
     val entregado:StateFlow<Entregado?> get() = _entregado.asStateFlow()
-
+    val done:StateFlow<Boolean> get() = _done.asStateFlow()
+    val idUsuarioAdmin:StateFlow<Int> get() = _idUsuarioAdmin.asStateFlow()
+    val resultadosTrabajadores:StateFlow<InformacionUsuarios> get() = _resultadosTrabajadores.asStateFlow()
 
     val conseguirLocalizacion = LocationService()
 
     val coloresIncidencias = listOf(
-        ColoresIncidencias(R.drawable.delivery, 0, "Por entregar", "Normal"),
-        ColoresIncidencias(R.drawable.check, 100, "Entregado", "Entregado"),
-        ColoresIncidencias(R.drawable.ausente, 10, "Perdido", "Pérdida"),
-        ColoresIncidencias(R.drawable.rechazo, 30, "Rechazo", "Rechazo"),
+        ColoresIncidencias(Icons.Rounded.Commute, 0, "Por entregar", "Normal"),
+        ColoresIncidencias(Icons.Rounded.CheckCircleOutline, 100, "Entregado", "Entregado"),
+        ColoresIncidencias(Icons.Rounded.Block, 10, "Perdido", "Pérdida"),
+        ColoresIncidencias(Icons.Rounded.Clear, 30, "Rechazo", "Rechazo"),
         ColoresIncidencias(
-            R.drawable.direccionerronea,
+            Icons.Rounded.AccountCircle,
             40,
             "Dirección errónea",
             "dirección errónea"
         )
     )
 
+    fun setId(id:Int){
+        _idUsuarioAdmin.value = id
+    }
+
     //Obtener aqui todas las latitudes y altitudes
     fun obtenerPedidos() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch{
             val response =
                 informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario) }
 
@@ -86,8 +105,7 @@ class OpcionesViewModel(
             _pedidosRepartidor.value = response
 
             setInfo(response)
-            Log.i("Info","${_informacion.value}")
-            Log.i("Info","${_pedidosRepartidor.value}")
+
             _pedidosRepartidor.value?.data?.pedidos?.forEach {
                 _ubicaciones.value.add(
                     Ubicacion(
@@ -97,12 +115,13 @@ class OpcionesViewModel(
                     )
                 )
             }
+            _done.value = true
         }
     }
 
 
     fun setInfo(response: DataPedido?) {
-        if(response != null){
+        if(response?.data?.pedidos != null){
             _informacion.value?.pedidos = response.data.pedidos.size
             _informacion.value?.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
             _informacion.value?.entregados = response.data.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
@@ -111,7 +130,7 @@ class OpcionesViewModel(
     }
 
     fun obtenerPedidos(id: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch{
             val response =
                 informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id) }
             _pedidosRepartidor.value = response
@@ -126,7 +145,9 @@ class OpcionesViewModel(
                     )
                 )
             }
+            setInfo(response)
         }
+        _done.value = true
     }
 
     fun hacerLogin(usuarioLogin: UsuarioLogin) {
@@ -178,12 +199,6 @@ class OpcionesViewModel(
 
         viewModelScope.launch(Dispatchers.IO){
             val response = repositorio.actualizarPedido(pedido)
-            _pedidosRepartidor.value = _informacionUsuario.value?.dataUser?.idUsuario?.let {
-                repositorio.recuperarPedidos(
-                    it
-                )
-            }
-            setInfo(_pedidosRepartidor.value)
             _entregado.value = response
         }
     }
@@ -228,12 +243,6 @@ class OpcionesViewModel(
             }
 
             val response:Entregado = repositorio.hacerEntrega(entrega)
-            _pedidosRepartidor.value = _informacionUsuario.value?.dataUser?.idUsuario?.let {
-                repositorio.recuperarPedidos(
-                    it
-                )
-            }
-            setInfo(_pedidosRepartidor.value)
             _entregado.value = response
         }
     }
@@ -250,6 +259,13 @@ class OpcionesViewModel(
             _usuarios.value = response
         }
     }
+
+    fun resultadosTrabajadores(){
+        viewModelScope.launch (Dispatchers.IO){
+            _resultadosTrabajadores.value = repositorio.resultadosTrabajadores()
+        }
+    }
+
 }
 
 

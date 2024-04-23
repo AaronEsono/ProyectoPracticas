@@ -73,16 +73,14 @@ import com.example.practicaaaron.ui.theme.colorTerciario
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-@Preview
 fun ventanaLogin(
-    navHostController: NavHostController? = null,
-    opcionesViewModel: OpcionesViewModel? = null
+    navHostController: NavHostController,
+    opcionesViewModel: OpcionesViewModel
 ) {
 
     //Variables que controlan el estado de los campos del login
-    var campoUsername = remember { mutableStateOf("f.cambas") }
+    var campoUsername = remember { mutableStateOf("d.pits") }
     var campoContrasena = remember { mutableStateOf("1234") }
-
 
     //Gradiente de colores para el color de fondo del login
     val listColors = listOf(colorSecundario, colorPrimario)
@@ -97,10 +95,10 @@ fun ventanaLogin(
     var usuarioLogin by remember { mutableStateOf(UsuarioLogin()) }
 
     // Variable que controla si alguien se ha logeado correctamente o no
-    var isLog = opcionesViewModel?.isLogged?.collectAsState()?.value
+    var isLog = opcionesViewModel.isLogged.collectAsState().value
 
     // Variable que muestra el error en el login
-    var mensaje = opcionesViewModel?.mensaje?.collectAsState()?.value
+    var mensaje = opcionesViewModel.mensaje.collectAsState().value
 
     val (focusRequester) = FocusRequester.createRefs()
 
@@ -201,7 +199,7 @@ fun ventanaLogin(
 
     //Si se logea correctamente, pasar a la siguiente pantalla
     if (isLog != -1) {
-        navHostController?.navigate("menu")
+        navHostController.navigate("menu")
     }
 }
 
@@ -306,12 +304,12 @@ fun hacerLlamada(
     usuarioLogin: UsuarioLogin,
     campoContrasena: MutableState<String>,
     campoUsername: MutableState<String>,
-    opcionesViewModel: OpcionesViewModel?
+    opcionesViewModel: OpcionesViewModel
 ) {
     usuarioLogin.password = campoContrasena.value
     usuarioLogin.username = campoUsername.value
 
     //Si los campos no estan vacios, se hace la peticion
     if (usuarioLogin.password.isNotEmpty() && usuarioLogin.username.isNotEmpty())
-        opcionesViewModel?.hacerLogin(usuarioLogin)
+        opcionesViewModel.hacerLogin(usuarioLogin)
 }

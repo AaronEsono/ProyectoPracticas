@@ -20,6 +20,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,8 +36,11 @@ import com.example.practicaaaron.ui.theme.colorPrimario
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun pantallaUsuarios(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
-    opcionesViewModel.obtenerTodos()
     var usuarios = opcionesViewModel?.usuarios?.collectAsState()?.value
+
+    LaunchedEffect (true){
+        opcionesViewModel.obtenerTodos()
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -68,7 +72,7 @@ fun cartaUsuario(
         .height(IntrinsicSize.Max)
         .padding(0.dp, 10.dp)
         .clickable {
-            opcionesViewModel.obtenerPedidos(user.idUsuario)
+            opcionesViewModel.setId(user.idUsuario)
             navController.navigate("pedidos")
         }) {
 

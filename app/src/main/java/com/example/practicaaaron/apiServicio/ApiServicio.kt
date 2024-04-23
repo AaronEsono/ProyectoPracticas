@@ -6,6 +6,7 @@ import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
+import com.example.practicaaaron.clases.resultados.InformacionUsuarios
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
@@ -37,6 +38,9 @@ interface ApiServicio {
 
     @GET("obtenerTodos")
     suspend fun obtenerTodos():Usuarios
+
+    @GET("resultadosTrabajadores")
+    suspend fun resultadosTrabajadores():InformacionUsuarios
 
 }
 

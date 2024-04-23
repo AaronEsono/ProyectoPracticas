@@ -36,9 +36,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Photo
+import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -260,7 +264,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
         if(entregado?.retcode != -2){
             var entregados = info?.entregados?.plus(info?.incidencia?:0)?:0
 
-            if(entregados >= info?.pedidos?:0){
+            if(entregados + 1>= info?.pedidos?:0){
                 navController.navigate("Hecho")
             }else{
                 navController.navigate("pedidos")
@@ -316,8 +320,9 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             ) {
                 //Hacer en una funcion en un futuro, intertar meter las funciones en la funcion
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painter = painterResource(id = R.drawable.galeriaicono),
-                        contentDescription = "edq",
+                    Icon(
+                        Icons.Rounded.Photo,
+                        contentDescription = "foto galeria",
                         modifier = Modifier
                             .size(80.dp)
                             .clickable {
@@ -328,8 +333,8 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painter = painterResource(id = R.drawable.camaraicono),
-                        contentDescription = "edq",
+                    Icon(Icons.Rounded.PhotoCamera,
+                        contentDescription = "foto camara",
                         modifier = Modifier
                             .size(80.dp)
                             .clickable {

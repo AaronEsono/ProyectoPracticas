@@ -49,7 +49,7 @@ fun VentanaPrincipal(
 
     var opcionesAdmin = listOf(
         Opcion(R.drawable.iconoconsultar,"Consultar","pedidos","usuarios"),
-        Opcion(R.drawable.icono2,"Horarios","pedidos","usuarios"),
+        Opcion(R.drawable.icono2,"Estadísticas","pedidos","estadistica"),
         Opcion(R.drawable.icono3,"Transportes","pedidos","usuarios"),
     )
 
@@ -99,12 +99,13 @@ fun cartaMenuPr(navHostController: NavHostController? = null,
                 nombre:String = "Rutas",
                 descripcion:String = "Descripcion rutas",
                 ruta:String = "") {
-    val listColors = listOf(Color.Transparent, Color.Black)
 
     Card(
         modifier = Modifier
             .height(170.dp)
-            .fillMaxWidth(),onClick = {navHostController?.navigate("$ruta")}
+            .fillMaxWidth(),onClick = {
+                navHostController?.navigate("$ruta")
+            }
     ) {
         Column (modifier = Modifier
             .background(colorPrimario)

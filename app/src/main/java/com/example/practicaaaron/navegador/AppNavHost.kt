@@ -59,6 +59,7 @@ import com.example.practicaaaron.pantallas.pantallaMapa
 import com.example.practicaaaron.pantallas.pantallaUsuarios
 import com.example.practicaaaron.pantallas.ventanaEditarPerfil
 import com.example.practicaaaron.pantallas.ventanaEntregaPedido
+import com.example.practicaaaron.pantallas.ventanaEstadisticas
 import com.example.practicaaaron.pantallas.ventanaPedidos
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorBarraEncima
@@ -78,6 +79,7 @@ sealed class Pantallas(var route:String){
     data object Rutas:Pantallas("rutas")
     data object Usuarios:Pantallas("usuarios")
     data object Hecho:Pantallas("Hecho")
+    data object Estadistica:Pantallas("estadistica")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -226,6 +228,9 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             }
             composable(Pantallas.Hecho.route){
                 hecho(navHostController = navController, opcionesViewModel = opcionesViewModel)
+            }
+            composable(Pantallas.Estadistica.route){
+                ventanaEstadisticas(navHostController = navController, opcionesViewModel = opcionesViewModel)
             }
         }
 }

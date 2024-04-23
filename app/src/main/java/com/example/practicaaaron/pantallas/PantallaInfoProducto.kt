@@ -84,7 +84,7 @@ fun PantallaInfoProducto(
 
             val context = LocalContext.current
             //Imagen relacionada con el pedido elegido
-            val imagen = pedido?.imagenDescripcion?.let { loadImageFromBase64(context, it) }
+            val imagen = pedido?.imagenDescripcion?.let { loadImageFromBase64(it) }
 
             var esAdmin = opcionesViewModel?.isLogged?.collectAsState()?.value
 
@@ -143,7 +143,7 @@ fun PantallaInfoProducto(
     if(entregado?.retcode != -2){
         var entregados = info?.entregados?.plus(info?.incidencia?:0)?:0
 
-        if(entregados >= info?.pedidos?:0){
+        if(entregados + 1>= info?.pedidos?:0){
             navHostController?.navigate("Hecho")
         }else{
             navHostController?.navigate("pedidos")
