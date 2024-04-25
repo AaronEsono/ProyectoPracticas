@@ -36,10 +36,12 @@ import androidx.compose.material.icons.rounded.GppBad
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.LocalShipping
 import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -74,7 +76,6 @@ import com.example.practicaaaron.ui.theme.colorBarraEncima
 import com.example.practicaaaron.ui.theme.colorPrimario
 import java.util.Base64
 
-@OptIn(ExperimentalFoundationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation",
     "StateFlowValueCalledInComposition"
@@ -108,12 +109,17 @@ fun ventanaPedidos(
     val state = rememberScrollState()
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(0.dp,60.dp,0.dp,0.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(0.dp, 60.dp, 0.dp, 0.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(80.dp).background(
-                colorBarraEncima
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .background(
+                    colorBarraEncima
+                ),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -132,6 +138,27 @@ fun ventanaPedidos(
             filaInformacion(
                 texto = "Entregados: ${info?.entregados}",
                 Icons.Rounded.LocationOn
+            )
+        }
+
+        Row (modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .background(colorBarraEncima)
+            .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly){
+            Icon(Icons.Rounded.Search, contentDescription = "Buscar", tint = Color.White, modifier = Modifier.size(25.dp))
+
+            var buscador by remember { mutableStateOf("") }
+
+            LaunchedEffect (buscador){
+                pedidos.value = opcionesViewModel.buscar(buscador)
+            }
+
+            TextField(
+                value = buscador,
+                onValueChange = { buscador = it },
+                label = { Text("Busca el pedido") }
             )
         }
 

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
+import android.provider.ContactsContract
 import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -121,6 +122,17 @@ class OpcionesViewModel(
         }
     }
 
+    //Mirar mañana
+    fun buscar(texto:String):DataPedido{
+        var lista = DataPedido()
+        if(_pedidosRepartidor.value?.data?.pedidos != null){
+            lista = _pedidosRepartidor.value!!.copy()!!
+            lista.data.pedidos = lista.data.pedidos.stream().filter{it.nombre.equals(texto) || it.nombre.contains(texto)}.collect(Collectors.toList())
+            Log.i("pedidows2entro","${_pedidosRepartidor.value?.data?.pedidos.toString()}")
+        }
+
+        return lista
+    }
 
     fun setInfo(response: DataPedido?) {
         if(response?.data?.pedidos != null){
