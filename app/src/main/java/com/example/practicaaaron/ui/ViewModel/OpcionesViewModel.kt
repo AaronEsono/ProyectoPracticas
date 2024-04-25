@@ -8,6 +8,7 @@ import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AcUnit
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.ArrowOutward
 import androidx.compose.material.icons.rounded.Block
@@ -81,6 +82,7 @@ class OpcionesViewModel(
         ColoresIncidencias(Icons.Rounded.CheckCircleOutline, 100, "Entregado", "Entregado"),
         ColoresIncidencias(Icons.Rounded.Block, 10, "Perdido", "Pérdida"),
         ColoresIncidencias(Icons.Rounded.Clear, 30, "Rechazo", "Rechazo"),
+        ColoresIncidencias(Icons.Rounded.AcUnit, 20, "Ausente", "Ausente"),
         ColoresIncidencias(
             Icons.Rounded.AccountCircle,
             40,
@@ -95,7 +97,7 @@ class OpcionesViewModel(
 
     //Obtener aqui todas las latitudes y altitudes
     fun obtenerPedidos() {
-        viewModelScope.launch{
+        viewModelScope.launch(Dispatchers.IO){
             val response =
                 informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario) }
 
@@ -126,14 +128,23 @@ class OpcionesViewModel(
             _informacion.value?.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
             _informacion.value?.entregados = response.data.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
             _informacion.value?.incidencia = response.data.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
+        }else{
+            _informacion.value?.pedidos = 0
+            _informacion.value?.porEntregar = 0
+            _informacion.value?.entregados = 0
+            _informacion.value?.incidencia = 0
         }
     }
 
     fun obtenerPedidos(id: Int) {
-        viewModelScope.launch{
+        viewModelScope.launch(Dispatchers.IO){
             val response =
                 informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id) }
             _pedidosRepartidor.value = response
+
+            if(response?.data?.pedidos != null){
+                response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
+            }
 
             Log.i("hh", "${_pedidosRepartidor.value}")
             _pedidosRepartidor.value?.data?.pedidos?.forEach {

@@ -42,6 +42,7 @@ fun PieChart(
     chartBarWidth: Dp = 5.dp,
     animDuration: Int = 1000,
     incidencias: String = "pedidos",
+    colors:MutableList<Color>
 ) {
     val totalSum = data.values.sum()
     val floatValue = mutableListOf<Float>()
@@ -52,24 +53,6 @@ fun PieChart(
     // The link is in the about section and readme file of this GitHub Repository
     data.values.forEachIndexed { index, values ->
         floatValue.add(index, 360 * values.toFloat() / totalSum.toFloat())
-    }
-
-    // add the colors as per the number of data(no. of pie chart entries)
-    // so that each data will get a color
-    var colors:MutableList<Color> = mutableListOf(
-        Color.Magenta,
-        Color.Cyan
-    )
-
-    //Mirar el jueves
-    LaunchedEffect (true){
-        colors = mutableListOf()
-        for(n in 1..data.size){
-            val rnd = Random()
-            val color = Color(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256))
-            colors.add(color)
-        }
-        Log.i("Colores","$colors")
     }
 
     var animationPlayed by remember { mutableStateOf(false) }

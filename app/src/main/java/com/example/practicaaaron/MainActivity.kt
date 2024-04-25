@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.practicaaaron.navegador.AppNavHost
@@ -35,6 +36,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+            val scope = rememberCoroutineScope()
+
             //Creación de un navController para navegar entre las distinas pantallas
             val navController = rememberNavController()
 

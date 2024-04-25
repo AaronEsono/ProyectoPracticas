@@ -83,7 +83,7 @@ fun ventanaLogin(
     var campoContrasena = remember { mutableStateOf("1234") }
 
     //Gradiente de colores para el color de fondo del login
-    val listColors = listOf(colorSecundario, colorPrimario)
+    val listColors = remember{ mutableListOf(colorSecundario, colorPrimario) }
 
     // Variable que controla cuando se le ha dado por primera vez al boton
     var firstTimeButton by remember { mutableStateOf(false) }
@@ -209,7 +209,6 @@ fun validacion(campo: String, firstTimeButton: Boolean): Boolean {
 }
 
 // Funcion composable que muestra en textField con los parametros indicados
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun campoFuncion(
     campo: MutableState<String>,

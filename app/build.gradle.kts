@@ -28,9 +28,9 @@ android {
                 "proguard-rules.pro"
             )
 
-            debug{
-                isDebuggable = true
-            }
+//            debug{
+//                isDebuggable = true
+//            }
         }
     }
     compileOptions {

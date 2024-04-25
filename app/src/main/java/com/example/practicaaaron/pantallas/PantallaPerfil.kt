@@ -77,7 +77,7 @@ fun VentanaPerfil(
                 .padding(0.dp, 10.dp, 0.dp, 0.dp)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                translate(left = 0f, top = -250f) {
+                translate(left = 0f, top = -350f) {
                     drawCircle(colorPrimario, radius = 250.dp.toPx())
                 }
             }

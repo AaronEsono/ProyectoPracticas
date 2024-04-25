@@ -61,6 +61,7 @@ import com.example.practicaaaron.pantallas.ventanaEditarPerfil
 import com.example.practicaaaron.pantallas.ventanaEntregaPedido
 import com.example.practicaaaron.pantallas.ventanaEstadisticas
 import com.example.practicaaaron.pantallas.ventanaPedidos
+import com.example.practicaaaron.pantallas.ventanaPedidos2
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorBarraEncima
 import com.example.practicaaaron.ui.theme.colorPrimario
@@ -152,9 +153,6 @@ fun interfazScaffold(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    //Variable para guardar el nombre del usuario logeado
-    val nombre = opcionesViewModel.informacionUsuario.collectAsState().value
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -300,20 +298,20 @@ fun barraArriba(
                     },
                     navigationIcon = {
                         if (showToolbar.value == 3){
-                        IconButton(onClick = {
-                            scope.launch {
-                                drawerState.apply {
-                                    if (isClosed) open() else close()
+                            IconButton(onClick = {
+                                scope.launch {
+                                    drawerState.apply {
+                                        if (isClosed) open() else close()
+                                    }
                                 }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Menu,
+                                    contentDescription = "Localized description",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(50.dp)
+                                )
                             }
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Localized description",
-                                tint = Color.White,
-                                modifier = Modifier.size(50.dp)
-                            )
-                        }
                         }
                     },
                     scrollBehavior = scrollBehavior,

@@ -42,6 +42,7 @@ fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesVi
     var latitudUser = remember { mutableStateOf(0f) }
     var altitudUser = remember { mutableStateOf(0f) }
     var posicion by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    var done by remember {mutableStateOf(false)}
 
     //Intentar que cuando abras google maps salga las ubicaciones
     var ubicaciones = opcionesViewModel?.ubicaciones?.collectAsState()?.value
@@ -51,34 +52,36 @@ fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesVi
         if (resultado != null) {
             latitudUser.value = resultado.latitude.toFloat()
             altitudUser.value = resultado.longitude.toFloat()
+            opcionesViewModel.obtenerPedidos()
+            posicion = LatLng(latitudUser.value.toDouble(), altitudUser.value.toDouble())
         }
+        done = true
     }
 
-    opcionesViewModel.obtenerPedidos()
-
-    posicion = LatLng(latitudUser.value.toDouble(), altitudUser.value.toDouble())
 
     //Hacer que la camara se centre automaticamente en el usuario
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(40.4495851, -3.6920861), 10f)
     }
 
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        cameraPositionState = cameraPositionState
-    ) {
-        Marker(
-            state = MarkerState(position = posicion),
-            title = "Estas aquí",
-            snippet = "Estas aquí",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)
-        )
-        ubicaciones?.forEach {
+    if(done){
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState
+        ) {
             Marker(
-                state = MarkerState(position = LatLng(it.latitud, it.altitud)),
-                title = "${it.nombre}",
-                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+                state = MarkerState(position = posicion),
+                title = "Estas aquí",
+                snippet = "Estas aquí",
+                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)
             )
+            ubicaciones?.forEach {
+                Marker(
+                    state = MarkerState(position = LatLng(it.latitud, it.altitud)),
+                    title = "${it.nombre}",
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+                )
+            }
         }
     }
 }

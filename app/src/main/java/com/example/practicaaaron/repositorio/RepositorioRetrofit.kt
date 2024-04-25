@@ -41,7 +41,6 @@ class RepositorioRetrofit(
     }
 
     suspend fun resultadosTrabajadores():InformacionUsuarios{
-        Log.i("entro2","hola")
         return apiServicio.create(ApiServicio::class.java).resultadosTrabajadores()
     }
 

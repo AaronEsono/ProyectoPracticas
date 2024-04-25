@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BusinessCenter
 import androidx.compose.material.icons.rounded.Call
@@ -40,8 +43,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
+import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.clases.pedidos.Pedidos
 import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
@@ -80,10 +86,14 @@ fun ventanaPedidos(
 ) {
 
     //Variable que guarda los distintos pedidos de cada usuario
-    var pedidos = opcionesViewModel.pedidosRepartidor.value
+    var pedidos = remember {mutableStateOf<DataPedido?>(DataPedido())}
     var esAdmin = opcionesViewModel.isLogged.collectAsState().value
     var info = opcionesViewModel.informacion.collectAsState().value
     var done = opcionesViewModel.done.collectAsState().value
+
+    if(done){
+        pedidos.value = opcionesViewModel.pedidosRepartidor.value
+    }
 
     LaunchedEffect(true) {
         done = false
@@ -95,78 +105,70 @@ fun ventanaPedidos(
     }
 
     Log.i("done","$done")
+    val state = rememberScrollState()
 
-    LazyColumn(
-        modifier = Modifier
-            .padding(0.dp, 60.dp, 0.dp, 0.dp)
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = Modifier.fillMaxSize().padding(0.dp,60.dp,0.dp,0.dp)
     ) {
-        if (!done) {
-            item {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(80.dp).background(
+                colorBarraEncima
+            ),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            filaInformacion(
+                texto = "Pedidos: ${info?.pedidos}",
+                Icons.Rounded.FolderCopy
+            )
+            filaInformacion(
+                texto = "Por entregar: ${info?.porEntregar}",
+                Icons.Rounded.LocalShipping
+            )
+            filaInformacion(
+                texto = "Incidencias: ${info?.incidencia}",
+                Icons.Rounded.GppBad
+            )
+            filaInformacion(
+                texto = "Entregados: ${info?.entregados}",
+                Icons.Rounded.LocationOn
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(state),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (!done) {
                 AnimatedPreloader(
                     Modifier.size(100.dp),
                     animacioncompletado = R.raw.animacioncargando
                 )
-            }
-        } else {
-            //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
-            if (pedidos?.data?.pedidos != null) {
-                pedidos?.data?.let { it ->
 
-                    stickyHeader {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(80.dp)
-                                .background(
-                                    colorBarraEncima
-                                )
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                filaInformacion(
-                                    texto = "Pedidos: ${info?.pedidos}",
-                                    Icons.Rounded.FolderCopy
-                                )
-                                filaInformacion(
-                                    texto = "Por entregar: ${info?.porEntregar}",
-                                    Icons.Rounded.LocalShipping
-                                )
-                                filaInformacion(
-                                    texto = "Incidencias: ${info?.incidencia}",
-                                    Icons.Rounded.GppBad
-                                )
-                                filaInformacion(
-                                    texto = "Entregados: ${info?.entregados}",
-                                    Icons.Rounded.LocationOn
-                                )
-                            }
-                        }
-                    }
-
-                    items(it.pedidos) {
+            } else {
+                //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
+                if (pedidos?.value?.data?.pedidos != null) {
+                    pedidos.value!!.data.pedidos.forEach {
                         Spacer(modifier = Modifier.padding(0.dp, 5.dp))
                         carta(navHostController, it, opcionesViewModel)
                         Divider(thickness = 3.dp, color = colorPrimario)
                     }
-                }
-            } else {
-                item {
+                } else {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(text = "No hay pedidos", fontSize = 35.sp)
                     }
+
                 }
             }
-        }
 
+        }
     }
+
 }
 
 @Composable
@@ -198,7 +200,7 @@ fun carta(
     opcionesViewModel: OpcionesViewModel
 ) {
     //Imagen que tenemos que convertir a bitmap para mostrarla
-    var imagen:ImageBitmap? = null
+    var imagen:ImageBitmap? = ImageBitmap(1,1)
 
     if(pedidoCab.imagenDescripcion != ""){
         imagen = loadImageFromBase64(pedidoCab.imagenDescripcion)
