@@ -15,8 +15,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BusinessCenter
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -81,6 +83,7 @@ sealed class Pantallas(var route:String){
     data object Usuarios:Pantallas("usuarios")
     data object Hecho:Pantallas("Hecho")
     data object Estadistica:Pantallas("estadistica")
+    data object Informacion:Pantallas("informacion")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -222,12 +225,17 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
                 pantallaMapa(navController,opcionesViewModel)
             }
             composable(Pantallas.Usuarios.route){
+                opcionesViewModel.setEstadistica(false)
                 pantallaUsuarios(navController,opcionesViewModel)
             }
             composable(Pantallas.Hecho.route){
                 hecho(navHostController = navController, opcionesViewModel = opcionesViewModel)
             }
             composable(Pantallas.Estadistica.route){
+                opcionesViewModel.setEstadistica(true)
+                pantallaUsuarios(navController,opcionesViewModel)
+            }
+            composable(Pantallas.Informacion.route){
                 ventanaEstadisticas(navHostController = navController, opcionesViewModel = opcionesViewModel)
             }
         }
@@ -298,15 +306,30 @@ fun barraArriba(
                     },
                     navigationIcon = {
                         if (showToolbar.value == 3){
+                            var icono = remember { mutableStateOf(Icons.Rounded.Menu) }
+                            navHostController.addOnDestinationChangedListener(NavController.OnDestinationChangedListener { controller, destination, arguments ->
+                                when(controller.currentDestination?.route){
+                                    Pantallas.Menu.route ->{
+                                        icono.value = Icons.Rounded.Menu
+                                    }
+                                    else ->{
+                                        icono.value = Icons.Rounded.ArrowBackIosNew
+                                    }
+                                }
+                            })
                             IconButton(onClick = {
                                 scope.launch {
-                                    drawerState.apply {
-                                        if (isClosed) open() else close()
+                                    if(icono.value == Icons.Rounded.Menu){
+                                        drawerState.apply {
+                                            if (isClosed) open() else close()
+                                        }
+                                    }else{
+                                        navHostController.popBackStack()
                                     }
                                 }
                             }) {
                                 Icon(
-                                    imageVector = Icons.Filled.Menu,
+                                    imageVector = icono.value,
                                     contentDescription = "Localized description",
                                     tint = Color.White,
                                     modifier = Modifier.size(50.dp)

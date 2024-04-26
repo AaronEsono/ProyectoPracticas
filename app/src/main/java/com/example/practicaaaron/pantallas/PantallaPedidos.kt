@@ -141,26 +141,23 @@ fun ventanaPedidos(
             )
         }
 
-        Row (modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp)
-            .background(colorBarraEncima)
-            .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly){
-            Icon(Icons.Rounded.Search, contentDescription = "Buscar", tint = Color.White, modifier = Modifier.size(25.dp))
-
-            var buscador by remember { mutableStateOf("") }
-
-            LaunchedEffect (buscador){
-                pedidos.value = opcionesViewModel.buscar(buscador)
-            }
-
-            TextField(
-                value = buscador,
-                onValueChange = { buscador = it },
-                label = { Text("Busca el pedido") }
-            )
-        }
+//        Row (modifier = Modifier
+//            .fillMaxWidth()
+//            .height(70.dp)
+//            .background(colorBarraEncima)
+//            .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
+//            horizontalArrangement = Arrangement.SpaceEvenly){
+//            Icon(Icons.Rounded.Search, contentDescription = "Buscar", tint = Color.White, modifier = Modifier.size(25.dp))
+//
+//            var buscador by remember { mutableStateOf("") }
+//
+//            TextField(
+//                value = buscador,
+//                onValueChange = { buscador = it },
+//                singleLine = true,
+//                label = { Text("Busca el pedido") }
+//            )
+//        }
 
         Column(
             modifier = Modifier
@@ -202,7 +199,7 @@ fun ventanaPedidos(
 fun filaInformacion(texto:String, icono: ImageVector){
     Column (modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
         Icon(icono, contentDescription = "", tint = Color.White, modifier = Modifier.size(25.dp))
-        Text(text = texto, fontSize = 13.sp, color = Color.White)
+        Text(text = texto, fontSize = 11.sp, color = Color.White)
     }
 }
 

@@ -1,14 +1,15 @@
 package com.example.practicaaaron.clases.utilidades
 
-import android.util.Log
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -33,7 +34,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.util.Random
 
 @Composable
 fun PieChart(
@@ -42,7 +42,8 @@ fun PieChart(
     chartBarWidth: Dp = 5.dp,
     animDuration: Int = 1000,
     incidencias: String = "pedidos",
-    colors:MutableList<Color>
+    porcentajes: List<Int>,
+    total: Int
 ) {
     val totalSum = data.values.sum()
     val floatValue = mutableListOf<Float>()
@@ -54,6 +55,12 @@ fun PieChart(
     data.values.forEachIndexed { index, values ->
         floatValue.add(index, 360 * values.toFloat() / totalSum.toFloat())
     }
+
+    val colors = listOf(
+        Color.Green,
+        Color.Red,
+        Color.Gray
+    )
 
     var animationPlayed by remember { mutableStateOf(false) }
 
@@ -120,7 +127,9 @@ fun PieChart(
         DetailsPieChart(
             data = data,
             colors = colors,
-            incidencias = incidencias
+            incidencias = incidencias,
+            porcentajes = porcentajes,
+            total = total
         )
 
     }
@@ -131,7 +140,9 @@ fun PieChart(
 fun DetailsPieChart(
     data: Map<String, Int>,
     colors: List<Color>,
-    incidencias: String
+    incidencias: String,
+    total: Int,
+    porcentajes: List<Int>
 ) {
     Column(
         modifier = Modifier
@@ -139,11 +150,17 @@ fun DetailsPieChart(
             .fillMaxWidth()
     ) {
         // create the data items
+
+        Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
+            Text(text = "Total de pedidos: $total", modifier = Modifier.padding(10.dp,0.dp), fontSize = 25.sp)
+        }
+
         data.values.forEachIndexed { index, value ->
             DetailsPieChartItem(
                 data = Pair(data.keys.elementAt(index), value),
                 color = colors[index],
-                incidencias = incidencias
+                incidencias = incidencias,
+                porcentaje = porcentajes[index]
             )
         }
 
@@ -155,7 +172,8 @@ fun DetailsPieChartItem(
     data: Pair<String, Int>,
     height: Dp = 35.dp,
     color: Color,
-    incidencias: String
+    incidencias: String,
+    porcentaje: Int
 ) {
 
     Surface(
@@ -166,7 +184,8 @@ fun DetailsPieChartItem(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
             Box(
@@ -178,7 +197,7 @@ fun DetailsPieChartItem(
                     .size(height)
             )
 
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxHeight()) {
                 Text(
                     modifier = Modifier.padding(start = 15.dp),
                     text = data.first,
@@ -194,6 +213,7 @@ fun DetailsPieChartItem(
                     color = Color.Gray
                 )
             }
+            Text(text = "$porcentaje%", fontSize = 13.sp, fontWeight = FontWeight.Black)
         }
     }
 }

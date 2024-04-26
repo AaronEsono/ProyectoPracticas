@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,13 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.clases.utilidades.PieChart
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
-import java.util.Random
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -34,25 +31,32 @@ fun ventanaEstadisticas(navHostController: NavHostController,opcionesViewModel: 
 
     val state = rememberScrollState()
     val resultado = opcionesViewModel.resultadosTrabajadores.collectAsState()
+    val idAdmin = opcionesViewModel.idUsuarioAdmin.collectAsState()
     val mapa = remember { mutableMapOf<String,Int>() }
-    val mapa2 = remember { mutableMapOf<String,Int>() }
-    var colors:MutableList<Color> = remember {mutableListOf()}
     var terminado by remember {mutableStateOf(false)}
+    var done = remember{ mutableStateOf(false) }
+    var porcentajes = remember { mutableStateOf<MutableList<Int>>(mutableListOf()) }
 
 
     LaunchedEffect (true){
+        opcionesViewModel.setId(idAdmin.value)
         opcionesViewModel.resultadosTrabajadores()
+        Log.i("aver","$resultado")
+        done.value = true
     }
 
-    LaunchedEffect (resultado.value.resultados.isNotEmpty()){
-        Log.i("entro","${resultado.value.resultados}")
-        val rnd = Random()
-        resultado.value.resultados.forEach {
-            mapa[it.nombre] = it.entregados
-            mapa2[it.nombre] = it.incidencias
-            colors.add(Color(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)))
-            Log.i("Color","${colors.toString()}")
-        }
+    LaunchedEffect (done.value){
+        Log.i("entro","${resultado.value.nombre.resultados}")
+        mapa["entregados"] = resultado.value.nombre.resultados.entregados
+        mapa["incidencias"] = resultado.value.nombre.resultados.incidencias
+        mapa["sin entregar"] = resultado.value.nombre.resultados.sientregar
+
+        porcentajes.value = mutableListOf()
+
+        porcentajes.value.add(resultado.value.nombre.porcentajes.pEntregados)
+        porcentajes.value.add(resultado.value.nombre.porcentajes.pIncidencias)
+        porcentajes.value.add(resultado.value.nombre.porcentajes.pSinEntregar)
+
         terminado = true
     }
 
@@ -60,7 +64,6 @@ fun ventanaEstadisticas(navHostController: NavHostController,opcionesViewModel: 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(0.dp, 60.dp, 0.dp, 0.dp)
             .verticalScroll(state),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -68,12 +71,7 @@ fun ventanaEstadisticas(navHostController: NavHostController,opcionesViewModel: 
 
         if(terminado){
             Text(text = "Estadística pedidos", fontSize = 25.sp, modifier = Modifier.padding(0.dp,15.dp))
-            PieChart(data = mapa,colors = colors)
-
-            Divider(thickness = 2.dp, color = Color.Black, modifier = Modifier.padding(0.dp,25.dp))
-
-            Text(text = "Estadística incidencias", fontSize = 25.sp, modifier = Modifier.padding(0.dp,0.dp,0.dp,15.dp))
-            PieChart(data = mapa2, incidencias = "incidencias", colors = colors)
+            PieChart(data = mapa,porcentajes = porcentajes.value, total = resultado.value.nombre.pedidosTotales)
         }
     }
 }

@@ -21,7 +21,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -36,10 +39,14 @@ import com.example.practicaaaron.ui.theme.colorPrimario
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun pantallaUsuarios(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
-    var usuarios = opcionesViewModel?.usuarios?.collectAsState()?.value
-
+    var usuarios = opcionesViewModel.usuarios.collectAsState().value
+    var esConsulta = opcionesViewModel.esConsulta.collectAsState().value
+    var ruta = remember{ mutableStateOf("pedidos") }
+    
     LaunchedEffect (true){
         opcionesViewModel.obtenerTodos()
+        if(esConsulta)
+            ruta.value = "informacion"
     }
 
     LazyColumn(
@@ -49,14 +56,13 @@ fun pantallaUsuarios(navController: NavHostController, opcionesViewModel: Opcion
     ) {
         if (usuarios != null) {
             items(usuarios.usuarios) {
-                cartaUsuario(it, navController, opcionesViewModel)
+                cartaUsuario(it, navController, opcionesViewModel,ruta)
                 Spacer(modifier = Modifier.padding(0.dp, 4.dp))
                 Divider(thickness = 3.dp, color = colorPrimario)
                 Spacer(modifier = Modifier.padding(0.dp, 4.dp))
             }
         }
     }
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,7 +70,8 @@ fun pantallaUsuarios(navController: NavHostController, opcionesViewModel: Opcion
 fun cartaUsuario(
     user: DataUser,
     navController: NavHostController,
-    opcionesViewModel: OpcionesViewModel
+    opcionesViewModel: OpcionesViewModel,
+    ruta: MutableState<String>
 ) {
 
     Column(modifier = Modifier
@@ -73,7 +80,7 @@ fun cartaUsuario(
         .padding(0.dp, 10.dp)
         .clickable {
             opcionesViewModel.setId(user.idUsuario)
-            navController.navigate("pedidos")
+            navController.navigate(ruta.value)
         }) {
 
         Column(
@@ -85,9 +92,7 @@ fun cartaUsuario(
 
         filaUsuario(user.username, Icons.Rounded.Person)
         filaUsuario(user.email, Icons.Rounded.Email)
-
     }
-
 }
 
 @Composable

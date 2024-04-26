@@ -99,6 +99,8 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
     //Variable que guarda la foto
     val imagenCamara = remember { mutableStateOf(img) }
 
+    var imagenHecha = remember{ mutableStateOf(false) }
+
     //Variable que almacena tanto la imagen de la galeria como la de la camara
     val pintador = remember { mutableStateOf(BitmapPainter(imagenCamara.value.asImageBitmap())) }
 
@@ -108,6 +110,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             if (it != null) {
                 imagenCamara.value = it
                 pintador.value = BitmapPainter(imagenCamara.value.asImageBitmap())
+                imagenHecha.value = true
             }
         }
 
@@ -118,6 +121,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             uri?.let { imageUri = it }
             //Transforma la imagen de la galeria de uri a bitmap
             transformar(imageUri, imagenCamara, content, pintador)
+            imagenHecha.value = true
         })
 
     var showBottomSheet = remember { mutableStateOf(false) }
@@ -285,7 +289,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                     texto = "cancelar"
                 )
 
-                //valorBarras.value != "0000000000" && imagenCamara.value != img &&
+                //&& valorBarras.value != "0000000000" && imagenHecha.value //esto va dentro del if
                 Button(onClick = {
                     Log.i("etiqueta", "${imagenCamara.value}")
                     if (imageBitmap != null) {
@@ -296,7 +300,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                     } else {
                         Toast.makeText(
                             content,
-                            "Mete la foto y el codigo de barras", Toast.LENGTH_LONG
+                            "Mete la foto, el código de barras y la firma.", Toast.LENGTH_LONG
                         ).show()
                     }
 

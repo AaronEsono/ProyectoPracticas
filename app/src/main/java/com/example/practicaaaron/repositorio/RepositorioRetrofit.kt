@@ -10,6 +10,7 @@ import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.resultados.InformacionUsuarios
+import com.example.practicaaaron.clases.resultados.Respuesta
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
@@ -40,8 +41,8 @@ class RepositorioRetrofit(
         return apiServicio.create(ApiServicio::class.java).obtenerTodos()
     }
 
-    suspend fun resultadosTrabajadores():InformacionUsuarios{
-        return apiServicio.create(ApiServicio::class.java).resultadosTrabajadores()
+    suspend fun resultadosTrabajadores(id:Int):Respuesta{
+        return apiServicio.create(ApiServicio::class.java).resultadosTrabajadores(id)
     }
 
 }

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Commit
 import androidx.compose.material.icons.rounded.Commute
 import androidx.compose.material.icons.rounded.LocalPrintshop
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
@@ -31,6 +32,7 @@ import com.example.practicaaaron.clases.pedidos.Informacion
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.clases.resultados.InformacionUsuarios
+import com.example.practicaaaron.clases.resultados.Respuesta
 import com.example.practicaaaron.clases.ubicaciones.Ubicacion
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
@@ -39,8 +41,11 @@ import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.util.stream.Collectors
@@ -61,9 +66,9 @@ class OpcionesViewModel(
     private val _entregado = MutableStateFlow<Entregado?>(Entregado())
     private val _done = MutableStateFlow<Boolean>(false)
     private val _idUsuarioAdmin = MutableStateFlow<Int>(0)
-    private val _resultadosTrabajadores = MutableStateFlow<InformacionUsuarios>(InformacionUsuarios())
+    private val _resultadosTrabajadores = MutableStateFlow<Respuesta>(Respuesta())
+    private val _esConsulta = MutableStateFlow<Boolean>(true)
 
-    val pedidosRepartidor: StateFlow<DataPedido?> get() = _pedidosRepartidor.asStateFlow()
     val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
     val mensaje: StateFlow<String?> get() = _mensaje.asStateFlow()
@@ -74,7 +79,10 @@ class OpcionesViewModel(
     val entregado:StateFlow<Entregado?> get() = _entregado.asStateFlow()
     val done:StateFlow<Boolean> get() = _done.asStateFlow()
     val idUsuarioAdmin:StateFlow<Int> get() = _idUsuarioAdmin.asStateFlow()
-    val resultadosTrabajadores:StateFlow<InformacionUsuarios> get() = _resultadosTrabajadores.asStateFlow()
+    val resultadosTrabajadores:StateFlow<Respuesta> get() = _resultadosTrabajadores.asStateFlow()
+    val esConsulta get() = _esConsulta.asStateFlow()
+
+    val pedidosRepartidor get() = _pedidosRepartidor.asStateFlow()
 
     val conseguirLocalizacion = LocationService()
 
@@ -84,16 +92,14 @@ class OpcionesViewModel(
         ColoresIncidencias(Icons.Rounded.Block, 10, "Perdido", "Pérdida"),
         ColoresIncidencias(Icons.Rounded.Clear, 30, "Rechazo", "Rechazo"),
         ColoresIncidencias(Icons.Rounded.AcUnit, 20, "Ausente", "Ausente"),
-        ColoresIncidencias(
-            Icons.Rounded.AccountCircle,
-            40,
-            "Dirección errónea",
-            "dirección errónea"
-        )
-    )
+        ColoresIncidencias(Icons.Rounded.AccountCircle,40,"Dirección errónea", "dirección errónea"))
 
     fun setId(id:Int){
         _idUsuarioAdmin.value = id
+    }
+
+    fun setEstadistica(estado:Boolean){
+        _esConsulta.value = estado
     }
 
     //Obtener aqui todas las latitudes y altitudes
@@ -120,18 +126,6 @@ class OpcionesViewModel(
             }
             _done.value = true
         }
-    }
-
-    //Mirar mañana
-    fun buscar(texto:String):DataPedido{
-        var lista = DataPedido()
-        if(_pedidosRepartidor.value?.data?.pedidos != null){
-            lista = _pedidosRepartidor.value!!.copy()!!
-            lista.data.pedidos = lista.data.pedidos.stream().filter{it.nombre.equals(texto) || it.nombre.contains(texto)}.collect(Collectors.toList())
-            Log.i("pedidows2entro","${_pedidosRepartidor.value?.data?.pedidos.toString()}")
-        }
-
-        return lista
     }
 
     fun setInfo(response: DataPedido?) {
@@ -285,7 +279,7 @@ class OpcionesViewModel(
 
     fun resultadosTrabajadores(){
         viewModelScope.launch (Dispatchers.IO){
-            _resultadosTrabajadores.value = repositorio.resultadosTrabajadores()
+            _resultadosTrabajadores.value = repositorio.resultadosTrabajadores(_idUsuarioAdmin.value)
         }
     }
 

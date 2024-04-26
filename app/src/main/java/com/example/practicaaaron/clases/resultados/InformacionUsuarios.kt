@@ -3,10 +3,10 @@ package com.example.practicaaaron.clases.resultados
 import com.google.gson.annotations.SerializedName
 
 data class InformacionUsuarios (
-    @SerializedName("resultados")
-    var resultados:List<InformacionUsuario> = listOf(),
-    @SerializedName("retcode")
-    var retcode:Int = 0,
-    @SerializedName("mensaje")
-    var mensaje:String = ""
+    @SerializedName("INFORMACION")
+    var resultados:Informacion = Informacion(),
+    @SerializedName("PEDIDOSTOTALES")
+    var pedidosTotales:Int = -1,
+    @SerializedName("PORCENTAJES")
+    var porcentajes:Porcentajes = Porcentajes()
 )

@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class DataPedido(
     @SerializedName("data")
-    val data:Pedidos = Pedidos()
+    var data:Pedidos = Pedidos()
 )
