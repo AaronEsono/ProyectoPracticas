@@ -44,7 +44,7 @@ fun VentanaPrincipal(
     var opcionesUser = listOf(
         Opcion(R.drawable.iconopedidos,"Pedidos","pedidos","pedidos"),
         Opcion(R.drawable.iconorutas, "Rutas", "ruta", "rutas"),
-        Opcion(R.drawable.iconologistica, "Logística", "ruta", "rutas"),
+        Opcion(R.drawable.iconologistica, "Pedidos futuro", "ruta", "futuro"),
     )
 
     var opcionesAdmin = listOf(

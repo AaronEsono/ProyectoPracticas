@@ -63,6 +63,7 @@ import com.example.practicaaaron.clases.pedidos.Cliente
 import com.example.practicaaaron.clases.pedidos.PedidoLin
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState",
@@ -76,6 +77,7 @@ fun PantallaInfoProducto(
 ){
             val openAlertDialog = remember { mutableStateOf(false) }
             val state = rememberScrollState()
+            val fecha = opcionesViewModel?.fecha?.collectAsState()?.value ?: LocalDate.now()
 
             //Variable que guarda el pedido seleccionado por el cliente
             val pedido = opcionesViewModel?.pedido?.collectAsState()?.value
@@ -101,7 +103,7 @@ fun PantallaInfoProducto(
                     Image(bitmap = imagen, contentDescription = "Descripcion de la imagen",
                         modifier = Modifier
                             .size(120.dp)
-                            .padding(10.dp,10.dp,0.dp,0.dp),contentScale = ContentScale.FillHeight)
+                            .padding(10.dp, 10.dp, 0.dp, 0.dp),contentScale = ContentScale.FillHeight)
                 }
 
                 Text(text = "${pedido?.nombre}", fontSize = 30.sp, fontWeight = FontWeight.Black)
@@ -113,7 +115,7 @@ fun PantallaInfoProducto(
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
 
-                if(esAdmin == 1){
+                if(esAdmin == 1 && fecha.equals(LocalDate.now())){
                     Row (modifier = Modifier.padding(3.dp,10.dp)){
                         botonInfo(valor = "Confirmar Pedido",navHostController)
                         Spacer(modifier = Modifier.padding(13.dp,0.dp))

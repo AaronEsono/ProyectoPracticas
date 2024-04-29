@@ -14,6 +14,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -74,6 +75,8 @@ import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorBarraEncima
 import com.example.practicaaaron.ui.theme.colorPrimario
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Base64
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -93,7 +96,7 @@ fun ventanaPedidos(
     var done = opcionesViewModel.done.collectAsState().value
 
     if(done){
-        pedidos.value = opcionesViewModel.pedidosRepartidor.value
+        pedidos.value = opcionesViewModel.pedidosRepartidorCopy.value
     }
 
     LaunchedEffect(true) {
@@ -141,23 +144,35 @@ fun ventanaPedidos(
             )
         }
 
-//        Row (modifier = Modifier
-//            .fillMaxWidth()
-//            .height(70.dp)
-//            .background(colorBarraEncima)
-//            .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
-//            horizontalArrangement = Arrangement.SpaceEvenly){
-//            Icon(Icons.Rounded.Search, contentDescription = "Buscar", tint = Color.White, modifier = Modifier.size(25.dp))
-//
-//            var buscador by remember { mutableStateOf("") }
-//
-//            TextField(
-//                value = buscador,
-//                onValueChange = { buscador = it },
-//                singleLine = true,
-//                label = { Text("Busca el pedido") }
-//            )
-//        }
+        Divider(color = Color.White)
+
+        Row (modifier = Modifier
+            .fillMaxWidth()
+            .height(intrinsicSize = IntrinsicSize.Max).background(colorBarraEncima),
+            horizontalArrangement = Arrangement.Center){
+            Text(text = "Fecha: ${opcionesViewModel.fecha.value}",modifier = Modifier.padding(5.dp), color = Color.White)
+        }
+
+        Divider(color = Color.White)
+
+        Row (modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp)
+            .background(colorBarraEncima)
+            .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly){
+            Icon(Icons.Rounded.Search, contentDescription = "Buscar", tint = Color.White, modifier = Modifier.size(25.dp))
+
+            var buscador by remember { mutableStateOf("") }
+
+            TextField(
+                value = buscador,
+                onValueChange = { buscador = it
+                                opcionesViewModel.setTexto(it)},
+                singleLine = true,
+                label = { Text("Busca el pedido") }
+            )
+        }
 
         Column(
             modifier = Modifier

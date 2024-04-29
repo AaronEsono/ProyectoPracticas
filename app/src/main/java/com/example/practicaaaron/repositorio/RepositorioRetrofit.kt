@@ -15,13 +15,14 @@ import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
 import retrofit2.Retrofit
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 class RepositorioRetrofit(
     private val apiServicio: Retrofit = getRetrofitClient()
 ) {
-    suspend fun recuperarPedidos(idUsuario: Int):DataPedido?{
-        return apiServicio.create(ApiServicio::class.java).obtenerPedidos(idUsuario).body()
+    suspend fun recuperarPedidos(idUsuario: Int, fecha:LocalDate):DataPedido?{
+        return apiServicio.create(ApiServicio::class.java).obtenerPedidos(idUsuario,fecha).body()
     }
 
     suspend fun hacerLogin(usuarioLogin: UsuarioLogin):Data?{

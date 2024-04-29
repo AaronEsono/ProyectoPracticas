@@ -58,6 +58,7 @@ import com.example.practicaaaron.pantallas.ventanaLogin
 import com.example.practicaaaron.pantallas.VentanaPerfil
 import com.example.practicaaaron.pantallas.hecho
 import com.example.practicaaaron.pantallas.pantallaMapa
+import com.example.practicaaaron.pantallas.pantallaMenuFuturo
 import com.example.practicaaaron.pantallas.pantallaUsuarios
 import com.example.practicaaaron.pantallas.ventanaEditarPerfil
 import com.example.practicaaaron.pantallas.ventanaEntregaPedido
@@ -84,6 +85,7 @@ sealed class Pantallas(var route:String){
     data object Hecho:Pantallas("Hecho")
     data object Estadistica:Pantallas("estadistica")
     data object Informacion:Pantallas("informacion")
+    data object Fututo:Pantallas("futuro")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -237,6 +239,9 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             }
             composable(Pantallas.Informacion.route){
                 ventanaEstadisticas(navHostController = navController, opcionesViewModel = opcionesViewModel)
+            }
+            composable(Pantallas.Fututo.route){
+                pantallaMenuFuturo(navController,opcionesViewModel)
             }
         }
 }

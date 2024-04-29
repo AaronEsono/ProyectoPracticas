@@ -22,6 +22,16 @@
             android:value="barcode_ui"
         />
 
+        <service
+            android:name=".notificaciones.Notificaciones"
+            android:exported="false">
+            <intent-filter>
+                <action
+                    android:name="com.google.firebase.MESSAGING_EVENT">
+                </action>
+            </intent-filter>
+        </service>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA10C8i63YNAcQXu8cZ37z0qJWH7j1wfQQ"/>

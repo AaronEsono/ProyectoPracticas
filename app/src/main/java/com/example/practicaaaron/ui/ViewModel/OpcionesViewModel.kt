@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.time.LocalDate
 import java.util.stream.Collectors
 import kotlin.streams.toList
 
@@ -56,6 +57,7 @@ class OpcionesViewModel(
     private val repositorio: RepositorioRetrofit = RepositorioRetrofit()
 ) : ViewModel() {
     private val _pedidosRepartidor = MutableStateFlow<DataPedido?>(null)
+    private val _pedidosRepartidorCopy = MutableStateFlow<DataPedido?>(DataPedido())
     private val _informacionUsuario = MutableStateFlow<Data?>(null)
     private val _isLogged = MutableStateFlow<Int?>(-1)
     private val _mensaje = MutableStateFlow<String?>("")
@@ -68,6 +70,8 @@ class OpcionesViewModel(
     private val _idUsuarioAdmin = MutableStateFlow<Int>(0)
     private val _resultadosTrabajadores = MutableStateFlow<Respuesta>(Respuesta())
     private val _esConsulta = MutableStateFlow<Boolean>(true)
+    private val _fecha = MutableStateFlow<LocalDate>(LocalDate.now())
+    private val _textoBusca = MutableStateFlow<String>("")
 
     val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
@@ -81,8 +85,11 @@ class OpcionesViewModel(
     val idUsuarioAdmin:StateFlow<Int> get() = _idUsuarioAdmin.asStateFlow()
     val resultadosTrabajadores:StateFlow<Respuesta> get() = _resultadosTrabajadores.asStateFlow()
     val esConsulta get() = _esConsulta.asStateFlow()
+    val fecha get() = _fecha.asStateFlow()
+    val textoBusca get() = _textoBusca.asStateFlow()
 
     val pedidosRepartidor get() = _pedidosRepartidor.asStateFlow()
+    val pedidosRepartidorCopy get() = _pedidosRepartidorCopy.asStateFlow()
 
     val conseguirLocalizacion = LocationService()
 
@@ -106,12 +113,13 @@ class OpcionesViewModel(
     fun obtenerPedidos() {
         viewModelScope.launch(Dispatchers.IO){
             val response =
-                informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario) }
+                informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario,fecha.value) }
+            _pedidosRepartidor.value = response
 
             if(response?.data?.pedidos != null){
                 response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
+                _pedidosRepartidorCopy.value?.data?.pedidos = response?.data?.pedidos!!
             }
-            _pedidosRepartidor.value = response
 
             setInfo(response)
 
@@ -142,17 +150,32 @@ class OpcionesViewModel(
         }
     }
 
+    fun setFecha(fecha:LocalDate){
+        _fecha.value = fecha
+    }
+
+    fun setTexto(texto:String){
+        _textoBusca.value = texto
+        if(textoBusca.value != ""){
+            _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos?.stream()?.filter { it.nombre.contains(_textoBusca.value) }?.collect(Collectors.toList())!!
+            Log.i("veamos","${_pedidosRepartidorCopy.value?.data?.pedidos}")
+            Log.i("veamos2","${_pedidosRepartidor.value?.data?.pedidos}")
+        }
+        else
+            _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos!!
+    }
+
     fun obtenerPedidos(id: Int) {
         viewModelScope.launch(Dispatchers.IO){
             val response =
-                informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id) }
+                informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id,LocalDate.now()) }
             _pedidosRepartidor.value = response
 
             if(response?.data?.pedidos != null){
                 response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
+                _pedidosRepartidorCopy.value?.data?.pedidos = response?.data?.pedidos!!
             }
 
-            Log.i("hh", "${_pedidosRepartidor.value}")
             _pedidosRepartidor.value?.data?.pedidos?.forEach {
                 _ubicaciones.value.add(
                     Ubicacion(
@@ -166,6 +189,7 @@ class OpcionesViewModel(
         }
         _done.value = true
     }
+
 
     fun hacerLogin(usuarioLogin: UsuarioLogin) {
         viewModelScope.launch(Dispatchers.IO) {

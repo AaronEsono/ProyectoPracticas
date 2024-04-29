@@ -22,12 +22,13 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 interface ApiServicio {
-    @GET("Pedidos/{ID_USUARIO}")
-    suspend fun obtenerPedidos(@Path("ID_USUARIO") ID_USUARIO:Int): Response<DataPedido>
+    @GET("Pedidos/{ID_USUARIO}/{FECHA}")
+    suspend fun obtenerPedidos(@Path("ID_USUARIO") ID_USUARIO:Int,@Path("FECHA") FECHA:LocalDate): Response<DataPedido>
     @POST("Login")
     suspend fun hacerLogin(@Body user:UsuarioLogin):Response<Data>
 
