@@ -1,5 +1,6 @@
 package com.example.practicaaaron.pantallas
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -12,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +27,7 @@ import androidx.navigation.NavHostController
 import com.example.practicaaaron.clases.utilidades.PieChart
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
+@SuppressLint("SuspiciousIndentation")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ventanaEstadisticas(navHostController: NavHostController,opcionesViewModel: OpcionesViewModel){
@@ -32,21 +35,22 @@ fun ventanaEstadisticas(navHostController: NavHostController,opcionesViewModel: 
     val state = rememberScrollState()
     val resultado = opcionesViewModel.resultadosTrabajadores.collectAsState()
     val idAdmin = opcionesViewModel.idUsuarioAdmin.collectAsState()
-    val mapa = remember { mutableMapOf<String,Int>() }
+    var mapa = remember { mutableMapOf<String,Int>() }
     var terminado by remember {mutableStateOf(false)}
     var done = remember{ mutableStateOf(false) }
     var porcentajes = remember { mutableStateOf<MutableList<Int>>(mutableListOf()) }
-
+    var veces = remember{ mutableStateOf(0) }
 
     LaunchedEffect (true){
         opcionesViewModel.setId(idAdmin.value)
         opcionesViewModel.resultadosTrabajadores()
-        Log.i("aver","$resultado")
         done.value = true
     }
 
     LaunchedEffect (done.value){
+        veces.value += 1
         Log.i("entro","${resultado.value.nombre.resultados}")
+
         mapa["entregados"] = resultado.value.nombre.resultados.entregados
         mapa["incidencias"] = resultado.value.nombre.resultados.incidencias
         mapa["sin entregar"] = resultado.value.nombre.resultados.sientregar
@@ -57,7 +61,11 @@ fun ventanaEstadisticas(navHostController: NavHostController,opcionesViewModel: 
         porcentajes.value.add(resultado.value.nombre.porcentajes.pIncidencias)
         porcentajes.value.add(resultado.value.nombre.porcentajes.pSinEntregar)
 
-        terminado = true
+        Log.w("porcentajes","${porcentajes.value}")
+        Log.v("veces","${veces.value}")
+
+        if(veces.value == 2)
+            terminado = true
     }
 
     //Poner la informacion

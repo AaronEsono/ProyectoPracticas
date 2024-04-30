@@ -188,7 +188,8 @@ fun ventanaPedidos(
 
             } else {
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
-                if (pedidos?.value?.data?.pedidos != null) {
+                Log.v("Pedidos","${pedidos.value?.data?.pedidos}")
+                if (pedidos?.value?.data?.pedidos?.isEmpty() == false) {
                     pedidos.value!!.data.pedidos.forEach {
                         Spacer(modifier = Modifier.padding(0.dp, 5.dp))
                         carta(navHostController, it, opcionesViewModel)

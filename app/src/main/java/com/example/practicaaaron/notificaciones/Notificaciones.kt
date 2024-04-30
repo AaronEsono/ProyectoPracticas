@@ -1,11 +1,10 @@
 package com.example.practicaaaron.notificaciones
 
-import com.google.firebase.messaging.FirebaseMessagingService
-import com.google.firebase.messaging.RemoteMessage
+import android.app.NotificationManager
+import android.content.Context.NOTIFICATION_SERVICE
+import android.util.Log
+import androidx.core.app.NotificationCompat
 
+class Notificaciones{
 
-class Notificaciones : FirebaseMessagingService() {
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        super.onMessageReceived(remoteMessage)
-    }
 }

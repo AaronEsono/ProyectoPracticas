@@ -31,6 +31,7 @@ import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.Informacion
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
+import com.example.practicaaaron.clases.pedidos.Pedidos
 import com.example.practicaaaron.clases.resultados.InformacionUsuarios
 import com.example.practicaaaron.clases.resultados.Respuesta
 import com.example.practicaaaron.clases.ubicaciones.Ubicacion
@@ -119,6 +120,8 @@ class OpcionesViewModel(
             if(response?.data?.pedidos != null){
                 response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
                 _pedidosRepartidorCopy.value?.data?.pedidos = response?.data?.pedidos!!
+            }else{
+                _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
             }
 
             setInfo(response)
@@ -174,6 +177,8 @@ class OpcionesViewModel(
             if(response?.data?.pedidos != null){
                 response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
                 _pedidosRepartidorCopy.value?.data?.pedidos = response?.data?.pedidos!!
+            }else{
+                _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
             }
 
             _pedidosRepartidor.value?.data?.pedidos?.forEach {

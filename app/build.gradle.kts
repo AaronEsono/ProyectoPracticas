@@ -5,6 +5,8 @@ plugins {
 
     // Add the Google services Gradle plugin
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+    id ("kotlin-kapt")
 }
 
 android {
@@ -32,9 +34,9 @@ android {
                 "proguard-rules.pro"
             )
 
-//            debug{
-//                isDebuggable = true
-//            }
+            debug{
+                isDebuggable = false
+            }
         }
     }
     compileOptions {
@@ -114,4 +116,12 @@ dependencies {
 
     implementation ("com.google.firebase:firebase-messaging:23.2.1")
 
+    implementation ("com.google.firebase:firebase-crashlytics-ktx")
+
+
+    //Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    //Mirar implementacion kapt
+    kapt("androidx.room:room-compiler:2.6.1")
 }
