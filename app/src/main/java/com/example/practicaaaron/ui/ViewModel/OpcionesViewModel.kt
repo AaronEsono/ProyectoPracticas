@@ -57,44 +57,65 @@ import kotlin.streams.toList
 class OpcionesViewModel(
     private val repositorio: RepositorioRetrofit = RepositorioRetrofit()
 ) : ViewModel() {
-    private val _pedidosRepartidor = MutableStateFlow<DataPedido?>(null)
-    private val _pedidosRepartidorCopy = MutableStateFlow<DataPedido?>(DataPedido())
-    private val _informacionUsuario = MutableStateFlow<Data?>(null)
+    //Variables utilizadas en: Login
+    // Valores: -1 si no hay usuario, 1 si es usuario, 2 si es admin
     private val _isLogged = MutableStateFlow<Int?>(-1)
-    private val _mensaje = MutableStateFlow<String?>("")
-    private val _pedido = MutableStateFlow<PedidoCab?>(PedidoCab())
-    private val _ubicaciones = MutableStateFlow<MutableList<Ubicacion>>(mutableListOf())
-    private val _usuarios = MutableStateFlow<Usuarios?>(null)
-    private val _informacion = MutableStateFlow<Informacion?>(Informacion())
-    private val _entregado = MutableStateFlow<Entregado?>(Entregado())
-    private val _done = MutableStateFlow<Boolean>(false)
-    private val _idUsuarioAdmin = MutableStateFlow<Int>(0)
-    private val _resultadosTrabajadores = MutableStateFlow<Respuesta>(Respuesta())
-    private val _esConsulta = MutableStateFlow<Boolean>(true)
-    private val _fecha = MutableStateFlow<LocalDate>(LocalDate.now())
-    private val _textoBusca = MutableStateFlow<String>("")
-
-    val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
-    val mensaje: StateFlow<String?> get() = _mensaje.asStateFlow()
-    val pedido: StateFlow<PedidoCab?> get() = _pedido.asStateFlow()
-    val ubicaciones: StateFlow<MutableList<Ubicacion>> get() = _ubicaciones.asStateFlow()
-    val usuarios: StateFlow<Usuarios?> get() = _usuarios.asStateFlow()
-    val informacion:StateFlow<Informacion?> get() = _informacion.asStateFlow()
-    val entregado:StateFlow<Entregado?> get() = _entregado.asStateFlow()
-    val done:StateFlow<Boolean> get() = _done.asStateFlow()
-    val idUsuarioAdmin:StateFlow<Int> get() = _idUsuarioAdmin.asStateFlow()
-    val resultadosTrabajadores:StateFlow<Respuesta> get() = _resultadosTrabajadores.asStateFlow()
-    val esConsulta get() = _esConsulta.asStateFlow()
-    val fecha get() = _fecha.asStateFlow()
-    val textoBusca get() = _textoBusca.asStateFlow()
 
+    private val _mensaje = MutableStateFlow<String?>("")
+    val mensaje: StateFlow<String?> get() = _mensaje.asStateFlow()
+
+    private val _informacionUsuario = MutableStateFlow<Data?>(null)
+    val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
+
+    //Variables utilizadas en: Pantallas Pedidos
+    private val _informacion = MutableStateFlow<Informacion>(Informacion())
+    val informacion:StateFlow<Informacion> get() = _informacion.asStateFlow()
+
+    private val _done = MutableStateFlow<Boolean>(false)
+    val done:StateFlow<Boolean> get() = _done.asStateFlow()
+
+    private val _pedidosRepartidor = MutableStateFlow<DataPedido?>(null)
     val pedidosRepartidor get() = _pedidosRepartidor.asStateFlow()
+
+    private val _pedidosRepartidorCopy = MutableStateFlow<DataPedido?>(DataPedido())
     val pedidosRepartidorCopy get() = _pedidosRepartidorCopy.asStateFlow()
 
-    val conseguirLocalizacion = LocationService()
+    private val _textoBusca = MutableStateFlow<String>("")
+    val textoBusca get() = _textoBusca.asStateFlow()
 
-    val coloresIncidencias = listOf(
+    //Variables utilizadas en: PantallaInfoProducto
+    private val _entregado = MutableStateFlow<Entregado?>(Entregado())
+    val entregado:StateFlow<Entregado?> get() = _entregado.asStateFlow()
+
+    private val _pedido = MutableStateFlow<PedidoCab?>(PedidoCab())
+    val pedido: StateFlow<PedidoCab?> get() = _pedido.asStateFlow()
+
+    private val _fecha = MutableStateFlow<LocalDate>(LocalDate.now())
+    val fecha get() = _fecha.asStateFlow()
+
+    //Variables utilizadas en: PantallaMapa
+    private val _ubicaciones = MutableStateFlow<MutableList<Ubicacion>>(mutableListOf())
+    val ubicaciones: StateFlow<MutableList<Ubicacion>> get() = _ubicaciones.asStateFlow()
+
+    //Variables utilizadas en: PantallaUsuarios
+    private val _usuarios = MutableStateFlow<Usuarios?>(null)
+    val usuarios: StateFlow<Usuarios?> get() = _usuarios.asStateFlow()
+
+    private val _esConsulta = MutableStateFlow(true)
+    val esConsulta get() = _esConsulta.asStateFlow()
+
+    //Variables utilizadas en: PantallaEstadisticas
+    private val _idUsuarioAdmin = MutableStateFlow<Int>(0)
+    val idUsuarioAdmin:StateFlow<Int> get() = _idUsuarioAdmin.asStateFlow()
+
+    private val _resultadosTrabajadores = MutableStateFlow<Respuesta>(Respuesta())
+    val resultadosTrabajadores:StateFlow<Respuesta> get() = _resultadosTrabajadores.asStateFlow()
+
+
+    private val conseguirLocalizacion = LocationService()
+
+    private val coloresIncidencias = listOf(
         ColoresIncidencias(Icons.Rounded.Commute, 0, "Por entregar", "Normal"),
         ColoresIncidencias(Icons.Rounded.CheckCircleOutline, 100, "Entregado", "Entregado"),
         ColoresIncidencias(Icons.Rounded.Block, 10, "Perdido", "Pérdida"),
@@ -113,43 +134,48 @@ class OpcionesViewModel(
     //Obtener aqui todas las latitudes y altitudes
     fun obtenerPedidos() {
         viewModelScope.launch(Dispatchers.IO){
-            val response =
-                informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario,fecha.value) }
-            _pedidosRepartidor.value = response
+            try {
+                val response =
+                    informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario,fecha.value) }
+                _pedidosRepartidor.value = response
 
-            if(response?.data?.pedidos != null){
-                response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
-                _pedidosRepartidorCopy.value?.data?.pedidos = response?.data?.pedidos!!
-            }else{
-                _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
-            }
+                if(response?.data?.pedidos != null){
+                    response.data.pedidos = response.data.pedidos.stream().sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
+                    _pedidosRepartidorCopy.value?.data?.pedidos = response.data.pedidos
+                }else{
+                    _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
+                }
 
-            setInfo(response)
+                setInfo(response)
 
-            _pedidosRepartidor.value?.data?.pedidos?.forEach {
-                _ubicaciones.value.add(
-                    Ubicacion(
-                        it.latitud.toDouble(),
-                        it.altitud.toDouble(),
-                        it.nombre
+                _pedidosRepartidor.value?.data?.pedidos?.forEach {
+                    _ubicaciones.value.add(
+                        Ubicacion(
+                            it.latitud.toDouble(),
+                            it.altitud.toDouble(),
+                            it.nombre
+                        )
                     )
-                )
+                }
+                _done.value = true
+            }catch(e:Exception){
+                _pedidosRepartidor.value = DataPedido()
+                _pedidosRepartidorCopy.value = DataPedido()
             }
-            _done.value = true
         }
     }
 
     fun setInfo(response: DataPedido?) {
         if(response?.data?.pedidos != null){
-            _informacion.value?.pedidos = response.data.pedidos.size
-            _informacion.value?.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
-            _informacion.value?.entregados = response.data.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
-            _informacion.value?.incidencia = response.data.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
+            _informacion.value.pedidos = response.data.pedidos.size
+            _informacion.value.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
+            _informacion.value.entregados = response.data.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
+            _informacion.value.incidencia = response.data.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
         }else{
-            _informacion.value?.pedidos = 0
-            _informacion.value?.porEntregar = 0
-            _informacion.value?.entregados = 0
-            _informacion.value?.incidencia = 0
+            _informacion.value.pedidos = 0
+            _informacion.value.porEntregar = 0
+            _informacion.value.entregados = 0
+            _informacion.value.incidencia = 0
         }
     }
 
@@ -159,38 +185,48 @@ class OpcionesViewModel(
 
     fun setTexto(texto:String){
         _textoBusca.value = texto
-        if(textoBusca.value != ""){
-            _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos?.stream()?.filter { it.nombre.contains(_textoBusca.value) }?.collect(Collectors.toList())!!
-            Log.i("veamos","${_pedidosRepartidorCopy.value?.data?.pedidos}")
-            Log.i("veamos2","${_pedidosRepartidor.value?.data?.pedidos}")
+        try{
+            if(textoBusca.value != ""){
+                _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos?.stream()?.filter { it.nombre.contains(_textoBusca.value) }?.collect(Collectors.toList())!!
+                Log.i("veamos","${_pedidosRepartidorCopy.value?.data?.pedidos}")
+                Log.i("veamos2","${_pedidosRepartidor.value?.data?.pedidos}")
+            }
+            else
+                _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos!!
+        }catch (e:Exception){
+            _pedidosRepartidorCopy.value = DataPedido()
         }
-        else
-            _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos!!
+
     }
 
     fun obtenerPedidos(id: Int) {
         viewModelScope.launch(Dispatchers.IO){
-            val response =
-                informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id,LocalDate.now()) }
-            _pedidosRepartidor.value = response
+            try{
+                val response =
+                    informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id,LocalDate.now()) }
+                _pedidosRepartidor.value = response
 
-            if(response?.data?.pedidos != null){
-                response?.data?.pedidos = response?.data?.pedidos?.stream()?.sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
-                _pedidosRepartidorCopy.value?.data?.pedidos = response?.data?.pedidos!!
-            }else{
-                _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
-            }
+                if(response?.data?.pedidos != null){
+                    response.data.pedidos = response.data.pedidos.stream().sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
+                    _pedidosRepartidorCopy.value?.data?.pedidos = response.data.pedidos
+                }else{
+                    _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
+                }
 
-            _pedidosRepartidor.value?.data?.pedidos?.forEach {
-                _ubicaciones.value.add(
-                    Ubicacion(
-                        it.latitud.toDouble(),
-                        it.altitud.toDouble(),
-                        it.nombre
+                _pedidosRepartidor.value?.data?.pedidos?.forEach {
+                    _ubicaciones.value.add(
+                        Ubicacion(
+                            it.latitud.toDouble(),
+                            it.altitud.toDouble(),
+                            it.nombre
+                        )
                     )
-                )
+                }
+                setInfo(response)
+            }catch(e:Exception){
+                _pedidosRepartidor.value = DataPedido()
+                _pedidosRepartidorCopy.value = DataPedido()
             }
-            setInfo(response)
         }
         _done.value = true
     }
@@ -198,20 +234,24 @@ class OpcionesViewModel(
 
     fun hacerLogin(usuarioLogin: UsuarioLogin) {
         viewModelScope.launch(Dispatchers.IO) {
-            _isLogged.value = -1
-            val response = repositorio.hacerLogin(usuarioLogin)
-            _informacionUsuario.value = response
+            try {
+                _isLogged.value = -1
+                val response = repositorio.hacerLogin(usuarioLogin)
+                _informacionUsuario.value = response
 
-            if (_informacionUsuario.value?.dataUser?.tipoPerfil == 1) {
-                _isLogged.value = 1
-            } else if (_informacionUsuario.value?.dataUser?.tipoPerfil == 2) {
-                _isLogged.value = 2
+                if (_informacionUsuario.value?.dataUser?.tipoPerfil == 1) {
+                    _isLogged.value = 1
+                } else if (_informacionUsuario.value?.dataUser?.tipoPerfil == 2) {
+                    _isLogged.value = 2
+                }
+
+                _mensaje.value = ""
+
+                if (_isLogged.value == -1)
+                    _mensaje.value = "Usuario o contraseña incorrectos"
+            }catch (e:Exception){
+                _mensaje.value = "Algo ha fallado. Por favor, pruebe de nuevo."
             }
-
-            _mensaje.value = ""
-
-            if (_isLogged.value == -1)
-                _mensaje.value = "Usuario o contraseña incorrectos"
         }
     }
 
@@ -229,19 +269,12 @@ class OpcionesViewModel(
     }
 
     fun indicarColorPedido(incidencia: Int): ColoresIncidencias {
-        var colorLong: ColoresIncidencias = ColoresIncidencias()
-
-        coloresIncidencias.forEach {
-            if (it.incidencia == incidencia) {
-                colorLong = it
-            }
-        }
-        return colorLong
+        return coloresIncidencias.stream().filter { it.incidencia == incidencia }.findFirst().orElse(ColoresIncidencias())
     }
 
     fun actualizarPedido(valorIncidencia: String?) {
-        var pedido =
-            PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""))
+        //Poner evento para controlar lo que se envia
+        var pedido = PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""))
 
         viewModelScope.launch(Dispatchers.IO){
             val response = repositorio.actualizarPedido(pedido)
@@ -250,15 +283,7 @@ class OpcionesViewModel(
     }
 
     fun getIntIncidencia(valor: String): Int {
-        var defecto: Int = 30
-        Log.i("incidencia", valor)
-
-        coloresIncidencias.forEach {
-            if (it.nombre == valor)
-                defecto = it.incidencia
-        }
-
-        return defecto
+        return coloresIncidencias.stream().filter { it.nombre == valor }.findFirst().get().incidencia
     }
 
     //Falta la longitud y altitud
@@ -283,9 +308,6 @@ class OpcionesViewModel(
             if (resultado != null) {
                 entrega.latitud = resultado.latitude.toFloat()
                 entrega.longitud = resultado.longitude.toFloat()
-
-                Log.i("latitud", "${entrega.latitud}")
-                Log.i("longitud", "${entrega.longitud}")
             }
 
             val response:Entregado = repositorio.hacerEntrega(entrega)
@@ -295,13 +317,11 @@ class OpcionesViewModel(
 
     fun resetearEntrega(){
         _entregado.value?.retcode = -2
-        Log.i("valor2","${entregado.value}")
     }
 
     fun obtenerTodos() {
         viewModelScope.launch (Dispatchers.IO){
             val response = repositorio.obtenerTodos()
-            Log.i("entrada", "$response")
             _usuarios.value = response
         }
     }
@@ -313,7 +333,6 @@ class OpcionesViewModel(
     }
 
 }
-
 
 private fun encodeImage(bm: Bitmap): String? {
     if(bm != null){

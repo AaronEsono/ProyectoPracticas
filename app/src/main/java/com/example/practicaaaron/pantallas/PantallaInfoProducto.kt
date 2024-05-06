@@ -70,29 +70,27 @@ import java.time.LocalDate
     "SuspiciousIndentation"
 )
 @Composable
-@Preview
 fun PantallaInfoProducto(
-    navHostController: NavHostController? = null,
-    opcionesViewModel: OpcionesViewModel? = null
+    navHostController: NavHostController,
+    opcionesViewModel: OpcionesViewModel
 ){
             val openAlertDialog = remember { mutableStateOf(false) }
             val state = rememberScrollState()
-            val fecha = opcionesViewModel?.fecha?.collectAsState()?.value ?: LocalDate.now()
+            val fecha = opcionesViewModel.fecha.collectAsState().value
 
             //Variable que guarda el pedido seleccionado por el cliente
-            val pedido = opcionesViewModel?.pedido?.collectAsState()?.value
+            val pedido = opcionesViewModel.pedido.collectAsState().value
 
             var valorOpcion = remember { mutableStateOf("") }
 
-            val context = LocalContext.current
             //Imagen relacionada con el pedido elegido
             val imagen = pedido?.imagenDescripcion?.let { loadImageFromBase64(it) }
 
-            var esAdmin = opcionesViewModel?.isLogged?.collectAsState()?.value
+            var esAdmin = opcionesViewModel.isLogged.collectAsState().value
 
 
-        var entregado = opcionesViewModel?.entregado?.collectAsState()?.value
-        var info = opcionesViewModel?.informacion?.collectAsState()?.value
+        var entregado = opcionesViewModel.entregado.collectAsState().value
+        var info = opcionesViewModel.informacion.collectAsState().value
 
             Column (modifier = Modifier
                 .fillMaxSize()
@@ -135,7 +133,6 @@ fun PantallaInfoProducto(
                                 openAlertDialog.value = false
                             },
                             dialogTitle = "Seleccione incidencia",
-                            opcionesViewModel,
                             valorOpcion
                         )
                     }
@@ -143,14 +140,14 @@ fun PantallaInfoProducto(
             }
 
     if(entregado?.retcode != -2){
-        var entregados = info?.entregados?.plus(info?.incidencia?:0)?:0
+        var entregados = info.entregados?.plus(info.incidencia?:0)?:0
 
-        if(entregados + 1>= info?.pedidos?:0){
-            navHostController?.navigate("Hecho")
+        if(entregados + 1>= info.pedidos?:0){
+            navHostController.navigate("Hecho")
         }else{
-            navHostController?.navigate("pedidos")
+            navHostController.navigate("pedidos")
         }
-        opcionesViewModel?.resetearEntrega()
+        opcionesViewModel.resetearEntrega()
     }
 }
 
@@ -186,8 +183,8 @@ fun vistaInformacionCliente(info: String = "Cliente", cliente: Cliente?){
 
 //Funcion que muestra un boton con el texto seleccionado
 @Composable
-fun botonInfo(valor: String, navHostController: NavHostController?){
-    Button(onClick = { navHostController?.navigate("entregar") }, modifier = Modifier.size(170.dp,60.dp)) {
+fun botonInfo(valor: String, navHostController: NavHostController){
+    Button(onClick = { navHostController.navigate("entregar") }, modifier = Modifier.size(170.dp,60.dp)) {
         Text(text = "$valor", fontSize = 15.sp)
     }
 }
@@ -199,7 +196,6 @@ fun AlertDialogExample(
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
     dialogTitle: String,
-    opcionesViewModel: OpcionesViewModel?,
     valorOpcion: MutableState<String>
 ) {
     Dialog(
@@ -217,7 +213,7 @@ fun AlertDialogExample(
                 Text(text = dialogTitle, fontSize = 23.sp, fontWeight = FontWeight.Medium
                     , modifier = Modifier.padding(0.dp, 10.dp))
 
-                RadioButtonSample(opcionesViewModel,valorOpcion)
+                RadioButtonSample(valorOpcion)
 
                 Row (verticalAlignment = Alignment.Bottom,modifier = Modifier
                     .fillMaxSize()
@@ -238,7 +234,7 @@ fun AlertDialogExample(
 //Funcion con todos los posibles elecciones que va a tener el dialogo
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RadioButtonSample(opcionesViewModel: OpcionesViewModel?, valorOpcion: MutableState<String>) {
+fun RadioButtonSample(valorOpcion: MutableState<String>) {
     val radioOptions = listOf("Ausente", "Rechazo", "Pérdida","dirección errónea")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[1] ) }
 

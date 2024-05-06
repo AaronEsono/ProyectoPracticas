@@ -18,6 +18,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,14 +32,14 @@ import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.Opcion
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation")
 @Composable
-@Preview
 fun VentanaPrincipal(
-    navHostController: NavHostController? = null,
-    opcionesViewModel: OpcionesViewModel? = null
+    navHostController: NavHostController,
+    opcionesViewModel: OpcionesViewModel
 ){
     // Distintas funciones que tiene el usuario para elegir
     var opcionesUser = listOf(
@@ -53,7 +54,11 @@ fun VentanaPrincipal(
         Opcion(R.drawable.icono3,"Transportes","pedidos","usuarios"),
     )
 
-    var tipoPerfil = opcionesViewModel?.isLogged?.collectAsState()?.value
+    LaunchedEffect (true){
+        opcionesViewModel.setFecha(LocalDate.now())
+    }
+
+    var tipoPerfil = opcionesViewModel.isLogged.collectAsState().value
 
         Column(
                 modifier = Modifier
@@ -71,7 +76,7 @@ fun VentanaPrincipal(
         }
 
  @Composable
-fun mostrarOpciones(opcionesUser: List<Opcion>, navHostController: NavHostController?) {
+fun mostrarOpciones(opcionesUser: List<Opcion>, navHostController: NavHostController) {
     LazyColumn(modifier = Modifier.padding(20.dp,0.dp)) {
 
         opcionesUser.forEach(){
@@ -93,8 +98,7 @@ fun mostrarOpciones(opcionesUser: List<Opcion>, navHostController: NavHostContro
 //Funcion composable que muestra en formato carta cada opcion del menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
-fun cartaMenuPr(navHostController: NavHostController? = null,
+fun cartaMenuPr(navHostController: NavHostController,
                 imagen:Int = R.drawable.iconopedidos,
                 nombre:String = "Rutas",
                 descripcion:String = "Descripcion rutas",
@@ -104,7 +108,7 @@ fun cartaMenuPr(navHostController: NavHostController? = null,
         modifier = Modifier
             .height(170.dp)
             .fillMaxWidth(),onClick = {
-                navHostController?.navigate("$ruta")
+                navHostController.navigate("$ruta")
             }
     ) {
         Column (modifier = Modifier

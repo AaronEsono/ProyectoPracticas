@@ -108,7 +108,6 @@ fun ventanaPedidos(
             opcionesViewModel.obtenerPedidos(opcionesViewModel.idUsuarioAdmin.value)
     }
 
-    Log.i("done","$done")
     val state = rememberScrollState()
 
     Column(
@@ -150,7 +149,7 @@ fun ventanaPedidos(
             .fillMaxWidth()
             .height(intrinsicSize = IntrinsicSize.Max).background(colorBarraEncima),
             horizontalArrangement = Arrangement.Center){
-            Text(text = "Fecha: ${opcionesViewModel.fecha.value}",modifier = Modifier.padding(5.dp), color = Color.White)
+            Text(text = "Fecha: ${opcionesViewModel.fecha.value.dayOfMonth}-${opcionesViewModel.fecha.value.monthValue}-${opcionesViewModel.fecha.value.year}",modifier = Modifier.padding(5.dp), color = Color.White)
         }
 
         Divider(color = Color.White)
@@ -247,9 +246,7 @@ fun carta(
     }
 
     //Poner el color segun el estado
-    //var color = opcionesViewModel?.indicarColorPedido(pedidoCab.incidencia)?:0
-    val estado: ColoresIncidencias =
-        opcionesViewModel.indicarColorPedido(pedidoCab.incidencia) ?: ColoresIncidencias()
+    val estado: ColoresIncidencias = opcionesViewModel.indicarColorPedido(pedidoCab.incidencia) ?: ColoresIncidencias()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row {

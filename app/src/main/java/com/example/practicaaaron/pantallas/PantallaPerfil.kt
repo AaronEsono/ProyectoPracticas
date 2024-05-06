@@ -2,6 +2,7 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
@@ -55,13 +57,14 @@ import java.time.format.TextStyle
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-@Preview
 fun VentanaPerfil(
-    navHostController: NavHostController? = null,
-    opcionesViewModel: OpcionesViewModel? = null
+    opcionesViewModel: OpcionesViewModel
 ) {
     // Variable que guarda la informacion del usuario
-    var infoUsuario = opcionesViewModel?.informacionUsuario?.collectAsState()?.value
+    var infoUsuario = opcionesViewModel.informacionUsuario.collectAsState().value
+    val tamano = (LocalConfiguration.current.screenHeightDp / 3.5 * -1) -40
+
+    Log.i("tamaño","$tamano")
 
     Column(
         modifier = Modifier
@@ -77,7 +80,7 @@ fun VentanaPerfil(
                 .padding(0.dp, 10.dp, 0.dp, 0.dp)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
-                translate(left = 0f, top = -250f) {
+                translate(left = 0f, top = tamano.toFloat()) {
                     drawCircle(colorPrimario, radius = 250.dp.toPx())
                 }
             }
@@ -124,19 +127,6 @@ fun VentanaPerfil(
         )
 
         Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
-
-        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            botonPerfil(
-                navHostController = navHostController,
-                ruta = "editar",
-                texto = "Editar perfil"
-            )
-        }
     }
 }
 
@@ -157,19 +147,5 @@ fun informacion(campo: String, valor: String, icono: ImageVector, sp: TextUnit =
         ) {
             Text(text = "$valor", fontSize = sp)
         }
-    }
-}
-
-//Funcion composable que muestra un boton con el texto y ruta seleccionados
-@Composable
-fun botonPerfil(navHostController: NavHostController?, ruta: String, texto: String) {
-    ElevatedButton(
-        onClick = { navHostController?.navigate("$ruta") },
-        modifier = Modifier.size(170.dp, 70.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colorPrimario
-        )
-    ) {
-        Text(text = "$texto", fontSize = 20.sp)
     }
 }

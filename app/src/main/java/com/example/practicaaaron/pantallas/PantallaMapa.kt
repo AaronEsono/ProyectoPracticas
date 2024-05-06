@@ -2,24 +2,19 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccessAlarm
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.example.practicaaaron.clases.ubicaciones.Ubicacion
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -29,18 +24,15 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
-fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
+fun pantallaMapa(opcionesViewModel: OpcionesViewModel) {
     val conseguirLocalizacion = LocationService()
     val contexto = LocalContext.current
-    var latitudUser = remember { mutableStateOf(0f) }
-    var altitudUser = remember { mutableStateOf(0f) }
+    var latitudUser = remember { mutableFloatStateOf(0f) }
+    var altitudUser = remember { mutableFloatStateOf(0f) }
     var posicion by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     var done by remember {mutableStateOf(false)}
 
@@ -57,7 +49,6 @@ fun pantallaMapa(navController: NavHostController, opcionesViewModel: OpcionesVi
         }
         done = true
     }
-
 
     //Hacer que la camara se centre automaticamente en el usuario
     val cameraPositionState = rememberCameraPositionState {

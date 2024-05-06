@@ -36,6 +36,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,7 +61,6 @@ import com.example.practicaaaron.pantallas.hecho
 import com.example.practicaaaron.pantallas.pantallaMapa
 import com.example.practicaaaron.pantallas.pantallaMenuFuturo
 import com.example.practicaaaron.pantallas.pantallaUsuarios
-import com.example.practicaaaron.pantallas.ventanaEditarPerfil
 import com.example.practicaaaron.pantallas.ventanaEntregaPedido
 import com.example.practicaaaron.pantallas.ventanaEstadisticas
 import com.example.practicaaaron.pantallas.ventanaPedidos
@@ -77,7 +77,6 @@ sealed class Pantallas(var route:String){
     data object Menu: Pantallas("menu")
     data object Perfil: Pantallas("perfil")
     data object Info: Pantallas("infoPedido")
-    data object Editar: Pantallas("editar")
     data object Entregar:Pantallas("entregar")
 
     data object Rutas:Pantallas("rutas")
@@ -95,13 +94,13 @@ fun AppNavHost(
     navController: NavHostController,
     opcionesViewModel: OpcionesViewModel,
 ) {
-    val showToolbar = remember {mutableStateOf(1)}
+    val showToolbar = remember { mutableIntStateOf(1) }
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // 1. todo, 2. solo Scaffold, 3. Navegacion
+    // 1. todo, 2. solo Scaffold, 3. Navigation
     hideOrShowToolbar(navController = navController, showToolbar = showToolbar)
 
     if(showToolbar.value == 3)
@@ -212,33 +211,30 @@ fun navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
                 VentanaPrincipal(navHostController = navController,opcionesViewModel)
             }
             composable(Pantallas.Perfil.route){
-                VentanaPerfil(navHostController = navController, opcionesViewModel)
+                VentanaPerfil(opcionesViewModel)
             }
             composable(Pantallas.Info.route){
                 PantallaInfoProducto(navHostController = navController, opcionesViewModel)
-            }
-            composable(Pantallas.Editar.route){
-                ventanaEditarPerfil(navHostController = navController)
             }
             composable(Pantallas.Entregar.route){
                 ventanaEntregaPedido(navController,opcionesViewModel)
             }
             composable(Pantallas.Rutas.route){
-                pantallaMapa(navController,opcionesViewModel)
+                pantallaMapa(opcionesViewModel)
             }
             composable(Pantallas.Usuarios.route){
                 opcionesViewModel.setEstadistica(false)
                 pantallaUsuarios(navController,opcionesViewModel)
             }
             composable(Pantallas.Hecho.route){
-                hecho(navHostController = navController, opcionesViewModel = opcionesViewModel)
+                hecho(navHostController = navController)
             }
             composable(Pantallas.Estadistica.route){
                 opcionesViewModel.setEstadistica(true)
                 pantallaUsuarios(navController,opcionesViewModel)
             }
             composable(Pantallas.Informacion.route){
-                ventanaEstadisticas(navHostController = navController, opcionesViewModel = opcionesViewModel)
+                ventanaEstadisticas(opcionesViewModel = opcionesViewModel)
             }
             composable(Pantallas.Fututo.route){
                 pantallaMenuFuturo(navController,opcionesViewModel)

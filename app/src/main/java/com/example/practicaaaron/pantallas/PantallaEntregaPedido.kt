@@ -84,7 +84,7 @@ import io.github.joelkanyi.sain.SignatureState
 
 @SuppressLint("RememberReturnType")
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
 
@@ -93,11 +93,10 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
     //Variables para pillar una foto con la camara
     val content = LocalContext.current
-    val img: Bitmap =
-        BitmapFactory.decodeResource(Resources.getSystem(), android.R.drawable.ic_menu_report_image)
+    val img = remember { mutableStateOf<Bitmap>(BitmapFactory.decodeResource(Resources.getSystem(), android.R.drawable.ic_menu_report_image)) }
 
     //Variable que guarda la foto
-    val imagenCamara = remember { mutableStateOf(img) }
+    val imagenCamara = remember { mutableStateOf(img.value) }
 
     var imagenHecha = remember{ mutableStateOf(false) }
 
@@ -122,17 +121,11 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             //Transforma la imagen de la galeria de uri a bitmap
             transformar(imageUri, imagenCamara, content, pintador)
             imagenHecha.value = true
+            Log.i("entroGaleria","Hola")
         })
 
     var showBottomSheet = remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-
-    //Variables para realizar el scanner del codigo de barras
-    val opciones = GmsBarcodeScannerOptions.Builder().setBarcodeFormats(
-        Barcode.FORMAT_ALL_FORMATS
-    ).build()
-
-    val scanner = GmsBarcodeScanning.getClient(content, opciones)
 
     //Variable para guardar el estado del codigo de barras
     val valorBarras = remember { mutableStateOf("0000000000") }
@@ -390,13 +383,15 @@ fun transformar(
     pintador: MutableState<BitmapPainter>
 ) {
     imageUri?.let {
-        if (Build.VERSION.SDK_INT < 28) {
-            imagenGaleria.value = MediaStore.Images.Media.getBitmap(content.contentResolver, it)
+        val bitmap = if (Build.VERSION.SDK_INT < 28) {
+            MediaStore.Images.Media.getBitmap(content.contentResolver, it)
         } else {
             val source = ImageDecoder.createSource(content.contentResolver, it)
-            imagenGaleria.value = ImageDecoder.decodeBitmap(source)
+            ImageDecoder.decodeBitmap(source)
         }
-        imagenGaleria.value = rotateBitmap(imagenGaleria.value, 90F)
+        val rotatedBitmap = rotateBitmap(bitmap, 90F)
+        val scaledBitmap = Bitmap.createScaledBitmap(rotatedBitmap, 400, 400, true)
+        imagenGaleria.value = scaledBitmap
         pintador.value = BitmapPainter(imagenGaleria.value.asImageBitmap())
     }
 }

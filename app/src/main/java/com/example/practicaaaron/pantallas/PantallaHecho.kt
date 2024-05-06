@@ -19,7 +19,7 @@ import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
 @Composable
-fun hecho(navHostController: NavHostController, opcionesViewModel: OpcionesViewModel) {
+fun hecho(navHostController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         AnimatedPreloader(modifier = Modifier.size(250.dp), R.raw.animacioncompletado)
         Spacer(modifier = Modifier.padding(0.dp,10.dp))
