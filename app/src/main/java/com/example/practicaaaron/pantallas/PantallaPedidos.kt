@@ -90,17 +90,12 @@ fun ventanaPedidos(
 ) {
 
     //Variable que guarda los distintos pedidos de cada usuario
-    var pedidos = remember {mutableStateOf<DataPedido?>(DataPedido())}
+    var pedidos = opcionesViewModel.pedidosRepartidorCopy.collectAsState()
     var esAdmin = opcionesViewModel.isLogged.collectAsState().value
     var info = opcionesViewModel.informacion.collectAsState().value
     var done = opcionesViewModel.done.collectAsState().value
 
-    if(done){
-        pedidos.value = opcionesViewModel.pedidosRepartidorCopy.value
-    }
-
     LaunchedEffect(true) {
-        done = false
 
         if (esAdmin == 1)
             opcionesViewModel.obtenerPedidos()
@@ -126,19 +121,19 @@ fun ventanaPedidos(
             verticalAlignment = Alignment.CenterVertically
         ) {
             filaInformacion(
-                texto = "Pedidos: ${info?.pedidos}",
+                texto = "Pedidos: ${info.pedidos}",
                 Icons.Rounded.FolderCopy
             )
             filaInformacion(
-                texto = "Por entregar: ${info?.porEntregar}",
+                texto = "Por entregar: ${info.porEntregar}",
                 Icons.Rounded.LocalShipping
             )
             filaInformacion(
-                texto = "Incidencias: ${info?.incidencia}",
+                texto = "Incidencias: ${info.incidencia}",
                 Icons.Rounded.GppBad
             )
             filaInformacion(
-                texto = "Entregados: ${info?.entregados}",
+                texto = "Entregados: ${info.entregados}",
                 Icons.Rounded.LocationOn
             )
         }
@@ -147,7 +142,8 @@ fun ventanaPedidos(
 
         Row (modifier = Modifier
             .fillMaxWidth()
-            .height(intrinsicSize = IntrinsicSize.Max).background(colorBarraEncima),
+            .height(intrinsicSize = IntrinsicSize.Max)
+            .background(colorBarraEncima),
             horizontalArrangement = Arrangement.Center){
             Text(text = "Fecha: ${opcionesViewModel.fecha.value.dayOfMonth}-${opcionesViewModel.fecha.value.monthValue}-${opcionesViewModel.fecha.value.year}",modifier = Modifier.padding(5.dp), color = Color.White)
         }
@@ -184,10 +180,8 @@ fun ventanaPedidos(
                     Modifier.size(100.dp),
                     animacioncompletado = R.raw.animacioncargando
                 )
-
             } else {
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
-                Log.v("Pedidos","${pedidos.value?.data?.pedidos}")
                 if (pedidos?.value?.data?.pedidos?.isEmpty() == false) {
                     pedidos.value!!.data.pedidos.forEach {
                         Spacer(modifier = Modifier.padding(0.dp, 5.dp))

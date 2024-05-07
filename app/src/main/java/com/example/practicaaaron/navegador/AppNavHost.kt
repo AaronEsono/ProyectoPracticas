@@ -260,6 +260,7 @@ fun filaInformacionDrawer(
              .padding(15.dp, 10.dp)
              .clickable {
                  if (ruta == "login") {
+                     opcionesViewModel?.mandarCerrarSesion()
                      opcionesViewModel?.cerrarSesion()
                  }
                  navController?.navigate("$ruta")

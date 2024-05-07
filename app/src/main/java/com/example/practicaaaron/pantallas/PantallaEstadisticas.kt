@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,11 +51,12 @@ fun ventanaEstadisticas(opcionesViewModel: OpcionesViewModel){
 
     LaunchedEffect (resultado.value){
         veces.value += 1
-        if(veces.value >= 2)
+        if(veces.value >= 2){
             hacer.value = true
+        }
     }
 
-    if(resultado.value.nombre.pedidosTotales != -1 && !terminado.value && hacer.value){
+    if( resultado.value.nombre != null && resultado.value.nombre.pedidosTotales != -1 && !terminado.value && hacer.value){
 
         mapa["entregados"] = resultado.value.nombre.resultados.entregados
         mapa["incidencias"] = resultado.value.nombre.resultados.incidencias
@@ -78,6 +80,8 @@ fun ventanaEstadisticas(opcionesViewModel: OpcionesViewModel){
         if(terminado.value){
             Text(text = "Estadística pedidos", fontSize = 25.sp, modifier = Modifier.padding(0.dp,15.dp))
             PieChart(data = mapa,porcentajes = porcentajes.value, total = resultado.value.nombre.pedidosTotales)
+        }else{
+            Text(text = "Este usuario no ha hecho ningun pedido hasta la fecha", fontSize = 12.sp, maxLines = 1)
         }
     }
 }

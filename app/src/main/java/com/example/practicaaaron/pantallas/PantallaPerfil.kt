@@ -62,9 +62,7 @@ fun VentanaPerfil(
 ) {
     // Variable que guarda la informacion del usuario
     var infoUsuario = opcionesViewModel.informacionUsuario.collectAsState().value
-    val tamano = (LocalConfiguration.current.screenHeightDp / 3.5 * -1) -40
-
-    Log.i("tamaño","$tamano")
+    val tamano = (LocalConfiguration.current.screenHeightDp / 4 * -1.4)
 
     Column(
         modifier = Modifier

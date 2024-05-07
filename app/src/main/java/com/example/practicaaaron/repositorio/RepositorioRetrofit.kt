@@ -15,6 +15,7 @@ import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
 import retrofit2.Retrofit
+import retrofit2.create
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -46,4 +47,7 @@ class RepositorioRetrofit(
         return apiServicio.create(ApiServicio::class.java).resultadosTrabajadores(id)
     }
 
+    suspend fun cerrarSesion(id:Int){
+        return apiServicio.create(ApiServicio::class.java).cerrarSesion(id)
+    }
 }

@@ -44,6 +44,9 @@ interface ApiServicio {
     @GET("resultadosTrabajadores/{ID_USUARIO}")
     suspend fun resultadosTrabajadores(@Path("ID_USUARIO") ID_USUARIO:Int):Respuesta
 
+    @GET("cerrarSesion/{ID_USUARIO}")
+    suspend fun cerrarSesion(@Path("ID_USUARIO") ID_USUARIO:Int)
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

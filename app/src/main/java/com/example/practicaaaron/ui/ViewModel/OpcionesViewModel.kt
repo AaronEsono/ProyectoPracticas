@@ -41,6 +41,7 @@ import com.example.practicaaaron.clases.usuarios.Usuarios
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -112,7 +113,6 @@ class OpcionesViewModel(
     private val _resultadosTrabajadores = MutableStateFlow<Respuesta>(Respuesta())
     val resultadosTrabajadores:StateFlow<Respuesta> get() = _resultadosTrabajadores.asStateFlow()
 
-
     private val conseguirLocalizacion = LocationService()
 
     private val coloresIncidencias = listOf(
@@ -135,8 +135,7 @@ class OpcionesViewModel(
     fun obtenerPedidos() {
         viewModelScope.launch(Dispatchers.IO){
             try {
-                val response =
-                    informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario,fecha.value) }
+                val response = informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario,fecha.value) }
                 _pedidosRepartidor.value = response
 
                 if(response?.data?.pedidos != null){
@@ -146,8 +145,10 @@ class OpcionesViewModel(
                     _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
                 }
 
+                Log.i("pedidos","${_pedidosRepartidorCopy.value}")
                 setInfo(response)
 
+                _ubicaciones.value = mutableListOf()
                 _pedidosRepartidor.value?.data?.pedidos?.forEach {
                     _ubicaciones.value.add(
                         Ubicacion(
@@ -181,6 +182,12 @@ class OpcionesViewModel(
 
     fun setFecha(fecha:LocalDate){
         _fecha.value = fecha
+    }
+
+    fun mandarCerrarSesion(){
+        viewModelScope.launch {
+            _informacionUsuario.value?.dataUser?.idUsuario?.let { repositorio.cerrarSesion(it) }
+        }
     }
 
     fun setTexto(texto:String){
