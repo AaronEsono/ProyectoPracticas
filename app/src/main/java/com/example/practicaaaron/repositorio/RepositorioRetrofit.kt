@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import com.example.practicaaaron.apiServicio.ApiServicio
 import com.example.practicaaaron.apiServicio.getRetrofitClient
 import com.example.practicaaaron.clases.entrega.Entrega
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
@@ -16,6 +17,7 @@ import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
 import retrofit2.Retrofit
 import retrofit2.create
+import java.lang.Error
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -49,5 +51,10 @@ class RepositorioRetrofit(
 
     suspend fun cerrarSesion(id:Int){
         return apiServicio.create(ApiServicio::class.java).cerrarSesion(id)
+    }
+
+    suspend fun mandarError(error: ErrorLog){
+        Log.i("error","${error.toString()}")
+        apiServicio.create(ApiServicio::class.java).mandarError(error)
     }
 }

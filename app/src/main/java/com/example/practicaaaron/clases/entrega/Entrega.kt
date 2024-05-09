@@ -14,5 +14,7 @@ data class Entrega(
     @SerializedName("ID_PEDIDO")
     var idPedido:Int = 0,
     @SerializedName("FIRMA")
-    var firma:String = ""
+    var firma:String = "",
+    @SerializedName("ID_USUARIO")
+    var idUsuario:Int = 0
 )

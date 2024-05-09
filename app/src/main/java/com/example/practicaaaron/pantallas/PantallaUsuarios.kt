@@ -79,6 +79,9 @@ fun cartaUsuario(
         .height(IntrinsicSize.Max)
         .padding(0.dp, 10.dp)
         .clickable {
+            if(ruta.value == "estadisticas"){
+                opcionesViewModel.resetEstadistica()
+            }
             opcionesViewModel.setId(user.idUsuario)
             navController.navigate(ruta.value)
         }) {

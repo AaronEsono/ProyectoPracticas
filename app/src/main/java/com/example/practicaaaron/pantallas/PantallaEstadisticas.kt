@@ -40,23 +40,14 @@ fun ventanaEstadisticas(opcionesViewModel: OpcionesViewModel){
     val idAdmin = opcionesViewModel.idUsuarioAdmin.collectAsState()
     var mapa = remember { mutableMapOf<String,Int>() }
     var terminado = remember {mutableStateOf(false)}
-    var hacer = remember {mutableStateOf(false)}
     var porcentajes = remember { mutableStateOf<MutableList<Int>>(mutableListOf()) }
-    var veces = remember { mutableIntStateOf(0) }
 
     LaunchedEffect (true){
         opcionesViewModel.setId(idAdmin.value)
         opcionesViewModel.resultadosTrabajadores()
     }
 
-    LaunchedEffect (resultado.value){
-        veces.value += 1
-        if(veces.value >= 2){
-            hacer.value = true
-        }
-    }
-
-    if( resultado.value.nombre != null && resultado.value.nombre.pedidosTotales != -1 && !terminado.value && hacer.value){
+    if( resultado.value.nombre.pedidosTotales != -1){
 
         mapa["entregados"] = resultado.value.nombre.resultados.entregados
         mapa["incidencias"] = resultado.value.nombre.resultados.incidencias

@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
-import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.theme.colorSecundario
@@ -168,7 +167,7 @@ fun ventanaLogin(
     }
 
     //Ventana modal que muestra el error encontrado en el login
-    if (showBottomSheet && mensaje?.isNotEmpty() == true) {
+    if (showBottomSheet && mensaje.isNotEmpty()) {
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false

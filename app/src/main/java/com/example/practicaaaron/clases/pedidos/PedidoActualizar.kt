@@ -6,5 +6,7 @@ data class PedidoActualizar(
     @SerializedName("ID_PEDIDO")
     var idPedido:Int,
     @SerializedName("INCIDENCIA")
-    var incidencia:Int
+    var incidencia:Int,
+    @SerializedName("ID_USUARIO")
+    var idUsuario:Int
 )

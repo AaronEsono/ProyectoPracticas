@@ -17,14 +17,14 @@ import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Commit
 import androidx.compose.material.icons.rounded.Commute
-import androidx.compose.material.icons.rounded.LocalPrintshop
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.entrega.Entrega
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.stream.Collectors
 import kotlin.streams.toList
 
@@ -63,8 +64,8 @@ class OpcionesViewModel(
     private val _isLogged = MutableStateFlow<Int?>(-1)
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
 
-    private val _mensaje = MutableStateFlow<String?>("")
-    val mensaje: StateFlow<String?> get() = _mensaje.asStateFlow()
+    private val _mensaje = MutableStateFlow<String>("")
+    val mensaje: StateFlow<String> get() = _mensaje.asStateFlow()
 
     private val _informacionUsuario = MutableStateFlow<Data?>(null)
     val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
@@ -242,6 +243,7 @@ class OpcionesViewModel(
     fun hacerLogin(usuarioLogin: UsuarioLogin) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                throw Exception("Hi There!")
                 _isLogged.value = -1
                 val response = repositorio.hacerLogin(usuarioLogin)
                 _informacionUsuario.value = response
@@ -257,7 +259,12 @@ class OpcionesViewModel(
                 if (_isLogged.value == -1)
                     _mensaje.value = "Usuario o contraseña incorrectos"
             }catch (e:Exception){
-                _mensaje.value = "Algo ha fallado. Por favor, pruebe de nuevo."
+                _mensaje.value = "Algo ha fallado. Inténtelo de nuevo"
+                viewModelScope.launch {
+                    val err = ErrorLog("hacerLogin","App",e.toString(),"",-1,
+                        BuildConfig.VERSION_CODE,usuarioLogin.toString(),fCreacion = LocalDateTime.now())
+                    repositorio.mandarError(err)
+                }
             }
         }
     }
@@ -281,7 +288,7 @@ class OpcionesViewModel(
 
     fun actualizarPedido(valorIncidencia: String?) {
         //Poner evento para controlar lo que se envia
-        var pedido = PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""))
+        var pedido = PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""),_informacionUsuario.value?.dataUser?.idUsuario ?: 0)
 
         viewModelScope.launch(Dispatchers.IO){
             val response = repositorio.actualizarPedido(pedido)
@@ -291,6 +298,10 @@ class OpcionesViewModel(
 
     fun getIntIncidencia(valor: String): Int {
         return coloresIncidencias.stream().filter { it.nombre == valor }.findFirst().get().incidencia
+    }
+
+    fun resetEstadistica(){
+        _resultadosTrabajadores.value = Respuesta()
     }
 
     //Falta la longitud y altitud
@@ -308,6 +319,7 @@ class OpcionesViewModel(
         entrega.lecturaBarcode = valorBarras ?: ""
         entrega.fotoEntrega = fotoBase64 ?: ""
         entrega.firma = fotoFirma ?: ""
+        entrega.idUsuario = _informacionUsuario.value?.dataUser?.idUsuario ?: 0
 
         viewModelScope.launch (Dispatchers.IO){
             val resultado = conseguirLocalizacion.getUserLocation(content)

@@ -3,6 +3,7 @@ package com.example.practicaaaron.apiServicio
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.practicaaaron.clases.entrega.Entrega
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
@@ -22,6 +23,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import java.lang.Error
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -47,6 +49,8 @@ interface ApiServicio {
     @GET("cerrarSesion/{ID_USUARIO}")
     suspend fun cerrarSesion(@Path("ID_USUARIO") ID_USUARIO:Int)
 
+    @PUT("mandarError")
+    suspend fun mandarError(@Body error: ErrorLog)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
