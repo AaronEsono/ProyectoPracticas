@@ -1,13 +1,10 @@
 package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.BitmapFactory
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,23 +20,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BusinessCenter
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.FolderCopy
 import androidx.compose.material.icons.rounded.GppBad
-import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.LocalShipping
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -53,30 +44,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
-import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoCab
-import com.example.practicaaaron.clases.pedidos.Pedidos
 import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorBarraEncima
 import com.example.practicaaaron.ui.theme.colorPrimario
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Base64
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -84,16 +70,16 @@ import java.util.Base64
     "StateFlowValueCalledInComposition"
 )
 @Composable
-fun ventanaPedidos(
+fun VentanaPedidos(
     navHostController: NavHostController,
     opcionesViewModel: OpcionesViewModel
 ) {
 
     //Variable que guarda los distintos pedidos de cada usuario
-    var pedidos = opcionesViewModel.pedidosRepartidorCopy.collectAsState()
-    var esAdmin = opcionesViewModel.isLogged.collectAsState().value
-    var info = opcionesViewModel.informacion.collectAsState().value
-    var done = opcionesViewModel.done.collectAsState().value
+    val pedidos = opcionesViewModel.pedidosRepartidorCopy.collectAsState()
+    val esAdmin = opcionesViewModel.isLogged.collectAsState().value
+    val info = opcionesViewModel.informacion.collectAsState().value
+    val done = opcionesViewModel.done.collectAsState().value
 
     LaunchedEffect(true) {
 
@@ -120,19 +106,19 @@ fun ventanaPedidos(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            filaInformacion(
+            FilaInformacion(
                 texto = "Pedidos: ${info.pedidos}",
                 Icons.Rounded.FolderCopy
             )
-            filaInformacion(
+            FilaInformacion(
                 texto = "Por entregar: ${info.porEntregar}",
                 Icons.Rounded.LocalShipping
             )
-            filaInformacion(
+            FilaInformacion(
                 texto = "Incidencias: ${info.incidencia}",
                 Icons.Rounded.GppBad
             )
-            filaInformacion(
+            FilaInformacion(
                 texto = "Entregados: ${info.entregados}",
                 Icons.Rounded.LocationOn
             )
@@ -182,10 +168,10 @@ fun ventanaPedidos(
                 )
             } else {
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
-                if (pedidos?.value?.data?.pedidos?.isEmpty() == false) {
+                if (pedidos.value?.data?.pedidos?.isEmpty() == false) {
                     pedidos.value!!.data.pedidos.forEach {
                         Spacer(modifier = Modifier.padding(0.dp, 5.dp))
-                        carta(navHostController, it, opcionesViewModel)
+                        Carta(navHostController, it, opcionesViewModel)
                         Divider(thickness = 3.dp, color = colorPrimario)
                     }
                 } else {
@@ -205,7 +191,7 @@ fun ventanaPedidos(
 }
 
 @Composable
-fun filaInformacion(texto:String, icono: ImageVector){
+fun FilaInformacion(texto:String, icono: ImageVector){
     Column (modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
         Icon(icono, contentDescription = "", tint = Color.White, modifier = Modifier.size(25.dp))
         Text(text = texto, fontSize = 11.sp, color = Color.White)
@@ -214,20 +200,22 @@ fun filaInformacion(texto:String, icono: ImageVector){
 
 // Funcion que que convierte un string en base64 a bitmap
 @RequiresApi(Build.VERSION_CODES.O)
-fun loadImageFromBase64(texto: String): ImageBitmap? {
-    try {
+fun loadImageFromBase64(texto: String,opcionesViewModel: OpcionesViewModel): ImageBitmap? {
+    return try {
         val decodebytes = Base64.getDecoder().decode(texto)
         val bitmap = BitmapFactory.decodeByteArray(decodebytes, 0, decodebytes.size)
-        return bitmap.asImageBitmap()
+        bitmap.asImageBitmap()
     } catch (e: Exception) {
-        return null
+        val err = ErrorLog(::loadImageFromBase64.name,"App","$e","",opcionesViewModel.informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE,texto,LocalDate.now().toString())
+        opcionesViewModel.lanzarError(err)
+        null
     }
 }
 
 //Funcion que muestra en formato carta cada uno de los pedidos
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun carta(
+fun Carta(
     navHostController: NavHostController,
     pedidoCab: PedidoCab = PedidoCab(),
     opcionesViewModel: OpcionesViewModel
@@ -236,11 +224,11 @@ fun carta(
     var imagen:ImageBitmap? = ImageBitmap(1,1)
 
     if(pedidoCab.imagenDescripcion != ""){
-        imagen = loadImageFromBase64(pedidoCab.imagenDescripcion)
+        imagen = loadImageFromBase64(pedidoCab.imagenDescripcion,opcionesViewModel)
     }
 
     //Poner el color segun el estado
-    val estado: ColoresIncidencias = opcionesViewModel.indicarColorPedido(pedidoCab.incidencia) ?: ColoresIncidencias()
+    val estado: ColoresIncidencias = opcionesViewModel.indicarColorPedido(pedidoCab.incidencia)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row {
@@ -255,7 +243,7 @@ fun carta(
                             .padding(10.dp, 0.dp, 0.dp, 0.dp)
                     ) {
                         Text(
-                            text = "${pedidoCab.nombre}",
+                            text = pedidoCab.nombre,
                             fontSize = 25.sp,
                             fontWeight = FontWeight.Black
                         )
@@ -304,7 +292,7 @@ fun carta(
                         Icon(Icons.Rounded.Call, contentDescription = "Icono telefono")
                         Spacer(modifier = Modifier.padding(5.dp, 0.dp))
                         Text(
-                            text = "${pedidoCab.cliente.telefono}",
+                            text = pedidoCab.cliente.telefono,
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         )
@@ -330,7 +318,7 @@ fun carta(
                         .padding(10.dp, 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var color = if(pedidoCab.incidencia != 100) Color.Black else Color.Green
+                    val color = if(pedidoCab.incidencia != 100) Color.Black else Color.Green
                     Icon(
                         estado.imagen,
                         contentDescription = "",
@@ -338,7 +326,7 @@ fun carta(
                         tint = color
                     )
                     Text(
-                        text = "${estado.texto}",
+                        text = estado.texto,
                         modifier = Modifier.padding(20.dp, 0.dp),
                         fontSize = 20.sp
                     )

@@ -3,25 +3,24 @@ package com.example.practicaaaron.clases.errores
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Date
 
-data class ErrorLog @RequiresApi(Build.VERSION_CODES.O) constructor(
+@RequiresApi(Build.VERSION_CODES.O)
+data class ErrorLog(
     @SerializedName("PROCESO_METODO")
-    val procesoMetodo: String = "",
+    var procesoMetodo: String = "",
     @SerializedName("ENTORNO")
-    val entorno: String = "",
+    var entorno: String = "",
     @SerializedName("MENSAJE")
-    val mensaje: String = "",
+    var mensaje: String = "",
     @SerializedName("INNER_EXCEPTION")
-    val innerException: String = "",
+    var innerException: String = "",
     @SerializedName("USUARIO")
-    val usuario: Int = 0,
+    var usuario: Int = 1,
     @SerializedName("VERSION")
-    val version: Int = 0,
+    var version: Int = 1,
     @SerializedName("PARAMETROS")
-    val parametros: String = "",
+    var parametros: String = "",
     @SerializedName("F_CREACION")
-    val fCreacion: LocalDateTime? = LocalDateTime.now()
+    var fCreacion: String = LocalDateTime.now().toString()
 )

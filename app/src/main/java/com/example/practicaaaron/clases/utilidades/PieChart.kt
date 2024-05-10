@@ -29,11 +29,13 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.practicaaaron.R
 
 @Composable
 fun PieChart(
@@ -41,7 +43,6 @@ fun PieChart(
     radiusOuter: Dp = 100.dp,
     chartBarWidth: Dp = 5.dp,
     animDuration: Int = 1000,
-    incidencias: String = "pedidos",
     porcentajes: List<Int>,
     total: Int
 ) {
@@ -73,7 +74,7 @@ fun PieChart(
             durationMillis = animDuration,
             delayMillis = 0,
             easing = LinearOutSlowInEasing
-        )
+        ), label = ""
     )
 
     // if you want to stabilize the Pie Chart you can use value -90f
@@ -84,7 +85,7 @@ fun PieChart(
             durationMillis = animDuration,
             delayMillis = 0,
             easing = LinearOutSlowInEasing
-        )
+        ), label = ""
     )
 
     // to play the animation only once when the function is Created or Recomposed
@@ -127,7 +128,6 @@ fun PieChart(
         DetailsPieChart(
             data = data,
             colors = colors,
-            incidencias = incidencias,
             porcentajes = porcentajes,
             total = total
         )
@@ -140,7 +140,6 @@ fun PieChart(
 fun DetailsPieChart(
     data: Map<String, Int>,
     colors: List<Color>,
-    incidencias: String,
     total: Int,
     porcentajes: List<Int>
 ) {
@@ -152,14 +151,13 @@ fun DetailsPieChart(
         // create the data items
 
         Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally){
-            Text(text = "Total de pedidos: $total", modifier = Modifier.padding(10.dp,0.dp), fontSize = 25.sp)
+            Text(text = stringResource(id = R.string.totalPed) + " $total", modifier = Modifier.padding(10.dp,0.dp), fontSize = 25.sp)
         }
 
         data.values.forEachIndexed { index, value ->
             DetailsPieChartItem(
                 data = Pair(data.keys.elementAt(index), value),
                 color = colors[index],
-                incidencias = incidencias,
                 porcentaje = porcentajes[index]
             )
         }
@@ -172,7 +170,6 @@ fun DetailsPieChartItem(
     data: Pair<String, Int>,
     height: Dp = 35.dp,
     color: Color,
-    incidencias: String,
     porcentaje: Int
 ) {
 
@@ -207,7 +204,7 @@ fun DetailsPieChartItem(
                 )
                 Text(
                     modifier = Modifier.padding(start = 15.dp),
-                    text = "Numero de $incidencias: " + data.second.toString(),
+                    text = stringResource(id = R.string.nEntregados) + " " + data.second.toString(),
                     fontWeight = FontWeight.Medium,
                     fontSize = 16.sp,
                     color = Color.Gray

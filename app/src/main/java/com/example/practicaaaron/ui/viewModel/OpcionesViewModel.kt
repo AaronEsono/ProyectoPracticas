@@ -1,28 +1,23 @@
-package com.example.practicaaaron.ui.ViewModel
+package com.example.practicaaaron.ui.viewModel
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
-import android.provider.ContactsContract
 import android.util.Base64
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AcUnit
 import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.ArrowOutward
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.Commit
 import androidx.compose.material.icons.rounded.Commute
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.BuildConfig
-import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
@@ -31,8 +26,6 @@ import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.Informacion
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
-import com.example.practicaaaron.clases.pedidos.Pedidos
-import com.example.practicaaaron.clases.resultados.InformacionUsuarios
 import com.example.practicaaaron.clases.resultados.Respuesta
 import com.example.practicaaaron.clases.ubicaciones.Ubicacion
 import com.example.practicaaaron.clases.usuarios.Data
@@ -41,19 +34,13 @@ import com.example.practicaaaron.clases.usuarios.Usuarios
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.stream.Collectors
-import kotlin.streams.toList
 
 @RequiresApi(Build.VERSION_CODES.O)
 class OpcionesViewModel(
@@ -64,17 +51,17 @@ class OpcionesViewModel(
     private val _isLogged = MutableStateFlow<Int?>(-1)
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
 
-    private val _mensaje = MutableStateFlow<String>("")
+    private val _mensaje = MutableStateFlow("")
     val mensaje: StateFlow<String> get() = _mensaje.asStateFlow()
 
     private val _informacionUsuario = MutableStateFlow<Data?>(null)
     val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
 
     //Variables utilizadas en: Pantallas Pedidos
-    private val _informacion = MutableStateFlow<Informacion>(Informacion())
+    private val _informacion = MutableStateFlow(Informacion())
     val informacion:StateFlow<Informacion> get() = _informacion.asStateFlow()
 
-    private val _done = MutableStateFlow<Boolean>(false)
+    private val _done = MutableStateFlow(false)
     val done:StateFlow<Boolean> get() = _done.asStateFlow()
 
     private val _pedidosRepartidor = MutableStateFlow<DataPedido?>(null)
@@ -83,8 +70,8 @@ class OpcionesViewModel(
     private val _pedidosRepartidorCopy = MutableStateFlow<DataPedido?>(DataPedido())
     val pedidosRepartidorCopy get() = _pedidosRepartidorCopy.asStateFlow()
 
-    private val _textoBusca = MutableStateFlow<String>("")
-    val textoBusca get() = _textoBusca.asStateFlow()
+    private val _textoBusca = MutableStateFlow("")
+    private val textoBusca get() = _textoBusca.asStateFlow()
 
     //Variables utilizadas en: PantallaInfoProducto
     private val _entregado = MutableStateFlow<Entregado?>(Entregado())
@@ -108,10 +95,10 @@ class OpcionesViewModel(
     val esConsulta get() = _esConsulta.asStateFlow()
 
     //Variables utilizadas en: PantallaEstadisticas
-    private val _idUsuarioAdmin = MutableStateFlow<Int>(0)
+    private val _idUsuarioAdmin = MutableStateFlow(0)
     val idUsuarioAdmin:StateFlow<Int> get() = _idUsuarioAdmin.asStateFlow()
 
-    private val _resultadosTrabajadores = MutableStateFlow<Respuesta>(Respuesta())
+    private val _resultadosTrabajadores = MutableStateFlow(Respuesta())
     val resultadosTrabajadores:StateFlow<Respuesta> get() = _resultadosTrabajadores.asStateFlow()
 
     private val conseguirLocalizacion = LocationService()
@@ -163,11 +150,15 @@ class OpcionesViewModel(
             }catch(e:Exception){
                 _pedidosRepartidor.value = DataPedido()
                 _pedidosRepartidorCopy.value = DataPedido()
+                viewModelScope.launch {
+                    val err = ErrorLog("obtenerPedidos","App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE, "$_fecha",LocalDate.now().toString())
+                    repositorio.mandarError(err)
+                }
             }
         }
     }
 
-    fun setInfo(response: DataPedido?) {
+    private fun setInfo(response: DataPedido?) {
         if(response?.data?.pedidos != null){
             _informacion.value.pedidos = response.data.pedidos.size
             _informacion.value.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
@@ -196,8 +187,6 @@ class OpcionesViewModel(
         try{
             if(textoBusca.value != ""){
                 _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos?.stream()?.filter { it.nombre.contains(_textoBusca.value) }?.collect(Collectors.toList())!!
-                Log.i("veamos","${_pedidosRepartidorCopy.value?.data?.pedidos}")
-                Log.i("veamos2","${_pedidosRepartidor.value?.data?.pedidos}")
             }
             else
                 _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos!!
@@ -234,6 +223,10 @@ class OpcionesViewModel(
             }catch(e:Exception){
                 _pedidosRepartidor.value = DataPedido()
                 _pedidosRepartidorCopy.value = DataPedido()
+                viewModelScope.launch {
+                    val err = ErrorLog("obtenerPedidos","App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE, "$id $_fecha",LocalDate.now().toString())
+                    repositorio.mandarError(err)
+                }
             }
         }
         _done.value = true
@@ -243,7 +236,6 @@ class OpcionesViewModel(
     fun hacerLogin(usuarioLogin: UsuarioLogin) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                throw Exception("Hi There!")
                 _isLogged.value = -1
                 val response = repositorio.hacerLogin(usuarioLogin)
                 _informacionUsuario.value = response
@@ -261,8 +253,7 @@ class OpcionesViewModel(
             }catch (e:Exception){
                 _mensaje.value = "Algo ha fallado. Inténtelo de nuevo"
                 viewModelScope.launch {
-                    val err = ErrorLog("hacerLogin","App",e.toString(),"",-1,
-                        BuildConfig.VERSION_CODE,usuarioLogin.toString(),fCreacion = LocalDateTime.now())
+                    val err = ErrorLog(::hacerLogin.name,"App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE,usuarioLogin.toString(),LocalDate.now().toString())
                     repositorio.mandarError(err)
                 }
             }
@@ -288,7 +279,7 @@ class OpcionesViewModel(
 
     fun actualizarPedido(valorIncidencia: String?) {
         //Poner evento para controlar lo que se envia
-        var pedido = PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""),_informacionUsuario.value?.dataUser?.idUsuario ?: 0)
+        val pedido = PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""),_informacionUsuario.value?.dataUser?.idUsuario ?: 0)
 
         viewModelScope.launch(Dispatchers.IO){
             val response = repositorio.actualizarPedido(pedido)
@@ -296,7 +287,7 @@ class OpcionesViewModel(
         }
     }
 
-    fun getIntIncidencia(valor: String): Int {
+    private fun getIntIncidencia(valor: String): Int {
         return coloresIncidencias.stream().filter { it.nombre == valor }.findFirst().get().incidencia
     }
 
@@ -311,26 +302,49 @@ class OpcionesViewModel(
         content: Context,
         imageBitmap: ImageBitmap
     ) {
-        var entrega = Entrega()
-        var fotoBase64 = encodeImage(foto)
-        var fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
+        try{
+            val entrega = Entrega()
+            val fotoBase64 = encodeImage(foto)
+            val fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
 
-        entrega.idPedido = _pedido.value?.idPedido ?: 0
-        entrega.lecturaBarcode = valorBarras ?: ""
-        entrega.fotoEntrega = fotoBase64 ?: ""
-        entrega.firma = fotoFirma ?: ""
-        entrega.idUsuario = _informacionUsuario.value?.dataUser?.idUsuario ?: 0
+            entrega.idPedido = _pedido.value?.idPedido ?: 0
+            entrega.lecturaBarcode = valorBarras
+            entrega.fotoEntrega = fotoBase64 ?: ""
+            entrega.firma = fotoFirma ?: ""
+            entrega.idUsuario = _informacionUsuario.value?.dataUser?.idUsuario ?: 0
 
-        viewModelScope.launch (Dispatchers.IO){
-            val resultado = conseguirLocalizacion.getUserLocation(content)
+            viewModelScope.launch (Dispatchers.IO){
+                val resultado = conseguirLocalizacion.getUserLocation(content)
 
-            if (resultado != null) {
-                entrega.latitud = resultado.latitude.toFloat()
-                entrega.longitud = resultado.longitude.toFloat()
+                if (resultado != null) {
+                    entrega.latitud = resultado.latitude.toFloat()
+                    entrega.longitud = resultado.longitude.toFloat()
+                }
+
+                val response:Entregado = repositorio.hacerEntrega(entrega)
+                _entregado.value = response
             }
+        }catch(e:Exception){
+            val entrega = Entrega()
+            val fotoBase64 = encodeImage(foto)
+            val fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
 
-            val response:Entregado = repositorio.hacerEntrega(entrega)
-            _entregado.value = response
+            entrega.idPedido = _pedido.value?.idPedido ?: 0
+            entrega.lecturaBarcode = valorBarras
+            entrega.fotoEntrega = fotoBase64 ?: ""
+            entrega.firma = fotoFirma ?: ""
+            entrega.idUsuario = _informacionUsuario.value?.dataUser?.idUsuario ?: 0
+
+            viewModelScope.launch {
+                val err = ErrorLog(::hacerEntrega.name,"App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE,entrega.toString(),LocalDate.now().toString())
+                repositorio.mandarError(err)
+            }
+        }
+    }
+
+    fun lanzarError(error: ErrorLog){
+        viewModelScope.launch {
+            repositorio.mandarError(error)
         }
     }
 
@@ -354,11 +368,8 @@ class OpcionesViewModel(
 }
 
 private fun encodeImage(bm: Bitmap): String? {
-    if(bm != null){
-        val baos = ByteArrayOutputStream()
-        bm.compress(Bitmap.CompressFormat.JPEG, 20, baos)
-        val b = baos.toByteArray()
-        return Base64.encodeToString(b, Base64.DEFAULT)
-    }else
-        return null
+    val baos = ByteArrayOutputStream()
+    bm.compress(Bitmap.CompressFormat.JPEG, 20, baos)
+    val b = baos.toByteArray()
+    return Base64.encodeToString(b, Base64.DEFAULT)
 }

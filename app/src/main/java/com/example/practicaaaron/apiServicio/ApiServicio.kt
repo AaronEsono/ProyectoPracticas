@@ -7,7 +7,6 @@ import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
-import com.example.practicaaaron.clases.resultados.InformacionUsuarios
 import com.example.practicaaaron.clases.resultados.Respuesta
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
@@ -23,14 +22,13 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
-import java.lang.Error
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 interface ApiServicio {
     @GET("Pedidos/{ID_USUARIO}/{FECHA}")
-    suspend fun obtenerPedidos(@Path("ID_USUARIO") ID_USUARIO:Int,@Path("FECHA") FECHA:LocalDate): Response<DataPedido>
+    suspend fun obtenerPedidos(@Path("ID_USUARIO") idUsuario:Int,@Path("FECHA") fecha:LocalDate): Response<DataPedido>
     @POST("Login")
     suspend fun hacerLogin(@Body user:UsuarioLogin):Response<Data>
 
@@ -44,13 +42,13 @@ interface ApiServicio {
     suspend fun obtenerTodos():Usuarios
 
     @GET("resultadosTrabajadores/{ID_USUARIO}")
-    suspend fun resultadosTrabajadores(@Path("ID_USUARIO") ID_USUARIO:Int):Respuesta
+    suspend fun resultadosTrabajadores(@Path("ID_USUARIO") idUsuario:Int):Respuesta
 
     @GET("cerrarSesion/{ID_USUARIO}")
-    suspend fun cerrarSesion(@Path("ID_USUARIO") ID_USUARIO:Int)
+    suspend fun cerrarSesion(@Path("ID_USUARIO") idUsuario:Int)
 
     @PUT("mandarError")
-    suspend fun mandarError(@Body error: ErrorLog)
+    suspend fun mandarError(@Body errorLog: ErrorLog)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -58,7 +56,7 @@ fun getRetrofitClient(): Retrofit {
 
     val gson = GsonBuilder().registerTypeAdapter(
         LocalDateTime::class.java,
-        JsonDeserializer { json, type, jsonDeserializationContext ->
+        JsonDeserializer { json, _, _ ->
             LocalDateTime.parse(json.asJsonPrimitive.asString,
                 DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) })
         .create()

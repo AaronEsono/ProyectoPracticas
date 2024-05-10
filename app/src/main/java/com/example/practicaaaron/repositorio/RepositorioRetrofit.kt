@@ -1,7 +1,6 @@
 package com.example.practicaaaron.repositorio
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.practicaaaron.apiServicio.ApiServicio
 import com.example.practicaaaron.apiServicio.getRetrofitClient
@@ -10,14 +9,11 @@ import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
-import com.example.practicaaaron.clases.resultados.InformacionUsuarios
 import com.example.practicaaaron.clases.resultados.Respuesta
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
 import retrofit2.Retrofit
-import retrofit2.create
-import java.lang.Error
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -37,7 +33,6 @@ class RepositorioRetrofit(
     }
 
     suspend fun hacerEntrega(entrega: Entrega):Entregado{
-        Log.i("entro","entroAqui2")
         return apiServicio.create(ApiServicio::class.java).hacerEntrega(entrega)
     }
 
@@ -53,8 +48,7 @@ class RepositorioRetrofit(
         return apiServicio.create(ApiServicio::class.java).cerrarSesion(id)
     }
 
-    suspend fun mandarError(error: ErrorLog){
-        Log.i("error","${error.toString()}")
-        apiServicio.create(ApiServicio::class.java).mandarError(error)
+    suspend fun mandarError(errorLog: ErrorLog){
+        apiServicio.create(ApiServicio::class.java).mandarError(errorLog)
     }
 }

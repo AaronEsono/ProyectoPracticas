@@ -33,15 +33,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.clases.usuarios.DataUser
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun pantallaUsuarios(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
-    var usuarios = opcionesViewModel.usuarios.collectAsState().value
-    var esConsulta = opcionesViewModel.esConsulta.collectAsState().value
-    var ruta = remember{ mutableStateOf("pedidos") }
+fun PantallaUsuarios(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
+    val usuarios = opcionesViewModel.usuarios.collectAsState().value
+    val esConsulta = opcionesViewModel.esConsulta.collectAsState().value
+    val ruta = remember{ mutableStateOf("pedidos") }
     
     LaunchedEffect (true){
         opcionesViewModel.obtenerTodos()
@@ -56,7 +56,7 @@ fun pantallaUsuarios(navController: NavHostController, opcionesViewModel: Opcion
     ) {
         if (usuarios != null) {
             items(usuarios.usuarios) {
-                cartaUsuario(it, navController, opcionesViewModel,ruta)
+                CartaUsuario(it, navController, opcionesViewModel,ruta)
                 Spacer(modifier = Modifier.padding(0.dp, 4.dp))
                 Divider(thickness = 3.dp, color = colorPrimario)
                 Spacer(modifier = Modifier.padding(0.dp, 4.dp))
@@ -67,7 +67,7 @@ fun pantallaUsuarios(navController: NavHostController, opcionesViewModel: Opcion
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun cartaUsuario(
+fun CartaUsuario(
     user: DataUser,
     navController: NavHostController,
     opcionesViewModel: OpcionesViewModel,
@@ -90,16 +90,16 @@ fun cartaUsuario(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "${user.nombre}", fontSize = 20.sp, fontWeight = FontWeight.Black)
+            Text(text = user.nombre, fontSize = 20.sp, fontWeight = FontWeight.Black)
         }
 
-        filaUsuario(user.username, Icons.Rounded.Person)
-        filaUsuario(user.email, Icons.Rounded.Email)
+        FilaUsuario(user.username, Icons.Rounded.Person)
+        FilaUsuario(user.email, Icons.Rounded.Email)
     }
 }
 
 @Composable
-fun filaUsuario(usuario: String = "Felipe", person: ImageVector) {
+fun FilaUsuario(usuario: String = "Felipe", person: ImageVector) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -107,6 +107,6 @@ fun filaUsuario(usuario: String = "Felipe", person: ImageVector) {
     ) {
         Icon(person, contentDescription = "")
         Spacer(modifier = Modifier.padding(10.dp, 0.dp))
-        Text(text = "$usuario", fontSize = 14.sp)
+        Text(text = usuario, fontSize = 14.sp)
     }
 }

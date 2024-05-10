@@ -43,7 +43,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -63,17 +62,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.practicaaaron.R
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import io.github.joelkanyi.sain.Sain
@@ -86,7 +79,7 @@ import io.github.joelkanyi.sain.SignatureState
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
+fun VentanaEntregaPedido(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
 
     //Variable para pillar una foto de la galeria
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -98,7 +91,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
     //Variable que guarda la foto
     val imagenCamara = remember { mutableStateOf(img.value) }
 
-    var imagenHecha = remember{ mutableStateOf(false) }
+    val imagenHecha = remember{ mutableStateOf(false) }
 
     //Variable que almacena tanto la imagen de la galeria como la de la camara
     val pintador = remember { mutableStateOf(BitmapPainter(imagenCamara.value.asImageBitmap())) }
@@ -124,13 +117,13 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             Log.i("entroGaleria","Hola")
         })
 
-    var showBottomSheet = remember { mutableStateOf(false) }
+    val showBottomSheet = remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
     //Variable para guardar el estado del codigo de barras
     val valorBarras = remember { mutableStateOf("0000000000") }
 
-    val pedido = opcionesViewModel?.pedido?.collectAsState()?.value
+    val pedido = opcionesViewModel.pedido.collectAsState().value
 
     val state = rememberScrollState()
 
@@ -159,10 +152,10 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             }
         }
 
-    var colorBorde = remember { mutableStateOf(Color.Black) }
+    val colorBorde = remember { mutableStateOf(Color.Black) }
 
-    var entregado = opcionesViewModel?.entregado?.collectAsState()?.value
-    var info = opcionesViewModel?.informacion?.collectAsState()?.value
+    val entregado = opcionesViewModel.entregado.collectAsState().value
+    val info = opcionesViewModel.informacion.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -176,7 +169,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
 
-        obtenerImagenUsuario(painter = pintador, showBottomSheet)
+        ObtenerImagenUsuario(painter = pintador, showBottomSheet)
 
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
         Divider()
@@ -193,7 +186,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
             }, modifier = Modifier.height(50.dp)) {
                 Text(text = "Lectura barras")
             }
-            Text(text = "${valorBarras.value}", fontSize = 25.sp)
+            Text(text = valorBarras.value, fontSize = 25.sp)
         }
 
         Divider()
@@ -226,7 +219,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                         colorBorde.value = Color.Black
                         imageBitmap = signatureBitmap
                     } else {
-                        println("Signature is empty")
+                        println("La firma está vacia")
                     }
                 },
             ) { action ->
@@ -259,14 +252,14 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
         }
 
         if(entregado?.retcode != -2){
-            var entregados = info?.entregados?.plus(info?.incidencia?:0)?:0
+            val entregados = info.entregados.plus(info.incidencia)
 
-            if(entregados + 1>= info?.pedidos?:0){
+            if(entregados + 1 >= (info.pedidos)){
                 navController.navigate("Hecho")
             }else{
                 navController.navigate("pedidos")
             }
-            opcionesViewModel?.resetearEntrega()
+            opcionesViewModel.resetearEntrega()
         }
 
         Spacer(modifier = Modifier.padding(0.dp, 20.dp))
@@ -276,7 +269,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
                     .fillMaxWidth()
                     .padding(15.dp)
             ) {
-                botonCancelarPedido(
+                BotonCancelarPedido(
                     valor = "pedidos",
                     navHostController = navController,
                     texto = "cancelar"
@@ -347,7 +340,7 @@ fun ventanaEntregaPedido(navController: NavHostController, opcionesViewModel: Op
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun botonCancelarPedido(
+fun BotonCancelarPedido(
     valor: String,
     navHostController: NavHostController,
     texto: String,
@@ -356,12 +349,12 @@ fun botonCancelarPedido(
     Button(onClick = {
         navHostController.navigate(valor)
     }, modifier = Modifier.size(130.dp, 60.dp)) {
-        Text(text = "$texto")
+        Text(text = texto)
     }
 }
 
 @Composable
-fun obtenerImagenUsuario(
+fun ObtenerImagenUsuario(
     painter: MutableState<BitmapPainter>? = null,
     showBottomSheet: MutableState<Boolean>
 ) {
@@ -373,7 +366,6 @@ fun obtenerImagenUsuario(
             .clickable { showBottomSheet.value = true }
             .background(Color.Black), contentScale = ContentScale.FillBounds)
     }
-
 }
 
 fun transformar(

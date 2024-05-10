@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -59,7 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.theme.colorSecundario
 import com.example.practicaaaron.ui.theme.colorTerciario
@@ -68,14 +69,14 @@ import com.example.practicaaaron.ui.theme.colorTerciario
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ventanaLogin(
+fun VentanaLogin(
     navHostController: NavHostController,
     opcionesViewModel: OpcionesViewModel
 ) {
 
     //Variables que controlan el estado de los campos del login
-    var campoUsername = remember { mutableStateOf("d.pits") }
-    var campoContrasena = remember { mutableStateOf("1234") }
+    val campoUsername = remember { mutableStateOf("d.pits") }
+    val campoContrasena = remember { mutableStateOf("1234") }
 
     //Gradiente de colores para el color de fondo del login
     val listColors = remember{ mutableListOf(colorSecundario, colorPrimario) }
@@ -87,13 +88,13 @@ fun ventanaLogin(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // Objeto que tiene los dos parametros del login
-    var usuarioLogin by remember { mutableStateOf(UsuarioLogin()) }
+    val usuarioLogin by remember { mutableStateOf(UsuarioLogin()) }
 
     // Variable que controla si alguien se ha logeado correctamente o no
-    var isLog = opcionesViewModel.isLogged.collectAsState().value
+    val isLog = opcionesViewModel.isLogged.collectAsState().value
 
     // Variable que muestra el error en el login
-    var mensaje = opcionesViewModel.mensaje.collectAsState().value
+    val mensaje = opcionesViewModel.mensaje.collectAsState().value
 
     val (focusRequester) = FocusRequester.createRefs()
 
@@ -112,7 +113,7 @@ fun ventanaLogin(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.iconoapp),
-                contentDescription = "Icono prueba",
+                contentDescription = stringResource(id = R.string.iconoApp),
                 modifier = Modifier
                     .padding(0.dp, 10.dp)
                     .size(210.dp)
@@ -125,21 +126,21 @@ fun ventanaLogin(
                 .fillMaxWidth()
                 .padding(0.dp, 20.dp, 0.dp, 0.dp)
         ) {
-            campoFuncion(
+            CampoFuncion(
                 campoUsername,
                 firstTimeButton,
-                "Usuario",
-                "Rellene el usuario",
+                R.string.usuario,
+                R.string.relleneUser,
                 accountCircle = Icons.Rounded.Person,
                 focusRequester = focusRequester
             )
             Spacer(modifier = Modifier.padding(0.dp, 10.dp))
 
-            campoFuncion(
+            CampoFuncion(
                 campoContrasena,
                 firstTimeButton,
-                "Contraseña",
-                "Rellene la contraseña",
+                R.string.contrasenia,
+                R.string.rellenePass,
                 PasswordVisualTransformation(),
                 KeyboardType.Password,
                 Icons.Rounded.Lock,
@@ -161,7 +162,7 @@ fun ventanaLogin(
                     containerColor = colorTerciario
                 )
             ) {
-                Text("Entrar", fontSize = 25.sp)
+                Text(stringResource(id = R.string.entrar), fontSize = 25.sp)
             }
         }
     }
@@ -182,7 +183,7 @@ fun ventanaLogin(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "$mensaje",
+                    text = mensaje,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.padding(0.dp, 10.dp)
@@ -204,20 +205,20 @@ fun validacion(campo: String, firstTimeButton: Boolean): Boolean {
 
 // Funcion composable que muestra en textField con los parametros indicados
 @Composable
-fun campoFuncion(
+fun CampoFuncion(
     campo: MutableState<String>,
     firstTimeButton: Boolean,
-    labelTexto: String,
-    textoError: String,
+    labelTexto: Int,
+    textoError: Int,
     transformacion: VisualTransformation = VisualTransformation.None,
     teclado: KeyboardType = KeyboardType.Ascii,
     accountCircle: ImageVector,
     focusRequester: FocusRequester
 ) {
     var tamano by remember { mutableStateOf(80.dp) }
-    var showPassword by remember { mutableStateOf(teclado) }
+    val showPassword by remember { mutableStateOf(teclado) }
     var passwordVisible by remember { mutableStateOf(false) }
-    var campoUser = transformacion == VisualTransformation.None
+    val campoUser = transformacion == VisualTransformation.None
     val nextStage = if (campoUser) ImeAction.Next else ImeAction.Done
 
     TextField(
@@ -249,14 +250,14 @@ fun campoFuncion(
         ),
         value = campo.value,
         onValueChange = { campo.value = it },
-        label = { Text(labelTexto) },
+        label = { Text(text = stringResource(id = labelTexto)) },
         singleLine = true,
         isError = validacion(campo.value, firstTimeButton),
         supportingText = {
             if (validacion(campo.value, firstTimeButton)) {
                 tamano = 100.dp
                 Text(
-                    text = textoError,
+                    text = stringResource(id = textoError),
                     color = MaterialTheme.colorScheme.error, fontSize = 17.sp
                 )
             } else {
@@ -266,10 +267,10 @@ fun campoFuncion(
         trailingIcon = {
             if (campo.value.isNotEmpty() && teclado == KeyboardType.Ascii)
                 IconButton(onClick = { campo.value = "" }) {
-                    Icon(Icons.Filled.Close, "Borrar", tint = Color.White)
+                    Icon(Icons.Filled.Close, stringResource(id = R.string.iconoBorrar), tint = Color.White)
                 }
             else if (campo.value.isNotEmpty() && teclado == KeyboardType.Password) {
-                var image = if (passwordVisible)
+                val image = if (passwordVisible)
                     Icons.Filled.VisibilityOff
                 else Icons.Filled.Visibility
 
@@ -285,7 +286,7 @@ fun campoFuncion(
             if (validacion(campo.value, firstTimeButton))
                 color = MaterialTheme.colorScheme.error
 
-            Icon(accountCircle, "Usuario", tint = color)
+            Icon(accountCircle, stringResource(id = R.string.iconoUsuario), tint = color)
         },
         visualTransformation = if (campoUser) transformacion else if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = showPassword, imeAction = nextStage),

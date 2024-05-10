@@ -1,13 +1,8 @@
 package com.example.practicaaaron.clases.pedidos
 
 import android.os.Build
-import android.os.Parcelable
 import androidx.annotation.RequiresApi
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.example.practicaaaron.R
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 

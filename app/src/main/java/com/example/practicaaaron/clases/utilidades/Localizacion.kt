@@ -1,6 +1,5 @@
 package com.example.practicaaaron.clases.utilidades
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location

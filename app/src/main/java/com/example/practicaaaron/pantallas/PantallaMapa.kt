@@ -14,12 +14,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
 import com.example.practicaaaron.clases.utilidades.LocationService
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -28,33 +28,36 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
-fun pantallaMapa(opcionesViewModel: OpcionesViewModel) {
+fun PantallaMapa(opcionesViewModel: OpcionesViewModel) {
     val conseguirLocalizacion = LocationService()
     val contexto = LocalContext.current
-    var latitudUser = remember { mutableFloatStateOf(0f) }
-    var altitudUser = remember { mutableFloatStateOf(0f) }
+    val latitudUser = remember { mutableFloatStateOf(0f) }
+    val altitudUser = remember { mutableFloatStateOf(0f) }
     var posicion by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     var done by remember {mutableStateOf(false)}
 
     //Intentar que cuando abras google maps salga las ubicaciones
-    var ubicaciones = opcionesViewModel?.ubicaciones?.collectAsState()?.value
+    val ubicaciones = opcionesViewModel.ubicaciones.collectAsState().value
+    var cameraPositionState = CameraPositionState()
 
     LaunchedEffect(Unit) {
         val resultado = conseguirLocalizacion.getUserLocation(contexto)
         if (resultado != null) {
-            latitudUser.value = resultado.latitude.toFloat()
-            altitudUser.value = resultado.longitude.toFloat()
+            latitudUser.floatValue = resultado.latitude.toFloat()
+            altitudUser.floatValue = resultado.longitude.toFloat()
             opcionesViewModel.obtenerPedidos()
-            posicion = LatLng(latitudUser.value.toDouble(), altitudUser.value.toDouble())
+            posicion = LatLng(latitudUser.floatValue.toDouble(), altitudUser.floatValue.toDouble())
+        }
+    }
+
+    if(posicion.latitude != 0.0 && posicion.longitude != 0.0){
+        cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(LatLng(posicion.latitude, posicion.longitude), 10f)
         }
         done = true
     }
 
     //Hacer que la camara se centre automaticamente en el usuario
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(40.4495851, -3.6920861), 10f)
-    }
-
     if(done){
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
@@ -66,10 +69,10 @@ fun pantallaMapa(opcionesViewModel: OpcionesViewModel) {
                 snippet = "Estas aquí",
                 icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)
             )
-            ubicaciones?.forEach {
+            ubicaciones.forEach {
                 Marker(
                     state = MarkerState(position = LatLng(it.latitud, it.altitud)),
-                    title = "${it.nombre}",
+                    title = it.nombre,
                     icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
                 )
             }

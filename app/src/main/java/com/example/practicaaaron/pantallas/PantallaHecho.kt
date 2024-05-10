@@ -16,10 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
 
 @Composable
-fun hecho(navHostController: NavHostController) {
+fun Hecho(navHostController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         AnimatedPreloader(modifier = Modifier.size(250.dp), R.raw.animacioncompletado)
         Spacer(modifier = Modifier.padding(0.dp,10.dp))

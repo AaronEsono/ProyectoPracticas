@@ -11,5 +11,4 @@ data class Entregado (
     var retcode:Int = -2,
     @SerializedName("jsonOut")
     var jsonOut:String = ""
-){
-}
+)

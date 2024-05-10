@@ -2,14 +2,10 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,42 +13,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
-import com.example.practicaaaron.ui.theme.colorSecundario
-import com.example.practicaaaron.ui.theme.colorTerciario
-import java.time.format.TextStyle
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -61,7 +43,7 @@ fun VentanaPerfil(
     opcionesViewModel: OpcionesViewModel
 ) {
     // Variable que guarda la informacion del usuario
-    var infoUsuario = opcionesViewModel.informacionUsuario.collectAsState().value
+    val infoUsuario = opcionesViewModel.informacionUsuario.collectAsState().value
     val tamano = (LocalConfiguration.current.screenHeightDp / 4 * -1.4)
 
     Column(
@@ -97,7 +79,7 @@ fun VentanaPerfil(
         }
 
         Spacer(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp))
-        informacion(
+        Informacion(
             campo = "Id_Usuario",
             valor = "${infoUsuario?.dataUser?.nombre}",
             Icons.Rounded.Person,
@@ -107,7 +89,7 @@ fun VentanaPerfil(
         Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
 
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-        informacion(
+        Informacion(
             campo = "Usuario",
             valor = "${infoUsuario?.dataUser?.username}",
             icono = Icons.Rounded.AccountCircle,
@@ -117,7 +99,7 @@ fun VentanaPerfil(
         Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
 
         Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-        informacion(
+        Informacion(
             campo = "Email",
             valor = "${infoUsuario?.dataUser?.email}",
             icono = Icons.Rounded.Email,
@@ -130,10 +112,10 @@ fun VentanaPerfil(
 
 //Funcion composable que muestra una fila con su texto correspondiente
 @Composable
-fun informacion(campo: String, valor: String, icono: ImageVector, sp: TextUnit = 28.sp) {
+fun Informacion(campo: String, valor: String, icono: ImageVector, sp: TextUnit = 28.sp) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(20.dp, 0.dp)) {
         Icon(
-            icono, contentDescription = "$campo",
+            icono, contentDescription = campo,
             Modifier
                 .size(30.dp)
                 .padding(0.dp, 0.dp)
@@ -143,7 +125,7 @@ fun informacion(campo: String, valor: String, icono: ImageVector, sp: TextUnit =
                 .fillMaxWidth()
                 .padding(0.dp, 0.dp, 25.dp, 0.dp)
         ) {
-            Text(text = "$valor", fontSize = sp)
+            Text(text = valor, fontSize = sp)
         }
     }
 }

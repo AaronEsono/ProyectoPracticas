@@ -16,10 +16,9 @@ data class DataUser (
     @SerializedName("EMAIL")
     val email:String,
     @SerializedName("mensaje")
-    var Mensaje:String,
+    var mensaje:String,
     @SerializedName("retcode")
-    var Retcode:Int,
+    var retcode:Int,
     @SerializedName("jsonOut")
     var jsonOut:String
-){
-}
+)

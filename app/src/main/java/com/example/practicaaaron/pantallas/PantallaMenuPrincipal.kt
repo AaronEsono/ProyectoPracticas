@@ -5,7 +5,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,13 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.Opcion
-import com.example.practicaaaron.ui.ViewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
 import java.time.LocalDate
 
@@ -42,23 +41,23 @@ fun VentanaPrincipal(
     opcionesViewModel: OpcionesViewModel
 ){
     // Distintas funciones que tiene el usuario para elegir
-    var opcionesUser = listOf(
-        Opcion(R.drawable.iconopedidos,"Pedidos","pedidos","pedidos"),
-        Opcion(R.drawable.iconorutas, "Rutas", "ruta", "rutas"),
-        Opcion(R.drawable.iconologistica, "Pedidos futuro", "ruta", "futuro"),
+    val opcionesUser = listOf(
+        Opcion(R.drawable.iconopedidos,R.string.pedido,R.string.dPedido,"pedidos"),
+        Opcion(R.drawable.iconorutas, R.string.ruta, R.string.dRuta, "rutas"),
+        Opcion(R.drawable.iconologistica, R.string.logistica, R.string.dLogistica, "futuro"),
     )
 
-    var opcionesAdmin = listOf(
-        Opcion(R.drawable.iconoconsultar,"Consultar","pedidos","usuarios"),
-        Opcion(R.drawable.icono2,"Estadísticas","pedidos","estadistica"),
-        Opcion(R.drawable.icono3,"Transportes","pedidos","usuarios"),
+    val opcionesAdmin = listOf(
+        Opcion(R.drawable.iconoconsultar,R.string.consultar,R.string.dConsultar,"usuarios"),
+        Opcion(R.drawable.icono2,R.string.estadisticas,R.string.dEstadisticas,"estadistica"),
+        Opcion(R.drawable.icono3,R.string.transportes,R.string.dTransportes,"usuarios"),
     )
 
     LaunchedEffect (true){
         opcionesViewModel.setFecha(LocalDate.now())
     }
 
-    var tipoPerfil = opcionesViewModel.isLogged.collectAsState().value
+    val tipoPerfil = opcionesViewModel.isLogged.collectAsState().value
 
         Column(
                 modifier = Modifier
@@ -69,19 +68,19 @@ fun VentanaPrincipal(
                 Spacer(modifier = Modifier.padding(0.dp,15.dp))
                 //Layout para mostrar las diferentes opciones
             if(tipoPerfil == 1)
-                mostrarOpciones(opcionesUser,navHostController)
+                MostrarOpciones(opcionesUser,navHostController)
             else
-                mostrarOpciones(opcionesAdmin,navHostController)
+                MostrarOpciones(opcionesAdmin,navHostController)
             }
         }
 
  @Composable
-fun mostrarOpciones(opcionesUser: List<Opcion>, navHostController: NavHostController) {
+fun MostrarOpciones(opcionesUser: List<Opcion>, navHostController: NavHostController) {
     LazyColumn(modifier = Modifier.padding(20.dp,0.dp)) {
 
-        opcionesUser.forEach(){
+        opcionesUser.forEach{
             item {
-                cartaMenuPr(
+                CartaMenuPr(
                     navHostController,
                     imagen = it.idImagen,
                     nombre = it.nombre,
@@ -98,33 +97,30 @@ fun mostrarOpciones(opcionesUser: List<Opcion>, navHostController: NavHostContro
 //Funcion composable que muestra en formato carta cada opcion del menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun cartaMenuPr(navHostController: NavHostController,
-                imagen:Int = R.drawable.iconopedidos,
-                nombre:String = "Rutas",
-                descripcion:String = "Descripcion rutas",
-                ruta:String = "") {
+fun CartaMenuPr(
+    navHostController: NavHostController,
+    imagen:Int = R.drawable.iconopedidos,
+    nombre: Int = 1,
+    descripcion: Int = 1,
+    ruta:String = "") {
 
     Card(
         modifier = Modifier
             .height(170.dp)
             .fillMaxWidth(),onClick = {
-                navHostController.navigate("$ruta")
+                navHostController.navigate(ruta)
             }
     ) {
         Column (modifier = Modifier
             .background(colorPrimario)
             .fillMaxSize()
             .padding(0.dp, 10.dp)){
-            Column (horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom, modifier = Modifier
-                .fillMaxSize()
-                .padding()){
                 Column (horizontalAlignment = Alignment.End, modifier = Modifier
                     .fillMaxWidth()
                     .padding(30.dp, 0.dp)){
-                    Text(text = "$nombre", color = Color.White, fontSize = 30.sp)
+                    Text(text = stringResource(id = nombre), color = Color.White, fontSize = 30.sp)
                 }
-                Image(painter = painterResource(id = imagen), contentDescription = "$descripcion", modifier = Modifier.size(200.dp))
+                Image(painter = painterResource(id = imagen), contentDescription = stringResource(id = descripcion), modifier = Modifier.size(200.dp))
             }
-        }
     }
 }
