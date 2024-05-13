@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,6 +83,7 @@ fun VentanaPedidos(
     val done = opcionesViewModel.done.collectAsState().value
 
     LaunchedEffect(true) {
+        opcionesViewModel.setDone()
 
         if (esAdmin == 1)
             opcionesViewModel.obtenerPedidos()
@@ -107,19 +109,19 @@ fun VentanaPedidos(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FilaInformacion(
-                texto = "Pedidos: ${info.pedidos}",
+                texto = stringResource(id = R.string.pedidos) + " ${info.pedidos}",
                 Icons.Rounded.FolderCopy
             )
             FilaInformacion(
-                texto = "Por entregar: ${info.porEntregar}",
+                texto = stringResource(id = R.string.porEntregar) + " ${info.porEntregar}",
                 Icons.Rounded.LocalShipping
             )
             FilaInformacion(
-                texto = "Incidencias: ${info.incidencia}",
+                texto = stringResource(id = R.string.incidenciasPed) + " ${info.incidencia}",
                 Icons.Rounded.GppBad
             )
             FilaInformacion(
-                texto = "Entregados: ${info.entregados}",
+                texto = stringResource(id = R.string.entregadosPed) + " ${info.entregados}",
                 Icons.Rounded.LocationOn
             )
         }
@@ -131,7 +133,7 @@ fun VentanaPedidos(
             .height(intrinsicSize = IntrinsicSize.Max)
             .background(colorBarraEncima),
             horizontalArrangement = Arrangement.Center){
-            Text(text = "Fecha: ${opcionesViewModel.fecha.value.dayOfMonth}-${opcionesViewModel.fecha.value.monthValue}-${opcionesViewModel.fecha.value.year}",modifier = Modifier.padding(5.dp), color = Color.White)
+            Text(text = stringResource(id = R.string.fecha) + " ${opcionesViewModel.fecha.value.dayOfMonth}-${opcionesViewModel.fecha.value.monthValue}-${opcionesViewModel.fecha.value.year}",modifier = Modifier.padding(5.dp), color = Color.White)
         }
 
         Divider(color = Color.White)
@@ -151,7 +153,7 @@ fun VentanaPedidos(
                 onValueChange = { buscador = it
                                 opcionesViewModel.setTexto(it)},
                 singleLine = true,
-                label = { Text("Busca el pedido") }
+                label = { Text(stringResource(id = R.string.buscar)) }
             )
         }
 
@@ -168,7 +170,7 @@ fun VentanaPedidos(
                 )
             } else {
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
-                if (pedidos.value?.data?.pedidos?.isEmpty() == false) {
+                if (done) {
                     pedidos.value!!.data.pedidos.forEach {
                         Spacer(modifier = Modifier.padding(0.dp, 5.dp))
                         Carta(navHostController, it, opcionesViewModel)
@@ -179,7 +181,7 @@ fun VentanaPedidos(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "No hay pedidos", fontSize = 35.sp)
+                        Text(text = stringResource(id = R.string.noPedidos), fontSize = 35.sp)
                     }
 
                 }
@@ -187,7 +189,6 @@ fun VentanaPedidos(
 
         }
     }
-
 }
 
 @Composable
@@ -326,7 +327,7 @@ fun Carta(
                         tint = color
                     )
                     Text(
-                        text = estado.texto,
+                        text = stringResource(id = estado.texto),
                         modifier = Modifier.padding(20.dp, 0.dp),
                         fontSize = 20.sp
                     )

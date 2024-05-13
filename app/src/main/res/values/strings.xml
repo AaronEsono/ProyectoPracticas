@@ -51,4 +51,37 @@
     <string name="nEntregados">Número de pedidos:</string>
     <string name="noPed">Este usuario no ha hecho ningún pedido hasta la fecha</string>
 
+    <!--Pedidos-->
+    <string name="pedidos">Pedidos: </string>
+    <string name="porEntregar">Por entregar: </string>
+    <string name="incidenciasPed">Incidencias: </string>
+    <string name="entregadosPed">Entregados: </string>
+
+    <string name="fecha">Fecha: </string>
+
+    <string name="buscar">Busca el pedido</string>
+
+    <string name="noPedidos">No hay pedidos</string>
+
+    <string name="porEntregarPed">Por entregar</string>
+    <string name="entregado">Entregado</string>
+    <string name="perdido">Perdido</string>
+    <string name="rechazo">Rechazo</string>
+    <string name="ausente">Ausente</string>
+    <string name="direccionErronea">Dirección errónea</string>
+
+    <!--Info pedido-->
+    <string name="cliente">Cliente</string>
+    <string name="bultos">Bultos</string>
+    <string name="unidades">Unidades: </string>
+
+    <string name="confirmar">Confirmar pedido</string>
+    <string name="marcar">Marcar incidencia</string>
+
+    <string name="seleccione">Seleccione incidencia</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="confirmarBot">Confirmar</string>
+
+
+
 </resources>

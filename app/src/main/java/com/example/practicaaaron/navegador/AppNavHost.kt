@@ -84,6 +84,12 @@ sealed class Pantallas(var route:String){
     data object Futuro:Pantallas("futuro")
 }
 
+enum class Estados(val numero:Int){
+    NAVEGACION(1),
+    DRAWER(2),
+    SCAFFOLD(3),
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -97,15 +103,14 @@ fun AppNavHost(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // 1. todo, 2. solo Scaffold, 3. Navigation
     HideOrShowToolbar(navController = navController, showToolbar = showToolbar)
 
     when (showToolbar.intValue) {
-        3 ->
+        Estados.SCAFFOLD.numero ->
             InterfazScaffold(navHostController = navController,showToolbar = showToolbar,opcionesViewModel)
-        1 ->
+        Estados.NAVEGACION.numero ->
             Navegacion(navController = navController, opcionesViewModel = opcionesViewModel)
-        else ->
+        Estados.DRAWER.numero ->
             BarraArriba(
                 navHostController = navController,
                 showToolbar = showToolbar,

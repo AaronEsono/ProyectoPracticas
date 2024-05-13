@@ -41,12 +41,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.pedidos.Cliente
 import com.example.practicaaaron.clases.pedidos.PedidoLin
 import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
@@ -94,19 +96,19 @@ fun PantallaInfoProducto(
                 Text(text = "${pedido?.nombre}", fontSize = 30.sp, fontWeight = FontWeight.Black)
                 
                 Spacer(modifier = Modifier.padding(0.dp,5.dp))
-                VistaInformacionCliente(info = "Cliente", pedido?.cliente)
+                VistaInformacionCliente(info = R.string.cliente, pedido?.cliente)
 
-                VistaInformacionBulto(info = "Bultos",pedido?.bultos)
+                VistaInformacionBulto(info = R.string.bultos,pedido?.bultos)
 
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
 
                 if(esAdmin == 1 && fecha == LocalDate.now()){
                     Row (modifier = Modifier.padding(3.dp,10.dp)){
-                        BotonInfo(valor = "Confirmar Pedido",navHostController)
+                        BotonInfo(valor = R.string.confirmar,navHostController)
                         Spacer(modifier = Modifier.padding(13.dp,0.dp))
 
                         Button(onClick = { openAlertDialog.value = true }, modifier = Modifier.size(170.dp,60.dp)) {
-                            Text(text = "Marcar incidencia", fontSize = 13.sp)
+                            Text(text = stringResource(id = R.string.marcar), fontSize = 13.sp)
                         }
                     }
                 }
@@ -116,10 +118,11 @@ fun PantallaInfoProducto(
                         AlertDialogExample(
                             onDismissRequest = { openAlertDialog.value = false },
                             onConfirmation = {
+                                opcionesViewModel.updatePedido(valorOpcion.value)
                                 opcionesViewModel.actualizarPedido(valorOpcion.value)
                                 openAlertDialog.value = false
                             },
-                            dialogTitle = "Seleccione incidencia",
+                            dialogTitle = stringResource(id = R.string.seleccione),
                             valorOpcion
                         )
                     }
@@ -127,9 +130,11 @@ fun PantallaInfoProducto(
             }
 
     if(entregado?.retcode != -2){
+        opcionesViewModel.setInfo()
+
         val entregados = info.entregados.plus(info.incidencia)
 
-        if(entregados + 1 >= (info.pedidos)){
+        if(entregados >= (info.pedidos)){
             navHostController.navigate("Hecho")
         }else{
             navHostController.navigate("pedidos")
@@ -140,13 +145,13 @@ fun PantallaInfoProducto(
 
 //Funcion composable que muestra todos los bultos de un pedido
 @Composable
-fun VistaInformacionBulto(info: String, bultos: List<PedidoLin>?){
+fun VistaInformacionBulto(info: Int, bultos: List<PedidoLin>?){
 
     Column (
         Modifier
             .padding(20.dp, 10.dp)
             .fillMaxWidth(0.95f)){
-        Text(text = info, fontWeight = FontWeight.Black, fontSize = 18.sp)
+        Text(text = stringResource(id = info), fontWeight = FontWeight.Black, fontSize = 18.sp)
 
         bultos?.forEach {
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
@@ -157,11 +162,11 @@ fun VistaInformacionBulto(info: String, bultos: List<PedidoLin>?){
 
 //Funcion composable que muestra toda la informacion del cliente
 @Composable
-fun VistaInformacionCliente(info: String = "Cliente", cliente: Cliente?){
+fun VistaInformacionCliente(info: Int = 1, cliente: Cliente?){
         Column (modifier = Modifier
             .fillMaxWidth(0.95f)
             .padding(0.dp, 0.dp, 0.dp, 15.dp)){
-            Text(text = info, fontWeight = FontWeight.Black, fontSize = 18.sp, modifier = Modifier.padding(20.dp, 10.dp))
+            Text(text = stringResource(id = info), fontWeight = FontWeight.Black, fontSize = 18.sp, modifier = Modifier.padding(20.dp, 10.dp))
 
             CartaCliente(cliente)
         }
@@ -170,9 +175,9 @@ fun VistaInformacionCliente(info: String = "Cliente", cliente: Cliente?){
 
 //Funcion que muestra un boton con el texto seleccionado
 @Composable
-fun BotonInfo(valor: String, navHostController: NavHostController){
+fun BotonInfo(valor: Int, navHostController: NavHostController){
     Button(onClick = { navHostController.navigate("entregar") }, modifier = Modifier.size(170.dp,60.dp)) {
-        Text(text = valor, fontSize = 15.sp)
+        Text(text = stringResource(id = valor), fontSize = 15.sp)
     }
 }
 
@@ -206,11 +211,11 @@ fun AlertDialogExample(
                     .fillMaxSize()
                     .padding(15.dp), horizontalArrangement = Arrangement.Absolute.Right){
                     TextButton(onClick = { onDismissRequest() }) {
-                        Text(text = "Cancelar", fontSize = 20.sp)
+                        Text(text = stringResource(id = R.string.cancelar), fontSize = 20.sp)
                     }
 
                     TextButton(onClick = { onConfirmation()}) {
-                        Text(text = "Confirmar", fontSize = 20.sp)
+                        Text(text = stringResource(id = R.string.confirmarBot), fontSize = 20.sp)
                     }
                 }
             }

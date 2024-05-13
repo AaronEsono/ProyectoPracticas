@@ -34,6 +34,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -64,6 +65,7 @@ import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.theme.colorSecundario
 import com.example.practicaaaron.ui.theme.colorTerciario
+import com.example.practicaaaron.ui.viewModel.LoginViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -73,6 +75,8 @@ fun VentanaLogin(
     navHostController: NavHostController,
     opcionesViewModel: OpcionesViewModel
 ) {
+
+    //val login : LoginViewModel = LoginViewModel()
 
     //Variables que controlan el estado de los campos del login
     val campoUsername = remember { mutableStateOf("d.pits") }
@@ -97,6 +101,10 @@ fun VentanaLogin(
     val mensaje = opcionesViewModel.mensaje.collectAsState().value
 
     val (focusRequester) = FocusRequester.createRefs()
+
+//    LaunchedEffect(true){
+//        login.hola()
+//    }
 
     Column(
         modifier = Modifier

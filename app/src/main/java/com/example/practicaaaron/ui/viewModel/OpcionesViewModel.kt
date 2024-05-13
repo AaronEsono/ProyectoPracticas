@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.BuildConfig
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
@@ -104,12 +105,12 @@ class OpcionesViewModel(
     private val conseguirLocalizacion = LocationService()
 
     private val coloresIncidencias = listOf(
-        ColoresIncidencias(Icons.Rounded.Commute, 0, "Por entregar", "Normal"),
-        ColoresIncidencias(Icons.Rounded.CheckCircleOutline, 100, "Entregado", "Entregado"),
-        ColoresIncidencias(Icons.Rounded.Block, 10, "Perdido", "Pérdida"),
-        ColoresIncidencias(Icons.Rounded.Clear, 30, "Rechazo", "Rechazo"),
-        ColoresIncidencias(Icons.Rounded.AcUnit, 20, "Ausente", "Ausente"),
-        ColoresIncidencias(Icons.Rounded.AccountCircle,40,"Dirección errónea", "dirección errónea"))
+        ColoresIncidencias(Icons.Rounded.Commute, 0, R.string.porEntregarPed, "Normal"),
+        ColoresIncidencias(Icons.Rounded.CheckCircleOutline, 100, R.string.entregado, "Entregado"),
+        ColoresIncidencias(Icons.Rounded.Block, 10, R.string.perdido, "Pérdida"),
+        ColoresIncidencias(Icons.Rounded.Clear, 30, R.string.rechazo, "Rechazo"),
+        ColoresIncidencias(Icons.Rounded.AcUnit, 20, R.string.ausente, "Ausente"),
+        ColoresIncidencias(Icons.Rounded.AccountCircle,40,R.string.direccionErronea, "dirección errónea"))
 
     fun setId(id:Int){
         _idUsuarioAdmin.value = id
@@ -117,6 +118,10 @@ class OpcionesViewModel(
 
     fun setEstadistica(estado:Boolean){
         _esConsulta.value = estado
+    }
+
+    fun setDone(){
+        _done.value = false
     }
 
     //Obtener aqui todas las latitudes y altitudes
@@ -164,6 +169,20 @@ class OpcionesViewModel(
             _informacion.value.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
             _informacion.value.entregados = response.data.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
             _informacion.value.incidencia = response.data.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
+        }else{
+            _informacion.value.pedidos = 0
+            _informacion.value.porEntregar = 0
+            _informacion.value.entregados = 0
+            _informacion.value.incidencia = 0
+        }
+    }
+
+    fun setInfo() {
+        if(_pedidosRepartidor.value?.data?.pedidos != null){
+            _informacion.value.pedidos = _pedidosRepartidor.value?.data!!.pedidos.size
+            _informacion.value.porEntregar = _pedidosRepartidor.value?.data!!.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
+            _informacion.value.entregados = _pedidosRepartidor.value?.data!!.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
+            _informacion.value.incidencia = _pedidosRepartidor.value?.data!!.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
         }else{
             _informacion.value.pedidos = 0
             _informacion.value.porEntregar = 0
@@ -279,12 +298,17 @@ class OpcionesViewModel(
 
     fun actualizarPedido(valorIncidencia: String?) {
         //Poner evento para controlar lo que se envia
+
         val pedido = PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""),_informacionUsuario.value?.dataUser?.idUsuario ?: 0)
 
         viewModelScope.launch(Dispatchers.IO){
             val response = repositorio.actualizarPedido(pedido)
             _entregado.value = response
         }
+    }
+
+     fun updatePedido(valorIncidencia: String?){
+        _pedido.value?.incidencia = getIntIncidencia(valorIncidencia ?: "")
     }
 
     private fun getIntIncidencia(valor: String): Int {
