@@ -95,7 +95,7 @@ enum class Estados(val numero:Int){
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    opcionesViewModel: OpcionesViewModel,
+    opcionesViewModel: OpcionesViewModel ,
 ) {
     val showToolbar = remember { mutableIntStateOf(1) }
 
@@ -204,7 +204,7 @@ fun Navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             startDestination = Pantallas.Login.route
         ) {
             composable(Pantallas.Login.route){
-                VentanaLogin(navHostController = navController,opcionesViewModel)
+                VentanaLogin(navController)
             }
             composable(Pantallas.Pedidos.route){
                 VentanaPedidos(navHostController = navController, opcionesViewModel)

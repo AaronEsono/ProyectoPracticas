@@ -56,27 +56,36 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
+import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.theme.colorSecundario
 import com.example.practicaaaron.ui.theme.colorTerciario
 import com.example.practicaaaron.ui.viewModel.LoginViewModel
 
+
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
+@Preview
 fun VentanaLogin(
-    navHostController: NavHostController,
-    opcionesViewModel: OpcionesViewModel
+    navHostController: NavHostController? = null,
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
 
-    //val login : LoginViewModel = LoginViewModel()
+    LaunchedEffect(true){
+        loginViewModel.borrarUser()
+        loginViewModel.isLoading()
+    }
 
     //Variables que controlan el estado de los campos del login
     val campoUsername = remember { mutableStateOf("d.pits") }
@@ -95,20 +104,19 @@ fun VentanaLogin(
     val usuarioLogin by remember { mutableStateOf(UsuarioLogin()) }
 
     // Variable que controla si alguien se ha logeado correctamente o no
-    val isLog = opcionesViewModel.isLogged.collectAsState().value
+    val isLog = loginViewModel.isLogged.collectAsState().value
 
     // Variable que muestra el error en el login
-    val mensaje = opcionesViewModel.mensaje.collectAsState().value
+    val mensaje = loginViewModel.mensaje.collectAsState().value
+
+    val isLoading = loginViewModel.isLoading.collectAsState().value
 
     val (focusRequester) = FocusRequester.createRefs()
-
-//    LaunchedEffect(true){
-//        login.hola()
-//    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .zIndex(1f)
             .background(Brush.linearGradient(listColors)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -127,7 +135,6 @@ fun VentanaLogin(
                     .size(210.dp)
             )
         }
-
         Column(
             modifier = Modifier
                 .fillMaxHeight()
@@ -160,7 +167,7 @@ fun VentanaLogin(
                 onClick = {
                     firstTimeButton = true
                     showBottomSheet = true
-                    hacerLlamada(usuarioLogin, campoContrasena, campoUsername, opcionesViewModel)
+                    hacerLlamada(usuarioLogin, campoContrasena, campoUsername, loginViewModel)
                 }, modifier = Modifier
                     .height(60.dp)
                     .fillMaxWidth()
@@ -171,6 +178,13 @@ fun VentanaLogin(
                 )
             ) {
                 Text(stringResource(id = R.string.entrar), fontSize = 25.sp)
+            }
+        }
+        if(isLoading){
+            Column (modifier = Modifier.fillMaxSize().zIndex(0f).background(Color.Magenta),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center){
+                AnimatedPreloader(modifier = Modifier.size(250.dp), R.raw.animacioncargando)
             }
         }
     }
@@ -202,7 +216,7 @@ fun VentanaLogin(
 
     //Si se logea correctamente, pasar a la siguiente pantalla
     if (isLog != -1) {
-        navHostController.navigate("menu")
+        navHostController?.navigate("menu")
     }
 }
 
@@ -306,12 +320,12 @@ fun hacerLlamada(
     usuarioLogin: UsuarioLogin,
     campoContrasena: MutableState<String>,
     campoUsername: MutableState<String>,
-    opcionesViewModel: OpcionesViewModel
+    loginViewModel: LoginViewModel
 ) {
     usuarioLogin.password = campoContrasena.value
     usuarioLogin.username = campoUsername.value
 
     //Si los campos no estan vacios, se hace la peticion
     if (usuarioLogin.password.isNotEmpty() && usuarioLogin.username.isNotEmpty())
-        opcionesViewModel.hacerLogin(usuarioLogin)
+        loginViewModel.hacerLogin(usuarioLogin)
 }

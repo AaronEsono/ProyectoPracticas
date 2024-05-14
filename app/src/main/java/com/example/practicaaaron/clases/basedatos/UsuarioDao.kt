@@ -2,6 +2,7 @@ package com.example.practicaaaron.clases.basedatos
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.practicaaaron.clases.usuarios.Usuario
 import kotlinx.coroutines.flow.Flow
@@ -9,13 +10,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UsuarioDao {
 
-    @Insert
-    suspend fun insert(usuario:Usuario)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(usuario:Usuario)
 
-    @Query("select idUsuario from usuario limit 1")
-    suspend fun cogerId(): Flow<Int>
+    @Query("SELECT * FROM USUARIO")
+    fun getUsuario():Usuario
 
-     @Query("Select * from usuario")
-     suspend fun cogerTodo(): Flow<Usuario>
+    @Query("Select idUsuario FROM USUARIO")
+    fun getIdUser():Int
+
+    @Query("DELETE FROM USUARIO")
+    fun borrarUsuario()
 
 }

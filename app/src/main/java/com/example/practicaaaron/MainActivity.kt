@@ -12,28 +12,28 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.practicaaaron.navegador.AppNavHost
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.theme.PracticaAaronTheme
 import com.example.practicaaaron.ui.theme.colorPrimario
+import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.google.firebase.FirebaseApp
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * @author Aarón Esono Borreguero
  * App para controlar los repartos de los trabajadores
  */
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    val opcionesViewModel :OpcionesViewModel by viewModels()
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-
         setContent {
             //Creación de un navController para navegar entre las distintas pantallas
             val navController = rememberNavController()
-
-            //Creación de un viewModel para las pantallas
-            val opcionesViewModel by viewModels<OpcionesViewModel>()
 
             PracticaAaronTheme {
                 Surface(

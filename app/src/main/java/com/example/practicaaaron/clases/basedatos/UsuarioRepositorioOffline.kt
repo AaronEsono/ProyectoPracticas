@@ -1,12 +1,13 @@
 package com.example.practicaaaron.clases.basedatos
 
 import com.example.practicaaaron.clases.usuarios.Usuario
-import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class UsuarioRepositorioOffline(private val usuarioDao: UsuarioDao) : UsuarioRepositorio {
-    override suspend fun insertarUsuario(usuario: Usuario) = usuarioDao.insert(usuario)
-
-    override suspend fun cogerId(): Flow<Int> = usuarioDao.cogerId()
-
-    override suspend fun pedirTodo(): Flow<Usuario> = usuarioDao.cogerTodo()
+@Singleton
+class UsuarioRepositorioOffline @Inject constructor(private val usuarioDao: UsuarioDao) {
+    fun insertarUsuario(usuario: Usuario) = usuarioDao.insert(usuario)
+    fun getUsuario() = usuarioDao.getUsuario()
+    fun getId() = usuarioDao.getIdUser()
+    fun borrar() = usuarioDao.borrarUsuario()
 }

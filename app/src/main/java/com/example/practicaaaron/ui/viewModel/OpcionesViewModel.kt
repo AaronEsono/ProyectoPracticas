@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.basedatos.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
@@ -30,10 +31,10 @@ import com.example.practicaaaron.clases.pedidos.PedidoCab
 import com.example.practicaaaron.clases.resultados.Respuesta
 import com.example.practicaaaron.clases.ubicaciones.Ubicacion
 import com.example.practicaaaron.clases.usuarios.Data
-import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,18 +43,21 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.util.stream.Collectors
+import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
-class OpcionesViewModel(
-    private val repositorio: RepositorioRetrofit = RepositorioRetrofit()
+@HiltViewModel
+class OpcionesViewModel @Inject constructor(
+    private val dao: UsuarioRepositorioOffline
 ) : ViewModel() {
+
+    private val repositorio: RepositorioRetrofit = RepositorioRetrofit()
     //Variables utilizadas en: Login
     // Valores: -1 si no hay usuario, 1 si es usuario, 2 si es admin
     private val _isLogged = MutableStateFlow<Int?>(-1)
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
 
     private val _mensaje = MutableStateFlow("")
-    val mensaje: StateFlow<String> get() = _mensaje.asStateFlow()
 
     private val _informacionUsuario = MutableStateFlow<Data?>(null)
     val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
@@ -249,34 +253,6 @@ class OpcionesViewModel(
             }
         }
         _done.value = true
-    }
-
-
-    fun hacerLogin(usuarioLogin: UsuarioLogin) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                _isLogged.value = -1
-                val response = repositorio.hacerLogin(usuarioLogin)
-                _informacionUsuario.value = response
-
-                if (_informacionUsuario.value?.dataUser?.tipoPerfil == 1) {
-                    _isLogged.value = 1
-                } else if (_informacionUsuario.value?.dataUser?.tipoPerfil == 2) {
-                    _isLogged.value = 2
-                }
-
-                _mensaje.value = ""
-
-                if (_isLogged.value == -1)
-                    _mensaje.value = "Usuario o contraseña incorrectos"
-            }catch (e:Exception){
-                _mensaje.value = "Algo ha fallado. Inténtelo de nuevo"
-                viewModelScope.launch {
-                    val err = ErrorLog(::hacerLogin.name,"App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE,usuarioLogin.toString(),LocalDate.now().toString())
-                    repositorio.mandarError(err)
-                }
-            }
-        }
     }
 
     fun obtenerPedido(pedidoCab: PedidoCab) {

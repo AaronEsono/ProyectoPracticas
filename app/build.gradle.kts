@@ -7,6 +7,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     id ("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -123,6 +124,21 @@ dependencies {
     //Room
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    annotationProcessor ("androidx.room:room-compiler:2.6.1")
+    //implementation ("androidx.compose.runtime:runtime-livedata:1.2.1")
     //Mirar implementacion kapt
     kapt("androidx.room:room-compiler:2.6.1")
+
+    // Dagger
+    implementation ("com.google.dagger:hilt-android:2.51.1")
+    kapt ("com.google.dagger:hilt-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // For instrumentation tests
+    androidTestImplementation  ("com.google.dagger:hilt-android-testing:2.51.1")
+    androidTestAnnotationProcessor ("com.google.dagger:hilt-compiler:2.51.1")
+
+    // For local unit tests
+    testImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
+    testAnnotationProcessor ("com.google.dagger:hilt-compiler:2.51.1")
 }

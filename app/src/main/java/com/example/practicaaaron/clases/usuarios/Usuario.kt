@@ -3,13 +3,13 @@ package com.example.practicaaaron.clases.usuarios
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "usuario")
+@Entity(tableName = "USUARIO")
 data class Usuario(
     @PrimaryKey
-    val idUsuario:Int = 0,
-    val username:String = "",
-    val idPerfil:Int = 0,
-    val tipoPerfil:Int = 0,
-    val nombre:String = "",
-    val email:String = ""
+    var idUsuario:Int = 0,
+    var username:String = "",
+    var idPerfil:Int = 0,
+    var tipoPerfil:Int = 0,
+    var nombre:String = "",
+    var email:String = ""
 )
