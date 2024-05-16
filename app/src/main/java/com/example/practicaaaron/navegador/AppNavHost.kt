@@ -49,8 +49,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.practicaaaron.R
 import com.example.practicaaaron.pantallas.PantallaInfoProducto
 import com.example.practicaaaron.pantallas.VentanaEntregaPedido
@@ -68,6 +70,8 @@ import com.example.practicaaaron.ui.theme.colorBarraEncima
 import com.example.practicaaaron.ui.theme.colorPrimario
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 sealed class Pantallas(var route:String){
     data object Login : Pantallas("login")
@@ -206,17 +210,28 @@ fun Navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             composable(Pantallas.Login.route){
                 VentanaLogin(navController)
             }
-            composable(Pantallas.Pedidos.route){
-                VentanaPedidos(navHostController = navController, opcionesViewModel)
+            composable(
+                "${Pantallas.Pedidos.route}/{fecha}/{id}",
+                arguments = listOf(
+                    navArgument("fecha") { type = NavType.StringType },
+                    navArgument("id") { type = NavType.IntType }
+                )
+            ) { it ->
+                val dateString = it.arguments?.getString("fecha")
+                val date = dateString?.let { it2 ->
+                    LocalDate.parse(it2, DateTimeFormatter.ISO_LOCAL_DATE)
+                }
+                val number = it.arguments?.getInt("id")
+                VentanaPedidos(navController, opcionesViewModel, date ?: LocalDate.now(), number ?: 0)
             }
             composable(Pantallas.Menu.route){
-                VentanaPrincipal(navHostController = navController,opcionesViewModel)
+                VentanaPrincipal(navController)
             }
             composable(Pantallas.Perfil.route){
-                VentanaPerfil(opcionesViewModel)
+                VentanaPerfil()
             }
             composable(Pantallas.Info.route){
-                PantallaInfoProducto(navHostController = navController, opcionesViewModel)
+                PantallaInfoProducto(navController, opcionesViewModel)
             }
             composable(Pantallas.Entregar.route){
                 VentanaEntregaPedido(navController,opcionesViewModel)
@@ -225,21 +240,20 @@ fun Navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
                 PantallaMapa(opcionesViewModel)
             }
             composable(Pantallas.Usuarios.route){
-                opcionesViewModel.setEstadistica(false)
-                PantallaUsuarios(navController,opcionesViewModel)
+                PantallaUsuarios(navController,false)
             }
             composable(Pantallas.Hecho.route){
-                Hecho(navHostController = navController)
+                Hecho(navController)
             }
             composable(Pantallas.Estadistica.route){
-                opcionesViewModel.setEstadistica(true)
-                PantallaUsuarios(navController,opcionesViewModel)
+                PantallaUsuarios(navController,true)
             }
-            composable(Pantallas.Informacion.route){
-                VentanaEstadisticas(opcionesViewModel = opcionesViewModel)
+            composable(route = "${Pantallas.Informacion.route}/{number}",arguments = listOf(navArgument("number") { type = NavType.IntType })){
+                val number = it.arguments?.getInt("number")
+                VentanaEstadisticas(id = number ?: 0)
             }
             composable(Pantallas.Futuro.route){
-                PantallaMenuFuturo(navController,opcionesViewModel)
+                PantallaMenuFuturo(navController)
             }
         }
 }
@@ -306,8 +320,8 @@ fun BarraArriba(
                     title = {
                         Image(painter = painterResource(id = R.drawable.iconoapp), contentDescription = stringResource(id = R.string.iconoApp)
                             ,modifier = Modifier
-                            .clickable { navHostController.navigate("menu") }
-                            .size(75.dp))
+                                .clickable { navHostController.navigate("menu") }
+                                .size(75.dp))
                     },
                     navigationIcon = {
                         if (showToolbar.value == 3){

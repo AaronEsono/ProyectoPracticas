@@ -3,6 +3,7 @@ package com.example.practicaaaron.pantallas
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -73,7 +74,9 @@ import java.util.Base64
 @Composable
 fun VentanaPedidos(
     navHostController: NavHostController,
-    opcionesViewModel: OpcionesViewModel
+    opcionesViewModel: OpcionesViewModel,
+    fecha:LocalDate,
+    id:Int
 ) {
 
     //Variable que guarda los distintos pedidos de cada usuario
@@ -81,6 +84,9 @@ fun VentanaPedidos(
     val esAdmin = opcionesViewModel.isLogged.collectAsState().value
     val info = opcionesViewModel.informacion.collectAsState().value
     val done = opcionesViewModel.done.collectAsState().value
+
+    Log.i("fecha","$fecha")
+    Log.i("id","$id")
 
     LaunchedEffect(true) {
         opcionesViewModel.setDone()
@@ -166,7 +172,8 @@ fun VentanaPedidos(
             if (!done) {
                 AnimatedPreloader(
                     Modifier.size(100.dp),
-                    animacioncompletado = R.raw.animacioncargando
+                    animacioncompletado = R.raw.animacioncargando,
+                    1.0f
                 )
             } else {
                 //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta

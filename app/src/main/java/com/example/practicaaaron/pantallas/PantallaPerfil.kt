@@ -22,7 +22,10 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,80 +36,93 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.theme.colorPrimario
+import com.example.practicaaaron.ui.viewModel.PerfilViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun VentanaPerfil(
-    opcionesViewModel: OpcionesViewModel
+    perfilViewModel: PerfilViewModel = hiltViewModel()
 ) {
     // Variable que guarda la informacion del usuario
-    val infoUsuario = opcionesViewModel.informacionUsuario.collectAsState().value
+    val infoUsuario = perfilViewModel.usuario.collectAsState().value
     val tamano = (LocalConfiguration.current.screenHeightDp / 4 * -1.4)
+    val done = remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(0.dp, 60.dp, 0.dp, 0.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
+    LaunchedEffect (true){
+        perfilViewModel.cogerDatos()
+        done.value = true
+    }
 
+    if(done.value){
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 10.dp, 0.dp, 0.dp)
+                .fillMaxSize()
+                .padding(0.dp, 60.dp, 0.dp, 0.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                translate(left = 0f, top = tamano.toFloat()) {
-                    drawCircle(colorPrimario, radius = 250.dp.toPx())
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 10.dp, 0.dp, 0.dp)
+            ) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    translate(left = 0f, top = tamano.toFloat()) {
+                        drawCircle(colorPrimario, radius = 250.dp.toPx())
+                    }
                 }
+                Icon(
+                    Icons.Rounded.AccountCircle,
+                    contentDescription = "Imagen perfil",
+                    modifier = Modifier.size(130.dp),
+                    tint = Color.White
+                )
+
+                Text(
+                    text = infoUsuario.nombre,
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Black
+                )
             }
-            Icon(
-                Icons.Rounded.AccountCircle,
-                contentDescription = "Imagen perfil",
-                modifier = Modifier.size(130.dp),
-                tint = Color.White
+
+            Spacer(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp))
+            Informacion(
+                campo = "Id_Usuario",
+                valor = "${infoUsuario.idUsuario}",
+                Icons.Rounded.Person,
+                20.sp
             )
 
-            Text(
-                text = "${infoUsuario?.dataUser?.nombre}",
-                fontSize = 40.sp,
-                fontWeight = FontWeight.Black
+            Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
+
+            Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+            Informacion(
+                campo = "Usuario",
+                valor = infoUsuario.username,
+                icono = Icons.Rounded.AccountCircle,
+                20.sp
             )
+
+            Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
+
+            Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+            Informacion(
+                campo = "Email",
+                valor = infoUsuario.email,
+                icono = Icons.Rounded.Email,
+                20.sp
+            )
+
+            Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
         }
-
-        Spacer(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp))
-        Informacion(
-            campo = "Id_Usuario",
-            valor = "${infoUsuario?.dataUser?.nombre}",
-            Icons.Rounded.Person,
-            20.sp
-        )
-
-        Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
-
-        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-        Informacion(
-            campo = "Usuario",
-            valor = "${infoUsuario?.dataUser?.username}",
-            icono = Icons.Rounded.AccountCircle,
-            20.sp
-        )
-
-        Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
-
-        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-        Informacion(
-            campo = "Email",
-            valor = "${infoUsuario?.dataUser?.email}",
-            icono = Icons.Rounded.Email,
-            20.sp
-        )
-
-        Divider(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 0.dp), color = Color.Gray)
+    }else{
+        AnimatedPreloader(modifier = Modifier.size(100.dp), R.raw.animacioncargando, 1.0f)
     }
 }
 

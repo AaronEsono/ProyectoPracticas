@@ -20,7 +20,7 @@ import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 @Composable
 fun Hecho(navHostController: NavHostController) {
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        AnimatedPreloader(modifier = Modifier.size(250.dp), R.raw.animacioncompletado)
+        AnimatedPreloader(modifier = Modifier.size(250.dp), R.raw.animacioncompletado, 1.0f)
         Spacer(modifier = Modifier.padding(0.dp,10.dp))
         Text(text = "Enhorabuena. Has hecho todas las entregas")
         Spacer(modifier = Modifier.padding(0.dp,10.dp))

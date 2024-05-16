@@ -76,7 +76,8 @@ fun VentanaPedidos2(
             item {
                 AnimatedPreloader(
                     Modifier.size(100.dp),
-                    animacioncompletado = R.raw.animacioncargando
+                    animacioncompletado = R.raw.animacioncargando,
+                    1.0f
                 )
             }
         } else {

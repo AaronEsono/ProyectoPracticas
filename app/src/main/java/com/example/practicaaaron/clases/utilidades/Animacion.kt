@@ -10,7 +10,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 
 @Composable
-fun AnimatedPreloader(modifier: Modifier = Modifier, animacioncompletado: Int) {
+fun AnimatedPreloader(modifier: Modifier = Modifier, animacioncompletado: Int,velocidad:Float) {
     val preloaderLottieComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(
             animacioncompletado
@@ -20,7 +20,8 @@ fun AnimatedPreloader(modifier: Modifier = Modifier, animacioncompletado: Int) {
     val preloaderProgress by animateLottieCompositionAsState(
         preloaderLottieComposition,
         iterations = LottieConstants.IterateForever,
-        isPlaying = true
+        isPlaying = true,
+        speed = velocidad
     )
 
     LottieAnimation(

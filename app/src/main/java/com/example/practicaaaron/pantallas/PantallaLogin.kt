@@ -1,11 +1,15 @@
 package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -49,6 +53,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,7 +70,7 @@ import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.theme.cargando
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.theme.colorSecundario
 import com.example.practicaaaron.ui.theme.colorTerciario
@@ -113,84 +118,99 @@ fun VentanaLogin(
 
     val (focusRequester) = FocusRequester.createRefs()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .zIndex(1f)
-            .background(Brush.linearGradient(listColors)),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    val context = LocalContext.current
+
+    Box (modifier = Modifier
+        .fillMaxSize()
+        .background(Brush.linearGradient(listColors))){
         Column(
             modifier = Modifier
-                .fillMaxHeight(0.4f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.iconoapp),
-                contentDescription = stringResource(id = R.string.iconoApp),
+            Column(
                 modifier = Modifier
-                    .padding(0.dp, 10.dp)
-                    .size(210.dp)
-            )
-        }
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
-                .padding(0.dp, 20.dp, 0.dp, 0.dp)
-        ) {
-            CampoFuncion(
-                campoUsername,
-                firstTimeButton,
-                R.string.usuario,
-                R.string.relleneUser,
-                accountCircle = Icons.Rounded.Person,
-                focusRequester = focusRequester
-            )
-            Spacer(modifier = Modifier.padding(0.dp, 10.dp))
-
-            CampoFuncion(
-                campoContrasena,
-                firstTimeButton,
-                R.string.contrasenia,
-                R.string.rellenePass,
-                PasswordVisualTransformation(),
-                KeyboardType.Password,
-                Icons.Rounded.Lock,
-                focusRequester
-            )
-            Spacer(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 35.dp))
-
-            ElevatedButton(
-                onClick = {
-                    firstTimeButton = true
-                    showBottomSheet = true
-                    hacerLlamada(usuarioLogin, campoContrasena, campoUsername, loginViewModel)
-                }, modifier = Modifier
-                    .height(60.dp)
-                    .fillMaxWidth()
-                    .padding(15.dp, 0.dp),
-                shape = RoundedCornerShape(40.dp, 0.dp, 40.dp, 0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = colorTerciario
-                )
+                    .fillMaxHeight(0.4f)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(id = R.string.entrar), fontSize = 25.sp)
+                Image(
+                    painter = painterResource(id = R.drawable.iconoapp),
+                    contentDescription = stringResource(id = R.string.iconoApp),
+                    modifier = Modifier
+                        .padding(0.dp, 10.dp)
+                        .size(210.dp)
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .padding(0.dp, 20.dp, 0.dp, 0.dp)
+            ) {
+                CampoFuncion(
+                    campoUsername,
+                    firstTimeButton,
+                    R.string.usuario,
+                    R.string.relleneUser,
+                    accountCircle = Icons.Rounded.Person,
+                    focusRequester = focusRequester
+                )
+                Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+
+                CampoFuncion(
+                    campoContrasena,
+                    firstTimeButton,
+                    R.string.contrasenia,
+                    R.string.rellenePass,
+                    PasswordVisualTransformation(),
+                    KeyboardType.Password,
+                    Icons.Rounded.Lock,
+                    focusRequester
+                )
+                Spacer(modifier = Modifier.padding(0.dp, 10.dp, 0.dp, 35.dp))
+
+                ElevatedButton(
+                    onClick = {
+                            firstTimeButton = true
+                            showBottomSheet = true
+                            hacerLlamada(usuarioLogin, campoContrasena, campoUsername, loginViewModel,context)
+                    }, modifier = Modifier
+                        .height(60.dp)
+                        .fillMaxWidth()
+                        .padding(15.dp, 0.dp),
+                    shape = RoundedCornerShape(40.dp, 0.dp, 40.dp, 0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorTerciario
+                    )
+                ) {
+                    Text(stringResource(id = R.string.entrar), fontSize = 25.sp)
+                }
             }
         }
-        if(isLoading){
-            Column (modifier = Modifier.fillMaxSize().zIndex(0f).background(Color.Magenta),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center){
-                AnimatedPreloader(modifier = Modifier.size(250.dp), R.raw.animacioncargando)
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(cargando) // Fondo semi-transparente
+                    .zIndex(1f)
+                    .clickable(enabled = false) {} // Captura los toques y no los deja pasar
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    AnimatedPreloader(modifier = Modifier.size(100.dp), R.raw.animacioncargando, 1.5f)
+                }
             }
         }
     }
 
     //Ventana modal que muestra el error encontrado en el login
-    if (showBottomSheet && mensaje.isNotEmpty()) {
+    if (showBottomSheet && mensaje.isNotEmpty() && !isLoading) {
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false
@@ -208,7 +228,8 @@ fun VentanaLogin(
                     text = mensaje,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
-                    modifier = Modifier.padding(0.dp, 10.dp)
+                    modifier = Modifier.padding(5.dp, 10.dp).basicMarquee(),
+                    maxLines = 1
                 )
             }
         }
@@ -320,12 +341,13 @@ fun hacerLlamada(
     usuarioLogin: UsuarioLogin,
     campoContrasena: MutableState<String>,
     campoUsername: MutableState<String>,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    context: Context
 ) {
     usuarioLogin.password = campoContrasena.value
     usuarioLogin.username = campoUsername.value
 
     //Si los campos no estan vacios, se hace la peticion
     if (usuarioLogin.password.isNotEmpty() && usuarioLogin.username.isNotEmpty())
-        loginViewModel.hacerLogin(usuarioLogin)
+        loginViewModel.hacerLogin(usuarioLogin,context)
 }

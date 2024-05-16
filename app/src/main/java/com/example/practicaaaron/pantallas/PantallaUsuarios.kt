@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -28,49 +29,61 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.entidades.DataUsuario
 import com.example.practicaaaron.clases.usuarios.DataUser
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
+import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.theme.colorPrimario
+import com.example.practicaaaron.ui.viewModel.UsuariosViewModel
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PantallaUsuarios(navController: NavHostController, opcionesViewModel: OpcionesViewModel) {
-    val usuarios = opcionesViewModel.usuarios.collectAsState().value
-    val esConsulta = opcionesViewModel.esConsulta.collectAsState().value
+fun PantallaUsuarios(navController: NavHostController,esConsulta:Boolean,usuariosViewModel: UsuariosViewModel = hiltViewModel()) {
+    val usuarios = usuariosViewModel.usuarios.collectAsState().value
+
+    val esConsultaVar = remember{ mutableStateOf(esConsulta) }
     val ruta = remember{ mutableStateOf("pedidos") }
-    
+
+    val context = LocalContext.current
+    val done = remember{ mutableStateOf(false) }
+
     LaunchedEffect (true){
-        opcionesViewModel.obtenerTodos()
-        if(esConsulta)
+        usuariosViewModel.getUsuarios(context)
+        if(esConsultaVar.value)
             ruta.value = "informacion"
+        done.value = true
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(0.dp, 60.dp, 0.dp, 0.dp)
-    ) {
-        if (usuarios != null) {
-            items(usuarios.usuarios) {
-                CartaUsuario(it, navController, opcionesViewModel,ruta)
+    if(done.value){
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(0.dp, 60.dp, 0.dp, 0.dp)
+        ) {
+            items(usuarios) {
+                CartaUsuario(it, navController,ruta)
                 Spacer(modifier = Modifier.padding(0.dp, 4.dp))
                 Divider(thickness = 3.dp, color = colorPrimario)
                 Spacer(modifier = Modifier.padding(0.dp, 4.dp))
             }
         }
+    }else{
+        AnimatedPreloader(modifier = Modifier.size(100.dp), R.raw.animacioncargando, 1.0f)
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CartaUsuario(
-    user: DataUser,
+    user: DataUsuario,
     navController: NavHostController,
-    opcionesViewModel: OpcionesViewModel,
     ruta: MutableState<String>
 ) {
 
@@ -79,11 +92,11 @@ fun CartaUsuario(
         .height(IntrinsicSize.Max)
         .padding(0.dp, 10.dp)
         .clickable {
-            if(ruta.value == "estadisticas"){
-                opcionesViewModel.resetEstadistica()
+            if (ruta.value == "informacion") {
+                navController.navigate("${ruta.value}/${user.idUsuario}")
+            }else{
+                navController.navigate("${ruta.value}/${LocalDate.now()}/${user.idUsuario}")
             }
-            opcionesViewModel.setId(user.idUsuario)
-            navController.navigate(ruta.value)
         }) {
 
         Column(

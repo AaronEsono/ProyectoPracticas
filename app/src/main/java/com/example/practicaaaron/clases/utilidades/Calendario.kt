@@ -11,13 +11,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.MenuViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -57,8 +59,14 @@ class DateUtils {
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ManufacturedDate(navHostController: NavHostController, opcionesViewModel: OpcionesViewModel) {
+fun ManufacturedDate(navHostController: NavHostController, menuViewModel: MenuViewModel) {
     val contexto = LocalContext.current
+    val id = menuViewModel.idUser.collectAsState().value
+
+    LaunchedEffect(true) {
+        menuViewModel.setId()
+    }
+
     val done = remember{ mutableStateOf(false) }
     val dateState = rememberDatePickerState()
     val millisToLocalDate = dateState.selectedDateMillis?.let {
@@ -76,7 +84,6 @@ fun ManufacturedDate(navHostController: NavHostController, opcionesViewModel: Op
                 Toast.makeText(contexto, "No se ha metido la fecha", Toast.LENGTH_LONG).show()
             else{
                 if (millisToLocalDate != null) {
-                    opcionesViewModel.setFecha(millisToLocalDate)
                     done.value = true
                 }
             }
@@ -86,7 +93,7 @@ fun ManufacturedDate(navHostController: NavHostController, opcionesViewModel: Op
     }
 
     if(done.value){
-        navHostController.navigate("pedidos")
+        navHostController.navigate("pedidos/$millisToLocalDate/$id")
     }
 
 }

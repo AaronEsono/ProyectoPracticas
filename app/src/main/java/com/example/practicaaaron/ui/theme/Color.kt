@@ -13,3 +13,6 @@ val colorPrimario = Color(0xFF1b3969)
 val colorSecundario = Color.Black
 val colorTerciario = Color(0xFF4282eb)
 val colorBarraEncima = Color(0xFF34599E)
+
+val cargando = Color(0x90FFFFFF)
+val desabilitado = Color(0xFF292929)

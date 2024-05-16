@@ -1,6 +1,7 @@
-package com.example.practicaaaron.clases.basedatos
+package com.example.practicaaaron.clases.basedatos.repositorio
 
-import com.example.practicaaaron.clases.usuarios.Usuario
+import com.example.practicaaaron.clases.basedatos.dao.UsuarioDao
+import com.example.practicaaaron.clases.entidades.Usuario
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -10,4 +11,5 @@ class UsuarioRepositorioOffline @Inject constructor(private val usuarioDao: Usua
     fun getUsuario() = usuarioDao.getUsuario()
     fun getId() = usuarioDao.getIdUser()
     fun borrar() = usuarioDao.borrarUsuario()
+    fun getTipoPerfil() = usuarioDao.getTipoPerfil()
 }

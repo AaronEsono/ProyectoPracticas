@@ -1,7 +1,11 @@
-package com.example.practicaaaron.clases.basedatos
+package com.example.practicaaaron.clases.basedatos.modulos
 
 import android.content.Context
 import androidx.room.Room
+import com.example.practicaaaron.clases.basedatos.bbdd.BaseDatos
+import com.example.practicaaaron.clases.basedatos.dao.DataUsuarioDao
+import com.example.practicaaaron.clases.basedatos.dao.EstadisticaDao
+import com.example.practicaaaron.clases.basedatos.dao.UsuarioDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,6 +34,14 @@ import javax.inject.Singleton
 
     @Provides
     @Singleton
-    fun provideYourDao(db:BaseDatos):UsuarioDao = db.userDao()
+    fun provideYourDao(db: BaseDatos): UsuarioDao = db.userDao()
+
+    @Provides
+    @Singleton
+    fun provideYourDataUserDao(db: BaseDatos): DataUsuarioDao = db.DataUserDao()
+
+    @Provides
+    @Singleton
+    fun provideYourEstadisticaDao(db: BaseDatos): EstadisticaDao = db.EstadisticaDao()
 }
 
