@@ -2,6 +2,7 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -47,96 +49,116 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.pedidos.Cliente
 import com.example.practicaaaron.clases.pedidos.PedidoLin
+import com.example.practicaaaron.ui.viewModel.InfoProductoViewModel
 import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
+import com.example.practicaaaron.ui.viewModel.loadImageFromBase64
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState",
+@SuppressLint(
+    "UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState",
     "SuspiciousIndentation"
 )
 @Composable
 fun PantallaInfoProducto(
     navHostController: NavHostController,
-    opcionesViewModel: OpcionesViewModel
-){
-            val openAlertDialog = remember { mutableStateOf(false) }
-            val state = rememberScrollState()
-            val fecha = opcionesViewModel.fecha.collectAsState().value
+    infoProductoViewModel: InfoProductoViewModel = hiltViewModel(),
+    opcionesViewModel: OpcionesViewModel,
+    idPedido: Int
+) {
 
-            //Variable que guarda el pedido seleccionado por el cliente
-            val pedido = opcionesViewModel.pedido.collectAsState().value
+    val openAlertDialog = remember { mutableStateOf(false) }
+    val state = rememberScrollState()
 
-            val valorOpcion = remember { mutableStateOf("") }
+    val pedidoInfo = infoProductoViewModel.pedido.collectAsState().value
 
-            //Imagen relacionada con el pedido elegido
-            val imagen = pedido?.imagenDescripcion?.let { loadImageFromBase64(it,opcionesViewModel) }
+    val fecha = opcionesViewModel.fecha.collectAsState().value
 
-            val esAdmin = opcionesViewModel.isLogged.collectAsState().value
+    //Variable que guarda el pedido seleccionado por el cliente
+    val pedido = opcionesViewModel.pedido.collectAsState().value
 
+    val valorOpcion = remember { mutableStateOf("") }
 
-        val entregado = opcionesViewModel.entregado.collectAsState().value
-        val info = opcionesViewModel.informacion.collectAsState().value
+    //Imagen relacionada con el pedido elegido
+    val imagen = remember{ mutableStateOf(loadImageFromBase64(pedidoInfo.pedido.imagen)) }
 
-            Column (modifier = Modifier
-                .fillMaxSize()
-                .padding(0.dp, 60.dp, 0.dp, 0.dp)
-                .verticalScroll(state), horizontalAlignment = Alignment.CenterHorizontally){
+    val esAdmin = opcionesViewModel.isLogged.collectAsState().value
 
-                if (imagen != null) {
-                    Image(bitmap = imagen, contentDescription = "Descripcion de la imagen",
-                        modifier = Modifier
-                            .size(120.dp)
-                            .padding(10.dp, 10.dp, 0.dp, 0.dp),contentScale = ContentScale.FillHeight)
-                }
+    val entregado = opcionesViewModel.entregado.collectAsState().value
+    val info = opcionesViewModel.informacion.collectAsState().value
 
-                Text(text = "${pedido?.nombre}", fontSize = 30.sp, fontWeight = FontWeight.Black)
-                
-                Spacer(modifier = Modifier.padding(0.dp,5.dp))
-                VistaInformacionCliente(info = R.string.cliente, pedido?.cliente)
+    LaunchedEffect(true) {
+        infoProductoViewModel.getPedido(idPedido)
+    }
 
-                VistaInformacionBulto(info = R.string.bultos,pedido?.bultos)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(0.dp, 60.dp, 0.dp, 0.dp)
+            .verticalScroll(state), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-                Spacer(modifier = Modifier.padding(0.dp,10.dp))
+        imagen.value?.let {
+            Image(
+                bitmap = it, contentDescription = "Descripcion de la imagen",
+                modifier = Modifier
+                    .size(120.dp)
+                    .padding(10.dp, 10.dp, 0.dp, 0.dp), contentScale = ContentScale.FillHeight
+            )
+        }
 
-                if(esAdmin == 1 && fecha == LocalDate.now()){
-                    Row (modifier = Modifier.padding(3.dp,10.dp)){
-                        BotonInfo(valor = R.string.confirmar,navHostController)
-                        Spacer(modifier = Modifier.padding(13.dp,0.dp))
+        Text(text = "${pedido?.nombre}", fontSize = 30.sp, fontWeight = FontWeight.Black)
 
-                        Button(onClick = { openAlertDialog.value = true }, modifier = Modifier.size(170.dp,60.dp)) {
-                            Text(text = stringResource(id = R.string.marcar), fontSize = 13.sp)
-                        }
-                    }
-                }
+        Spacer(modifier = Modifier.padding(0.dp, 5.dp))
+        VistaInformacionCliente(info = R.string.cliente, pedido?.cliente)
 
-                when {
-                    openAlertDialog.value -> {
-                        AlertDialogExample(
-                            onDismissRequest = { openAlertDialog.value = false },
-                            onConfirmation = {
-                                opcionesViewModel.updatePedido(valorOpcion.value)
-                                opcionesViewModel.actualizarPedido(valorOpcion.value)
-                                openAlertDialog.value = false
-                            },
-                            dialogTitle = stringResource(id = R.string.seleccione),
-                            valorOpcion
-                        )
-                    }
+        VistaInformacionBulto(info = R.string.bultos, pedido?.bultos)
+
+        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+
+        if (esAdmin == 1 && fecha == LocalDate.now()) {
+            Row(modifier = Modifier.padding(3.dp, 10.dp)) {
+                BotonInfo(valor = R.string.confirmar, navHostController)
+                Spacer(modifier = Modifier.padding(13.dp, 0.dp))
+
+                Button(
+                    onClick = { openAlertDialog.value = true },
+                    modifier = Modifier.size(170.dp, 60.dp)
+                ) {
+                    Text(text = stringResource(id = R.string.marcar), fontSize = 13.sp)
                 }
             }
+        }
 
-    if(entregado?.retcode != -2){
+        when {
+            openAlertDialog.value -> {
+                AlertDialogExample(
+                    onDismissRequest = { openAlertDialog.value = false },
+                    onConfirmation = {
+                        opcionesViewModel.updatePedido(valorOpcion.value)
+                        opcionesViewModel.actualizarPedido(valorOpcion.value)
+                        openAlertDialog.value = false
+                    },
+                    dialogTitle = stringResource(id = R.string.seleccione),
+                    valorOpcion
+                )
+            }
+        }
+    }
+
+    if (entregado?.retcode != -2) {
         opcionesViewModel.setInfo()
 
         val entregados = info.entregados.plus(info.incidencia)
 
-        if(entregados >= (info.pedidos)){
+        if (entregados >= (info.pedidos)) {
             navHostController.navigate("Hecho")
-        }else{
+        } else {
             navHostController.navigate("pedidos")
         }
         opcionesViewModel.resetearEntrega()

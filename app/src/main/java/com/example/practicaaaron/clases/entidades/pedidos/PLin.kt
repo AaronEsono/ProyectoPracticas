@@ -6,9 +6,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "BULTOS")
 data class PLin(
     @PrimaryKey
-    var idBulto:Int,
-    var referencia:String,
-    var descripcion:String,
-    var unidades:Int,
-    var idPedido:Int
+    var idBulto:Int = 0,
+    var referencia:String = "",
+    var descripcion:String = "",
+    var unidades:Int = 0,
+    var idPedido:Int = 0
 )

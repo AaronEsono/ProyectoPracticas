@@ -8,7 +8,7 @@ data class Pedidos(
     @SerializedName("mensaje")
     var mensaje:String = "",
     @SerializedName("retcode")
-    var retcode:Int = 0,
+    var retcode:Int = -3,
     @SerializedName("jsonOut")
     var jsonOut:String = ""
 )

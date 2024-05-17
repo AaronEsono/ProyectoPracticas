@@ -1,9 +1,7 @@
 package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
-import android.graphics.BitmapFactory
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -46,26 +44,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
-import com.example.practicaaaron.clases.errores.ErrorLog
-import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
-import com.example.practicaaaron.clases.pedidos.PedidoCab
+import com.example.practicaaaron.clases.entidades.pedidos.PedidoEntero
 import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
+import com.example.practicaaaron.clases.utilidades.coloresIncidencias
 import com.example.practicaaaron.ui.theme.colorBarraEncima
 import com.example.practicaaaron.ui.theme.colorPrimario
+import com.example.practicaaaron.ui.viewModel.PedidosViewModel
+import com.example.practicaaaron.ui.viewModel.loadImageFromBase64
 import java.time.LocalDate
-import java.util.Base64
+import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "SuspiciousIndentation",
@@ -74,27 +72,21 @@ import java.util.Base64
 @Composable
 fun VentanaPedidos(
     navHostController: NavHostController,
-    opcionesViewModel: OpcionesViewModel,
-    fecha:LocalDate,
-    id:Int
+    pedidosViewModel: PedidosViewModel = hiltViewModel(),
+    fecha: LocalDate,
+    id: Int
 ) {
 
     //Variable que guarda los distintos pedidos de cada usuario
-    val pedidos = opcionesViewModel.pedidosRepartidorCopy.collectAsState()
-    val esAdmin = opcionesViewModel.isLogged.collectAsState().value
-    val info = opcionesViewModel.informacion.collectAsState().value
-    val done = opcionesViewModel.done.collectAsState().value
 
-    Log.i("fecha","$fecha")
-    Log.i("id","$id")
+    val prueba = pedidosViewModel.pedidos.collectAsState().value
+    val cargando = pedidosViewModel.loading.collectAsState().value
+    val info = pedidosViewModel.informacion.collectAsState().value
+
+    val context = LocalContext.current
 
     LaunchedEffect(true) {
-        opcionesViewModel.setDone()
-
-        if (esAdmin == 1)
-            opcionesViewModel.obtenerPedidos()
-        else
-            opcionesViewModel.obtenerPedidos(opcionesViewModel.idUsuarioAdmin.value)
+        pedidosViewModel.obtenerPedidos(id, fecha, context)
     }
 
     val state = rememberScrollState()
@@ -115,49 +107,64 @@ fun VentanaPedidos(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FilaInformacion(
-                texto = stringResource(id = R.string.pedidos) + " ${info.pedidos}",
+                texto = stringResource(id = R.string.pedidos) + "${info.pedidos}",
                 Icons.Rounded.FolderCopy
             )
             FilaInformacion(
-                texto = stringResource(id = R.string.porEntregar) + " ${info.porEntregar}",
+                texto = stringResource(id = R.string.porEntregar) + "${info.entregados}",
                 Icons.Rounded.LocalShipping
             )
             FilaInformacion(
-                texto = stringResource(id = R.string.incidenciasPed) + " ${info.incidencia}",
+                texto = stringResource(id = R.string.incidenciasPed) + "${info.incidencia}",
                 Icons.Rounded.GppBad
             )
             FilaInformacion(
-                texto = stringResource(id = R.string.entregadosPed) + " ${info.entregados}",
+                texto = stringResource(id = R.string.entregadosPed) + "${info.entregados}",
                 Icons.Rounded.LocationOn
             )
         }
 
         Divider(color = Color.White)
 
-        Row (modifier = Modifier
-            .fillMaxWidth()
-            .height(intrinsicSize = IntrinsicSize.Max)
-            .background(colorBarraEncima),
-            horizontalArrangement = Arrangement.Center){
-            Text(text = stringResource(id = R.string.fecha) + " ${opcionesViewModel.fecha.value.dayOfMonth}-${opcionesViewModel.fecha.value.monthValue}-${opcionesViewModel.fecha.value.year}",modifier = Modifier.padding(5.dp), color = Color.White)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(intrinsicSize = IntrinsicSize.Max)
+                .background(colorBarraEncima),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(id = R.string.fecha) + " ${fecha.dayOfMonth}-${fecha.monthValue}-${fecha.year}",
+                modifier = Modifier.padding(5.dp),
+                color = Color.White
+            )
         }
 
         Divider(color = Color.White)
 
-        Row (modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp)
-            .background(colorBarraEncima)
-            .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly){
-            Icon(Icons.Rounded.Search, contentDescription = "Buscar", tint = Color.White, modifier = Modifier.size(25.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .background(colorBarraEncima)
+                .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Icon(
+                Icons.Rounded.Search,
+                contentDescription = "Buscar",
+                tint = Color.White,
+                modifier = Modifier.size(25.dp)
+            )
 
             var buscador by remember { mutableStateOf("") }
 
             TextField(
                 value = buscador,
-                onValueChange = { buscador = it
-                                opcionesViewModel.setTexto(it)},
+                onValueChange = {
+                    buscador = it
+                    pedidosViewModel.filtrar(it,id,fecha)
+                },
                 singleLine = true,
                 label = { Text(stringResource(id = R.string.buscar)) }
             )
@@ -169,33 +176,26 @@ fun VentanaPedidos(
                 .verticalScroll(state),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (!done) {
+            if (cargando) {
                 AnimatedPreloader(
                     Modifier.size(100.dp),
                     animacioncompletado = R.raw.animacioncargando,
                     1.0f
                 )
             } else {
-                //Si no hay pedidos no mostramos nada, si hay pedidos mostrarlos en formato carta
-                if (done) {
-                    pedidos.value!!.data.pedidos.forEach {
+                if(prueba.isNotEmpty()){
+                    prueba.forEach {
                         Spacer(modifier = Modifier.padding(0.dp, 5.dp))
-                        Carta(navHostController, it, opcionesViewModel)
+                        Carta(navHostController, it)
                         Divider(thickness = 3.dp, color = colorPrimario)
                     }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = stringResource(id = R.string.noPedidos), fontSize = 35.sp)
-                    }
-
+                }else{
+                    Text(text = "No hay pedidos", fontSize = 23.sp, fontWeight = FontWeight.Black)
                 }
             }
-
         }
     }
+
 }
 
 @Composable
@@ -206,43 +206,27 @@ fun FilaInformacion(texto:String, icono: ImageVector){
     }
 }
 
-// Funcion que que convierte un string en base64 a bitmap
-@RequiresApi(Build.VERSION_CODES.O)
-fun loadImageFromBase64(texto: String,opcionesViewModel: OpcionesViewModel): ImageBitmap? {
-    return try {
-        val decodebytes = Base64.getDecoder().decode(texto)
-        val bitmap = BitmapFactory.decodeByteArray(decodebytes, 0, decodebytes.size)
-        bitmap.asImageBitmap()
-    } catch (e: Exception) {
-        val err = ErrorLog(::loadImageFromBase64.name,"App","$e","",opcionesViewModel.informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE,texto,LocalDate.now().toString())
-        opcionesViewModel.lanzarError(err)
-        null
-    }
-}
-
 //Funcion que muestra en formato carta cada uno de los pedidos
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Carta(
     navHostController: NavHostController,
-    pedidoCab: PedidoCab = PedidoCab(),
-    opcionesViewModel: OpcionesViewModel
+    pedido: PedidoEntero
 ) {
     //Imagen que tenemos que convertir a bitmap para mostrarla
     var imagen:ImageBitmap? = ImageBitmap(1,1)
 
-    if(pedidoCab.imagenDescripcion != ""){
-        imagen = loadImageFromBase64(pedidoCab.imagenDescripcion,opcionesViewModel)
+    if(pedido.pedido.imagen != ""){
+        imagen = loadImageFromBase64(pedido.pedido.imagen)
     }
 
-    //Poner el color segun el estado
-    val estado: ColoresIncidencias = opcionesViewModel.indicarColorPedido(pedidoCab.incidencia)
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+    val fecha = LocalDate.parse(pedido.pedido.fEntrega,formatter)
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row {
             Column(modifier = Modifier.clickable {
-                opcionesViewModel.obtenerPedido(pedidoCab)
-                navHostController.navigate("infoPedido")
+                navHostController.navigate("infoPedido/${pedido.pedido.idPedido}")
             }) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Column(
@@ -251,7 +235,7 @@ fun Carta(
                             .padding(10.dp, 0.dp, 0.dp, 0.dp)
                     ) {
                         Text(
-                            text = pedidoCab.nombre,
+                            text = pedido.pedido.nombre,
                             fontSize = 25.sp,
                             fontWeight = FontWeight.Black
                         )
@@ -259,13 +243,13 @@ fun Carta(
                         Row(modifier = Modifier.padding(0.dp, 5.dp)) {
                             Icon(Icons.Rounded.LocationOn, contentDescription = "Icono destino")
                             Text(
-                                text = "${pedidoCab.cliente.direccion.poblacion}, ${pedidoCab.cliente.direccion.municipio}",
+                                text = "${pedido.direccion.poblacion}, ${pedido.direccion.municipio}",
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 18.sp
                             )
                         }
                         Text(
-                            text = "${pedidoCab.cliente.direccion.tipoCalle} ${pedidoCab.cliente.direccion.nombreCalle}, ${pedidoCab.cliente.direccion.portal} ${pedidoCab.cliente.direccion.numero}",
+                            text = "${pedido.direccion.tipoCalle} ${pedido.direccion.nombreCalle}, ${pedido.direccion.portal} ${pedido.direccion.numero}",
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp,
                             modifier = Modifier.padding(0.dp, 5.dp)
@@ -300,7 +284,7 @@ fun Carta(
                         Icon(Icons.Rounded.Call, contentDescription = "Icono telefono")
                         Spacer(modifier = Modifier.padding(5.dp, 0.dp))
                         Text(
-                            text = pedidoCab.cliente.telefono,
+                            text = pedido.cliente.telefono,
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         )
@@ -309,7 +293,7 @@ fun Carta(
                         Icon(Icons.Rounded.DateRange, contentDescription = "Icono telefono")
                         Spacer(modifier = Modifier.padding(5.dp, 0.dp))
                         Text(
-                            text = "${pedidoCab.fechaEntrega.dayOfMonth}-${pedidoCab.fechaEntrega.monthValue}-${pedidoCab.fechaEntrega.year}",
+                            text = "${fecha.dayOfMonth}-${fecha.monthValue}-${fecha.year}",
                             fontWeight = FontWeight.Medium,
                             fontSize = 16.sp
                         )
@@ -326,15 +310,15 @@ fun Carta(
                         .padding(10.dp, 5.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val color = if(pedidoCab.incidencia != 100) Color.Black else Color.Green
+                    val color = if(pedido.pedido.incidencia != 100) Color.Black else Color.Green
                     Icon(
-                        estado.imagen,
+                        coloresIncidencias.stream().filter { it.incidencia == pedido.pedido.incidencia }.findFirst().map { it.imagen }.get(),
                         contentDescription = "",
                         modifier = Modifier.size(30.dp),
                         tint = color
                     )
                     Text(
-                        text = stringResource(id = estado.texto),
+                        text = stringResource(id = coloresIncidencias.stream().filter { it.incidencia == pedido.pedido.incidencia }.findFirst().map { it.texto }.get()),
                         modifier = Modifier.padding(20.dp, 0.dp),
                         fontSize = 20.sp
                     )

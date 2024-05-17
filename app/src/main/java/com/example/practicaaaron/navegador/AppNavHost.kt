@@ -222,16 +222,13 @@ fun Navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
                     LocalDate.parse(it2, DateTimeFormatter.ISO_LOCAL_DATE)
                 }
                 val number = it.arguments?.getInt("id")
-                VentanaPedidos(navController, opcionesViewModel, date ?: LocalDate.now(), number ?: 0)
+                VentanaPedidos(navController, fecha = date ?: LocalDate.now(),id =  number ?: 0)
             }
             composable(Pantallas.Menu.route){
                 VentanaPrincipal(navController)
             }
             composable(Pantallas.Perfil.route){
                 VentanaPerfil()
-            }
-            composable(Pantallas.Info.route){
-                PantallaInfoProducto(navController, opcionesViewModel)
             }
             composable(Pantallas.Entregar.route){
                 VentanaEntregaPedido(navController,opcionesViewModel)
@@ -247,6 +244,10 @@ fun Navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             }
             composable(Pantallas.Estadistica.route){
                 PantallaUsuarios(navController,true)
+            }
+            composable("${Pantallas.Info.route}/{idPedido}",arguments = listOf(navArgument("idPedido") { type = NavType.IntType })){
+                val number = it.arguments?.getInt("idPedido")
+                PantallaInfoProducto(navController,opcionesViewModel = opcionesViewModel, idPedido = number?:0)
             }
             composable(route = "${Pantallas.Informacion.route}/{number}",arguments = listOf(navArgument("number") { type = NavType.IntType })){
                 val number = it.arguments?.getInt("number")

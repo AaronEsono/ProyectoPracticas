@@ -33,6 +33,7 @@ import com.example.practicaaaron.clases.ubicaciones.Ubicacion
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.Usuarios
 import com.example.practicaaaron.clases.utilidades.LocationService
+import com.example.practicaaaron.clases.utilidades.coloresIncidencias
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -108,13 +109,6 @@ class OpcionesViewModel @Inject constructor(
 
     private val conseguirLocalizacion = LocationService()
 
-    private val coloresIncidencias = listOf(
-        ColoresIncidencias(Icons.Rounded.Commute, 0, R.string.porEntregarPed, "Normal"),
-        ColoresIncidencias(Icons.Rounded.CheckCircleOutline, 100, R.string.entregado, "Entregado"),
-        ColoresIncidencias(Icons.Rounded.Block, 10, R.string.perdido, "Pérdida"),
-        ColoresIncidencias(Icons.Rounded.Clear, 30, R.string.rechazo, "Rechazo"),
-        ColoresIncidencias(Icons.Rounded.AcUnit, 20, R.string.ausente, "Ausente"),
-        ColoresIncidencias(Icons.Rounded.AccountCircle,40,R.string.direccionErronea, "dirección errónea"))
 
     fun setId(id:Int){
         _idUsuarioAdmin.value = id
