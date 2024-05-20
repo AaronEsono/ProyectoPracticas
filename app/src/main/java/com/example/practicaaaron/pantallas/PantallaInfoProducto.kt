@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,12 +53,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
-import com.example.practicaaaron.clases.pedidos.Cliente
-import com.example.practicaaaron.clases.pedidos.PedidoLin
+import com.example.practicaaaron.clases.entidades.pedidos.Cliente
+import com.example.practicaaaron.clases.entidades.pedidos.Direccion
+import com.example.practicaaaron.clases.entidades.pedidos.PLin
 import com.example.practicaaaron.ui.viewModel.InfoProductoViewModel
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.example.practicaaaron.ui.viewModel.loadImageFromBase64
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint(
@@ -68,106 +70,98 @@ import java.time.LocalDate
 fun PantallaInfoProducto(
     navHostController: NavHostController,
     infoProductoViewModel: InfoProductoViewModel = hiltViewModel(),
-    opcionesViewModel: OpcionesViewModel,
-    idPedido: Int
+    idPedido: Int,
+    fechaPed:LocalDate
 ) {
 
     val openAlertDialog = remember { mutableStateOf(false) }
     val state = rememberScrollState()
+    val context = LocalContext.current
 
     val pedidoInfo = infoProductoViewModel.pedido.collectAsState().value
-
-    val fecha = opcionesViewModel.fecha.collectAsState().value
-
-    //Variable que guarda el pedido seleccionado por el cliente
-    val pedido = opcionesViewModel.pedido.collectAsState().value
+    val tipoPerfil = infoProductoViewModel.tipoPerfil.collectAsState().value
+    val entrega = infoProductoViewModel.entrega.collectAsState().value
 
     val valorOpcion = remember { mutableStateOf("") }
 
     //Imagen relacionada con el pedido elegido
     val imagen = remember{ mutableStateOf(loadImageFromBase64(pedidoInfo.pedido.imagen)) }
 
-    val esAdmin = opcionesViewModel.isLogged.collectAsState().value
-
-    val entregado = opcionesViewModel.entregado.collectAsState().value
-    val info = opcionesViewModel.informacion.collectAsState().value
-
     LaunchedEffect(true) {
         infoProductoViewModel.getPedido(idPedido)
+        infoProductoViewModel.getTipoPerfil()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(0.dp, 60.dp, 0.dp, 0.dp)
-            .verticalScroll(state), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    if(pedidoInfo.pedido.idPedido != -1){
+        val fecha = remember { mutableStateOf(LocalDate.parse(pedidoInfo.pedido.fEntrega,DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))) }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(0.dp, 60.dp, 0.dp, 0.dp)
+                .verticalScroll(state), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        imagen.value?.let {
-            Image(
-                bitmap = it, contentDescription = "Descripcion de la imagen",
-                modifier = Modifier
-                    .size(120.dp)
-                    .padding(10.dp, 10.dp, 0.dp, 0.dp), contentScale = ContentScale.FillHeight
-            )
-        }
+            imagen.value?.let {
+                Image(
+                    bitmap = it, contentDescription = "Descripcion de la imagen",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .padding(10.dp, 10.dp, 0.dp, 0.dp), contentScale = ContentScale.FillHeight
+                )
+            }
 
-        Text(text = "${pedido?.nombre}", fontSize = 30.sp, fontWeight = FontWeight.Black)
+            Text(text = pedidoInfo.pedido.nombre, fontSize = 30.sp, fontWeight = FontWeight.Black)
 
-        Spacer(modifier = Modifier.padding(0.dp, 5.dp))
-        VistaInformacionCliente(info = R.string.cliente, pedido?.cliente)
+            Spacer(modifier = Modifier.padding(0.dp, 5.dp))
+            VistaInformacionCliente(info = R.string.cliente, pedidoInfo.cliente,pedidoInfo.direccion)
 
-        VistaInformacionBulto(info = R.string.bultos, pedido?.bultos)
+            VistaInformacionBulto(info = R.string.bultos, pedidoInfo.bultos)
 
-        Spacer(modifier = Modifier.padding(0.dp, 10.dp))
+            Spacer(modifier = Modifier.padding(0.dp, 10.dp))
 
-        if (esAdmin == 1 && fecha == LocalDate.now()) {
-            Row(modifier = Modifier.padding(3.dp, 10.dp)) {
-                BotonInfo(valor = R.string.confirmar, navHostController)
-                Spacer(modifier = Modifier.padding(13.dp, 0.dp))
+            if (fecha.value.isEqual(LocalDate.now()) && tipoPerfil.tipoPerfil == 1 && pedidoInfo.pedido.incidencia != 100) {
+                Row(modifier = Modifier.padding(3.dp, 10.dp)) {
+                    BotonInfo(valor = R.string.confirmar, navHostController,idPedido,fechaPed)
+                    Spacer(modifier = Modifier.padding(13.dp, 0.dp))
 
-                Button(
-                    onClick = { openAlertDialog.value = true },
-                    modifier = Modifier.size(170.dp, 60.dp)
-                ) {
-                    Text(text = stringResource(id = R.string.marcar), fontSize = 13.sp)
+                    Button(
+                        onClick = { openAlertDialog.value = true },
+                        modifier = Modifier.size(170.dp, 60.dp)
+                    ) {
+                        Text(text = stringResource(id = R.string.marcar), fontSize = 13.sp)
+                    }
+                }
+            }
+
+            when {
+                openAlertDialog.value -> {
+                    AlertDialogExample(
+                        onDismissRequest = { openAlertDialog.value = false },
+                        onConfirmation = {
+                            openAlertDialog.value = false
+                            infoProductoViewModel.actualizarIncidencia(valorOpcion.value,context)
+                        },
+                        dialogTitle = stringResource(id = R.string.seleccione),
+                        valorOpcion
+                    )
                 }
             }
         }
 
-        when {
-            openAlertDialog.value -> {
-                AlertDialogExample(
-                    onDismissRequest = { openAlertDialog.value = false },
-                    onConfirmation = {
-                        opcionesViewModel.updatePedido(valorOpcion.value)
-                        opcionesViewModel.actualizarPedido(valorOpcion.value)
-                        openAlertDialog.value = false
-                    },
-                    dialogTitle = stringResource(id = R.string.seleccione),
-                    valorOpcion
-                )
+        if (entrega != -1) {
+            Log.i("entrega","$entrega")
+            if (entrega == 0) {
+                navHostController.navigate("Hecho/${tipoPerfil.idUsuario}/${fechaPed}")
+            } else {
+                navHostController.navigate("pedidos/${fechaPed}/${tipoPerfil.idUsuario}")
             }
         }
-    }
-
-    if (entregado?.retcode != -2) {
-        opcionesViewModel.setInfo()
-
-        val entregados = info.entregados.plus(info.incidencia)
-
-        if (entregados >= (info.pedidos)) {
-            navHostController.navigate("Hecho")
-        } else {
-            navHostController.navigate("pedidos")
-        }
-        opcionesViewModel.resetearEntrega()
     }
 }
 
 //Funcion composable que muestra todos los bultos de un pedido
 @Composable
-fun VistaInformacionBulto(info: Int, bultos: List<PedidoLin>?){
+fun VistaInformacionBulto(info: Int, bultos: List<PLin>){
 
     Column (
         Modifier
@@ -175,30 +169,34 @@ fun VistaInformacionBulto(info: Int, bultos: List<PedidoLin>?){
             .fillMaxWidth(0.95f)){
         Text(text = stringResource(id = info), fontWeight = FontWeight.Black, fontSize = 18.sp)
 
-        bultos?.forEach {
+        bultos.forEach {
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            InformacionBulto(it.refBulto,it.descripcion,it.unidades)
+            InformacionBulto(it.referencia,it.descripcion,it.unidades)
         }
     }
 }
 
 //Funcion composable que muestra toda la informacion del cliente
 @Composable
-fun VistaInformacionCliente(info: Int = 1, cliente: Cliente?){
+fun VistaInformacionCliente(info: Int = 1, cliente: Cliente, direccion: Direccion){
         Column (modifier = Modifier
             .fillMaxWidth(0.95f)
             .padding(0.dp, 0.dp, 0.dp, 15.dp)){
             Text(text = stringResource(id = info), fontWeight = FontWeight.Black, fontSize = 18.sp, modifier = Modifier.padding(20.dp, 10.dp))
 
-            CartaCliente(cliente)
+            CartaCliente(cliente,direccion)
         }
 }
 
-
 //Funcion que muestra un boton con el texto seleccionado
 @Composable
-fun BotonInfo(valor: Int, navHostController: NavHostController){
-    Button(onClick = { navHostController.navigate("entregar") }, modifier = Modifier.size(170.dp,60.dp)) {
+fun BotonInfo(
+    valor: Int,
+    navHostController: NavHostController,
+    id: Int,
+    fecha: LocalDate
+){
+    Button(onClick = { navHostController.navigate("entregar/$id/$fecha") }, modifier = Modifier.size(170.dp,60.dp)) {
         Text(text = stringResource(id = valor), fontSize = 15.sp)
     }
 }
@@ -310,7 +308,7 @@ fun InformacionBulto(referencia:String = "Nombre", descripcion:String = "Esto es
 
 //Funcion que muestra toda la informacion del cliente en una carta elevada
 @Composable
-fun CartaCliente(cliente: Cliente?) {
+fun CartaCliente(cliente: Cliente, direccion: Direccion) {
     Card(
         colors = CardDefaults.cardColors(
             contentColor = Color.Black,
@@ -327,19 +325,19 @@ fun CartaCliente(cliente: Cliente?) {
             ){
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            FilaInformacion(Icons.Rounded.Person,"${cliente?.nombre}")
+            FilaInformacion(Icons.Rounded.Person, cliente.nombre)
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            FilaInformacion(Icons.Rounded.PersonPin,"${cliente?.dni}")
+            FilaInformacion(Icons.Rounded.PersonPin, cliente.dni)
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            FilaInformacion(Icons.Rounded.Call,"${cliente?.telefono}")
+            FilaInformacion(Icons.Rounded.Call, cliente.telefono)
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            FilaInformacion(Icons.Rounded.LocationOn,"${cliente?.direccion?.poblacion}, ${cliente?.direccion?.municipio}, ${cliente?.direccion?.codigoPostal}")
+            FilaInformacion(Icons.Rounded.LocationOn,"${direccion.poblacion}, ${direccion.municipio}, ${direccion.cp}")
 
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            FilaInformacion(Icons.Rounded.LocationOn,"${cliente?.direccion?.tipoCalle} ${cliente?.direccion?.nombreCalle}, ${cliente?.direccion?.portal} ${cliente?.direccion?.numero}")
+            FilaInformacion(Icons.Rounded.LocationOn,"${direccion.tipoCalle} ${direccion.nombreCalle}, ${direccion.portal} ${direccion.numero}")
         }
     }
 }

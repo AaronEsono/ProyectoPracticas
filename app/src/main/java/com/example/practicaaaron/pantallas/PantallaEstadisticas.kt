@@ -54,7 +54,7 @@ fun VentanaEstadisticas(estadisticasViewModel: EstadisticasViewModel = hiltViewM
         porcentajes.value = mutableListOf()
 
         porcentajes.value.add(informacion.pEntregados)
-        porcentajes.value.add(informacion.incidencias)
+        porcentajes.value.add(informacion.pIncidencias)
         porcentajes.value.add(informacion.pSinEntregar)
 
         terminado.value = true

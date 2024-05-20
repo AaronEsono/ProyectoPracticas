@@ -57,18 +57,15 @@ fun VentanaPrincipal(
         Opcion(R.drawable.icono3, R.string.transportes, R.string.dTransportes, "usuarios"),
     )
 
-    val done = remember { mutableStateOf(false) }
-
     LaunchedEffect(true) {
         menuViewModel.getTipoPerfil()
         menuViewModel.setId()
-        done.value = true
     }
 
     val tipoPerfil = menuViewModel.tipoPerfil.collectAsState().value
     val id = menuViewModel.idUser.collectAsState().value
 
-    if (done.value) {
+    if (tipoPerfil != -1) {
         Column(
             modifier = Modifier
                 .padding(0.dp, 50.dp, 0.dp, 0.dp)

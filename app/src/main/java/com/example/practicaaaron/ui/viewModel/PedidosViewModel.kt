@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.entidades.pedidos.Cliente
 import com.example.practicaaaron.clases.entidades.pedidos.Direccion
@@ -17,7 +16,6 @@ import com.example.practicaaaron.clases.entidades.pedidos.Entrega
 import com.example.practicaaaron.clases.entidades.pedidos.PCab
 import com.example.practicaaaron.clases.entidades.pedidos.PLin
 import com.example.practicaaaron.clases.entidades.pedidos.PedidoEntero
-import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.Informacion
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
@@ -76,7 +74,7 @@ class PedidosViewModel @Inject constructor(
                             }
                             direcciones.add(Direccion(it.cliente.direccion.idDireccion,it.cliente.direccion.tipoCalle,it.cliente.direccion.nombreCalle,it.cliente.direccion.portal
                                 ,it.cliente.direccion.numero,it.cliente.direccion.poblacion,it.cliente.direccion.municipio,it.cliente.direccion.codigoPostal,it.cliente.idCliente))
-                            entregas.add(Entrega(it.idEntrega,"","",""))
+                            entregas.add(Entrega(it.idEntrega,"","",0f,0f))
                         }
 
                         pcabs.stream().forEach { dao.insertarPedido(it) }
@@ -85,7 +83,7 @@ class PedidosViewModel @Inject constructor(
                         direcciones.stream().forEach { dao.insertarDireccion(it) }
                         entregas.stream().forEach { dao.insertarEntrega(it) }
 
-                        _pedidos.value = dao.getPedidosHoy(id,fecha.toString())
+                        _pedidos.value = dao.getPedidosHoy(id,fecha.toString()).stream().sorted { o1, o2 ->  o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
                         setInfo(_pedidos.value)
 
                     }else{
@@ -96,14 +94,14 @@ class PedidosViewModel @Inject constructor(
                     _pedidos.value = listOf()
                 }
             }else{
-                _pedidos.value = dao.getPedidosHoy(id,fecha.toString())
+                _pedidos.value = dao.getPedidosHoy(id,fecha.toString()).stream().sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
                 setInfo(_pedidos.value)
             }
             _loading.value = false
         }
     }
 
-    fun setInfo(lista:List<PedidoEntero>){
+    private fun setInfo(lista:List<PedidoEntero>){
         _informacion.value.pedidos = lista.count()
         _informacion.value.porEntregar = lista.stream().filter { it.pedido.incidencia == 0 }.count().toInt()
         _informacion.value.incidencia = lista.stream().filter { it.pedido.incidencia != 0 && it.pedido.incidencia != 100 }.count().toInt()
@@ -114,7 +112,7 @@ class PedidosViewModel @Inject constructor(
         viewModelScope.launch (Dispatchers.IO){
             _loading.value = true
             _pedidos.value = dao.getPedidosHoy(id,fecha.toString())
-            _pedidos.value = _pedidos.value.stream().filter { it.pedido.nombre.contains(texto) }.collect(Collectors.toList())
+            _pedidos.value = _pedidos.value.stream().filter { it.pedido.nombre.contains(texto) }.sorted { o1, o2 ->  o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
             _loading.value = false
         }
     }

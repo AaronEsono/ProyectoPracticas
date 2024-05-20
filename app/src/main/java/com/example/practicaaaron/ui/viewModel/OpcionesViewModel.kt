@@ -1,55 +1,29 @@
 package com.example.practicaaaron.ui.viewModel
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.os.Build
-import android.util.Base64
-import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AcUnit
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material.icons.rounded.Block
-import androidx.compose.material.icons.rounded.CheckCircleOutline
-import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.Commute
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.practicaaaron.BuildConfig
-import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
-import com.example.practicaaaron.clases.entrega.Entrega
-import com.example.practicaaaron.clases.errores.ErrorLog
-import com.example.practicaaaron.clases.incidencias.ColoresIncidencias
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.Informacion
-import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.pedidos.PedidoCab
-import com.example.practicaaaron.clases.resultados.Respuesta
-import com.example.practicaaaron.clases.ubicaciones.Ubicacion
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.Usuarios
-import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.clases.utilidades.coloresIncidencias
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import java.time.LocalDate
-import java.util.stream.Collectors
 import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class OpcionesViewModel @Inject constructor(
-    private val dao: UsuarioRepositorioOffline
 ) : ViewModel() {
 
     private val repositorio: RepositorioRetrofit = RepositorioRetrofit()
@@ -58,312 +32,11 @@ class OpcionesViewModel @Inject constructor(
     private val _isLogged = MutableStateFlow<Int?>(-1)
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
 
-    private val _mensaje = MutableStateFlow("")
-
     private val _informacionUsuario = MutableStateFlow<Data?>(null)
-    val informacionUsuario: StateFlow<Data?> get() = _informacionUsuario.asStateFlow()
-
-    //Variables utilizadas en: Pantallas Pedidos
-    private val _informacion = MutableStateFlow(Informacion())
-    val informacion:StateFlow<Informacion> get() = _informacion.asStateFlow()
-
-    private val _done = MutableStateFlow(false)
-    val done:StateFlow<Boolean> get() = _done.asStateFlow()
-
-    private val _pedidosRepartidor = MutableStateFlow<DataPedido?>(null)
-    val pedidosRepartidor get() = _pedidosRepartidor.asStateFlow()
-
-    private val _pedidosRepartidorCopy = MutableStateFlow<DataPedido?>(DataPedido())
-    val pedidosRepartidorCopy get() = _pedidosRepartidorCopy.asStateFlow()
-
-    private val _textoBusca = MutableStateFlow("")
-    private val textoBusca get() = _textoBusca.asStateFlow()
-
-    //Variables utilizadas en: PantallaInfoProducto
-    private val _entregado = MutableStateFlow<Entregado?>(Entregado())
-    val entregado:StateFlow<Entregado?> get() = _entregado.asStateFlow()
-
-    private val _pedido = MutableStateFlow<PedidoCab?>(PedidoCab())
-    val pedido: StateFlow<PedidoCab?> get() = _pedido.asStateFlow()
-
-    private val _fecha = MutableStateFlow<LocalDate>(LocalDate.now())
-    val fecha get() = _fecha.asStateFlow()
-
-    //Variables utilizadas en: PantallaMapa
-    private val _ubicaciones = MutableStateFlow<MutableList<Ubicacion>>(mutableListOf())
-    val ubicaciones: StateFlow<MutableList<Ubicacion>> get() = _ubicaciones.asStateFlow()
-
-    //Variables utilizadas en: PantallaUsuarios
-    private val _usuarios = MutableStateFlow<Usuarios?>(null)
-    val usuarios: StateFlow<Usuarios?> get() = _usuarios.asStateFlow()
-
-    private val _esConsulta = MutableStateFlow(true)
-    val esConsulta get() = _esConsulta.asStateFlow()
-
-    //Variables utilizadas en: PantallaEstadisticas
-    private val _idUsuarioAdmin = MutableStateFlow(0)
-    val idUsuarioAdmin:StateFlow<Int> get() = _idUsuarioAdmin.asStateFlow()
-
-    private val _resultadosTrabajadores = MutableStateFlow(Respuesta())
-    val resultadosTrabajadores:StateFlow<Respuesta> get() = _resultadosTrabajadores.asStateFlow()
-
-    private val conseguirLocalizacion = LocationService()
-
-
-    fun setId(id:Int){
-        _idUsuarioAdmin.value = id
-    }
-
-    fun setEstadistica(estado:Boolean){
-        _esConsulta.value = estado
-    }
-
-    fun setDone(){
-        _done.value = false
-    }
-
-    //Obtener aqui todas las latitudes y altitudes
-    fun obtenerPedidos() {
-        viewModelScope.launch(Dispatchers.IO){
-            try {
-                val response = informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(it.idUsuario,fecha.value) }
-                _pedidosRepartidor.value = response
-
-                if(response?.data?.pedidos != null){
-                    response.data.pedidos = response.data.pedidos.stream().sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
-                    _pedidosRepartidorCopy.value?.data?.pedidos = response.data.pedidos
-                }else{
-                    _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
-                }
-
-                Log.i("pedidos","${_pedidosRepartidorCopy.value}")
-                setInfo(response)
-
-                _ubicaciones.value = mutableListOf()
-                _pedidosRepartidor.value?.data?.pedidos?.forEach {
-                    _ubicaciones.value.add(
-                        Ubicacion(
-                            it.latitud.toDouble(),
-                            it.altitud.toDouble(),
-                            it.nombre
-                        )
-                    )
-                }
-                _done.value = true
-            }catch(e:Exception){
-                _pedidosRepartidor.value = DataPedido()
-                _pedidosRepartidorCopy.value = DataPedido()
-                viewModelScope.launch {
-                    val err = ErrorLog("obtenerPedidos","App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE, "$_fecha",LocalDate.now().toString())
-                    repositorio.mandarError(err)
-                }
-            }
-        }
-    }
-
-    private fun setInfo(response: DataPedido?) {
-        if(response?.data?.pedidos != null){
-            _informacion.value.pedidos = response.data.pedidos.size
-            _informacion.value.porEntregar = response.data.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
-            _informacion.value.entregados = response.data.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
-            _informacion.value.incidencia = response.data.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
-        }else{
-            _informacion.value.pedidos = 0
-            _informacion.value.porEntregar = 0
-            _informacion.value.entregados = 0
-            _informacion.value.incidencia = 0
-        }
-    }
-
-    fun setInfo() {
-        if(_pedidosRepartidor.value?.data?.pedidos != null){
-            _informacion.value.pedidos = _pedidosRepartidor.value?.data!!.pedidos.size
-            _informacion.value.porEntregar = _pedidosRepartidor.value?.data!!.pedidos.stream().filter{it.incidencia == 0}.count().toInt()
-            _informacion.value.entregados = _pedidosRepartidor.value?.data!!.pedidos.stream().filter{it.incidencia == 100}.count().toInt()
-            _informacion.value.incidencia = _pedidosRepartidor.value?.data!!.pedidos.stream().filter{it.incidencia != 100 && it.incidencia != 0}.count().toInt()
-        }else{
-            _informacion.value.pedidos = 0
-            _informacion.value.porEntregar = 0
-            _informacion.value.entregados = 0
-            _informacion.value.incidencia = 0
-        }
-    }
-
-    fun setFecha(fecha:LocalDate){
-        _fecha.value = fecha
-    }
 
     fun mandarCerrarSesion(){
         viewModelScope.launch {
             _informacionUsuario.value?.dataUser?.idUsuario?.let { repositorio.cerrarSesion(it) }
         }
     }
-
-    fun setTexto(texto:String){
-        _textoBusca.value = texto
-        try{
-            if(textoBusca.value != ""){
-                _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos?.stream()?.filter { it.nombre.contains(_textoBusca.value) }?.collect(Collectors.toList())!!
-            }
-            else
-                _pedidosRepartidorCopy.value?.data?.pedidos = _pedidosRepartidor.value?.data?.copy()?.pedidos!!
-        }catch (e:Exception){
-            _pedidosRepartidorCopy.value = DataPedido()
-        }
-
-    }
-
-    fun obtenerPedidos(id: Int) {
-        viewModelScope.launch(Dispatchers.IO){
-            try{
-                val response =
-                    informacionUsuario.value?.dataUser?.let { repositorio.recuperarPedidos(id,LocalDate.now()) }
-                _pedidosRepartidor.value = response
-
-                if(response?.data?.pedidos != null){
-                    response.data.pedidos = response.data.pedidos.stream().sorted { o1, o2 -> o1.incidencia - o2.incidencia }?.collect(Collectors.toList())!!
-                    _pedidosRepartidorCopy.value?.data?.pedidos = response.data.pedidos
-                }else{
-                    _pedidosRepartidorCopy.value?.data?.pedidos = listOf()
-                }
-
-                _pedidosRepartidor.value?.data?.pedidos?.forEach {
-                    _ubicaciones.value.add(
-                        Ubicacion(
-                            it.latitud.toDouble(),
-                            it.altitud.toDouble(),
-                            it.nombre
-                        )
-                    )
-                }
-                setInfo(response)
-            }catch(e:Exception){
-                _pedidosRepartidor.value = DataPedido()
-                _pedidosRepartidorCopy.value = DataPedido()
-                viewModelScope.launch {
-                    val err = ErrorLog("obtenerPedidos","App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE, "$id $_fecha",LocalDate.now().toString())
-                    repositorio.mandarError(err)
-                }
-            }
-        }
-        _done.value = true
-    }
-
-    fun obtenerPedido(pedidoCab: PedidoCab) {
-        viewModelScope.launch (Dispatchers.IO){
-            _pedido.value = pedidoCab
-        }
-    }
-
-    fun cerrarSesion() {
-        _informacionUsuario.value = null
-        _isLogged.value = -1
-        _pedido.value = null
-        _pedidosRepartidor.value = null
-    }
-
-    fun indicarColorPedido(incidencia: Int): ColoresIncidencias {
-        return coloresIncidencias.stream().filter { it.incidencia == incidencia }.findFirst().orElse(ColoresIncidencias())
-    }
-
-    fun actualizarPedido(valorIncidencia: String?) {
-        //Poner evento para controlar lo que se envia
-
-        val pedido = PedidoActualizar(_pedido.value?.idPedido ?: 1, getIntIncidencia(valorIncidencia ?: ""),_informacionUsuario.value?.dataUser?.idUsuario ?: 0)
-
-        viewModelScope.launch(Dispatchers.IO){
-            val response = repositorio.actualizarPedido(pedido)
-            _entregado.value = response
-        }
-    }
-
-     fun updatePedido(valorIncidencia: String?){
-        _pedido.value?.incidencia = getIntIncidencia(valorIncidencia ?: "")
-    }
-
-    private fun getIntIncidencia(valor: String): Int {
-        return coloresIncidencias.stream().filter { it.nombre == valor }.findFirst().get().incidencia
-    }
-
-    fun resetEstadistica(){
-        _resultadosTrabajadores.value = Respuesta()
-    }
-
-    //Falta la longitud y altitud
-    fun hacerEntrega(
-        foto: Bitmap,
-        valorBarras: String,
-        content: Context,
-        imageBitmap: ImageBitmap
-    ) {
-        try{
-            val entrega = Entrega()
-            val fotoBase64 = encodeImage(foto)
-            val fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
-
-            entrega.idPedido = _pedido.value?.idPedido ?: 0
-            entrega.lecturaBarcode = valorBarras
-            entrega.fotoEntrega = fotoBase64 ?: ""
-            entrega.firma = fotoFirma ?: ""
-            entrega.idUsuario = _informacionUsuario.value?.dataUser?.idUsuario ?: 0
-
-            viewModelScope.launch (Dispatchers.IO){
-                val resultado = conseguirLocalizacion.getUserLocation(content)
-
-                if (resultado != null) {
-                    entrega.latitud = resultado.latitude.toFloat()
-                    entrega.longitud = resultado.longitude.toFloat()
-                }
-
-                val response:Entregado = repositorio.hacerEntrega(entrega)
-                _entregado.value = response
-            }
-        }catch(e:Exception){
-            val entrega = Entrega()
-            val fotoBase64 = encodeImage(foto)
-            val fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
-
-            entrega.idPedido = _pedido.value?.idPedido ?: 0
-            entrega.lecturaBarcode = valorBarras
-            entrega.fotoEntrega = fotoBase64 ?: ""
-            entrega.firma = fotoFirma ?: ""
-            entrega.idUsuario = _informacionUsuario.value?.dataUser?.idUsuario ?: 0
-
-            viewModelScope.launch {
-                val err = ErrorLog(::hacerEntrega.name,"App","$e","",_informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE,entrega.toString(),LocalDate.now().toString())
-                repositorio.mandarError(err)
-            }
-        }
-    }
-
-    fun lanzarError(error: ErrorLog){
-        viewModelScope.launch {
-            repositorio.mandarError(error)
-        }
-    }
-
-    fun resetearEntrega(){
-        _entregado.value?.retcode = -2
-    }
-
-    fun obtenerTodos() {
-        viewModelScope.launch (Dispatchers.IO){
-            val response = repositorio.obtenerTodos()
-            _usuarios.value = response
-        }
-    }
-
-    fun resultadosTrabajadores(){
-        viewModelScope.launch (Dispatchers.IO){
-            _resultadosTrabajadores.value = repositorio.resultadosTrabajadores(_idUsuarioAdmin.value)
-        }
-    }
-
-}
-
-private fun encodeImage(bm: Bitmap): String? {
-    val baos = ByteArrayOutputStream()
-    bm.compress(Bitmap.CompressFormat.JPEG, 20, baos)
-    val b = baos.toByteArray()
-    return Base64.encodeToString(b, Base64.DEFAULT)
 }

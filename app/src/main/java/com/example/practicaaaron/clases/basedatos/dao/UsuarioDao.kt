@@ -23,5 +23,4 @@ interface UsuarioDao {
 
     @Query("Select tipoPerfil from USUARIO")
     fun getTipoPerfil():Int
-
 }

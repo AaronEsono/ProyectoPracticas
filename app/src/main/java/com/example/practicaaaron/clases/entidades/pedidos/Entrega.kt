@@ -10,5 +10,7 @@ data class Entrega(
     var idEntrega:Int = 0,
     var fotoEntrega:String = "",
     var codigoBarras:String = "",
+    var latitud:Float = 0f,
+    var altitud:Float = 0f,
     var firma:String = ""
 )

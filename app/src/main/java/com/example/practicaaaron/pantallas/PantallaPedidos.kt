@@ -111,7 +111,7 @@ fun VentanaPedidos(
                 Icons.Rounded.FolderCopy
             )
             FilaInformacion(
-                texto = stringResource(id = R.string.porEntregar) + "${info.entregados}",
+                texto = stringResource(id = R.string.porEntregar) + "${info.porEntregar}",
                 Icons.Rounded.LocalShipping
             )
             FilaInformacion(
@@ -226,7 +226,7 @@ fun Carta(
     Column(modifier = Modifier.fillMaxSize()) {
         Row {
             Column(modifier = Modifier.clickable {
-                navHostController.navigate("infoPedido/${pedido.pedido.idPedido}")
+                navHostController.navigate("infoPedido/${pedido.pedido.idPedido}/$fecha")
             }) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Column(

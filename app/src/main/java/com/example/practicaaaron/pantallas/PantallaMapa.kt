@@ -14,7 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.practicaaaron.clases.utilidades.LocationService
+import com.example.practicaaaron.ui.viewModel.MapaViewModel
 import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -28,7 +30,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
-fun PantallaMapa(opcionesViewModel: OpcionesViewModel) {
+fun PantallaMapa(mapaViewModel: MapaViewModel = hiltViewModel()) {
+
     val conseguirLocalizacion = LocationService()
     val contexto = LocalContext.current
     val latitudUser = remember { mutableFloatStateOf(0f) }
@@ -37,7 +40,7 @@ fun PantallaMapa(opcionesViewModel: OpcionesViewModel) {
     var done by remember {mutableStateOf(false)}
 
     //Intentar que cuando abras google maps salga las ubicaciones
-    val ubicaciones = opcionesViewModel.ubicaciones.collectAsState().value
+    val ubicaciones = mapaViewModel.ubicaciones.collectAsState().value
     var cameraPositionState = CameraPositionState()
 
     LaunchedEffect(Unit) {
@@ -45,7 +48,7 @@ fun PantallaMapa(opcionesViewModel: OpcionesViewModel) {
         if (resultado != null) {
             latitudUser.floatValue = resultado.latitude.toFloat()
             altitudUser.floatValue = resultado.longitude.toFloat()
-            opcionesViewModel.obtenerPedidos()
+            mapaViewModel.getUbicaciones(contexto)
             posicion = LatLng(latitudUser.floatValue.toDouble(), altitudUser.floatValue.toDouble())
         }
     }

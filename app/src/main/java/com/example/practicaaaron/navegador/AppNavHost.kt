@@ -230,24 +230,38 @@ fun Navegacion(navController: NavHostController, opcionesViewModel: OpcionesView
             composable(Pantallas.Perfil.route){
                 VentanaPerfil()
             }
-            composable(Pantallas.Entregar.route){
-                VentanaEntregaPedido(navController,opcionesViewModel)
+            composable("${Pantallas.Entregar.route}/{idPedido}/{fecha}",arguments = listOf(navArgument("idPedido") { type = NavType.IntType },navArgument("fecha") { type = NavType.StringType })){
+                    val number = it.arguments?.getInt("idPedido")
+                    val dateString = it.arguments?.getString("fecha")
+                    val date = dateString?.let { it2 ->
+                        LocalDate.parse(it2, DateTimeFormatter.ISO_LOCAL_DATE)
+                    }
+                VentanaEntregaPedido(navController,id = number ?: 0, fecha = date ?: LocalDate.now())
             }
             composable(Pantallas.Rutas.route){
-                PantallaMapa(opcionesViewModel)
+                PantallaMapa()
             }
             composable(Pantallas.Usuarios.route){
                 PantallaUsuarios(navController,false)
             }
-            composable(Pantallas.Hecho.route){
-                Hecho(navController)
+            composable("${Pantallas.Hecho.route}/{idPedido}/{fecha}",arguments = listOf(navArgument("idPedido") { type = NavType.IntType },navArgument("fecha") { type = NavType.StringType })){
+                val number = it.arguments?.getInt("idPedido")
+                val dateString = it.arguments?.getString("fecha")
+                val date = dateString?.let { it2 ->
+                    LocalDate.parse(it2, DateTimeFormatter.ISO_LOCAL_DATE)
+                }
+                Hecho(navController,number ?: 0, date ?: LocalDate.now())
             }
             composable(Pantallas.Estadistica.route){
                 PantallaUsuarios(navController,true)
             }
-            composable("${Pantallas.Info.route}/{idPedido}",arguments = listOf(navArgument("idPedido") { type = NavType.IntType })){
+            composable("${Pantallas.Info.route}/{idPedido}/{fecha}",arguments = listOf(navArgument("idPedido") { type = NavType.IntType },navArgument("fecha") { type = NavType.StringType })){
                 val number = it.arguments?.getInt("idPedido")
-                PantallaInfoProducto(navController,opcionesViewModel = opcionesViewModel, idPedido = number?:0)
+                val dateString = it.arguments?.getString("fecha")
+                val date = dateString?.let { it2 ->
+                    LocalDate.parse(it2, DateTimeFormatter.ISO_LOCAL_DATE)
+                }
+                PantallaInfoProducto(navController, idPedido = number?:0, fechaPed = date ?: LocalDate.now())
             }
             composable(route = "${Pantallas.Informacion.route}/{number}",arguments = listOf(navArgument("number") { type = NavType.IntType })){
                 val number = it.arguments?.getInt("number")
@@ -278,7 +292,6 @@ fun FilaInformacionDrawer(
              .clickable {
                  if (ruta == "login") {
                      opcionesViewModel?.mandarCerrarSesion()
-                     opcionesViewModel?.cerrarSesion()
                  }
                  navController.navigate(ruta)
                  scope.launch { drawerState.apply { close() } }
