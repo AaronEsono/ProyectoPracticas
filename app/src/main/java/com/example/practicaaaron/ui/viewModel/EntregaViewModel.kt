@@ -27,7 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class EntregaViewModel @Inject constructor(
     private val dao: PedidosRepositorioOffline,
-    private val uDao: UsuarioRepositorioOffline
+    private val uDao: UsuarioRepositorioOffline,
+    private val eventosViewModel: EventosViewModel = EventosViewModel()
 ): ViewModel(){
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -64,6 +65,7 @@ class EntregaViewModel @Inject constructor(
         imageBitmap: ImageBitmap,
         idPedido:Int
     ) {
+            eventosViewModel.setState(EventosUIState.Cargando)
             val entrega = com.example.practicaaaron.clases.entrega.Entrega()
             val fotoBase64 = encodeImage(foto)
             val fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
@@ -85,8 +87,11 @@ class EntregaViewModel @Inject constructor(
                 if(isInternetAvailable(content)){
                     val entregaServer = com.example.practicaaaron.clases.entrega.Entrega(fotoBase64?:"",entrega.latitud,entrega.longitud,valorBarras,idPedido,fotoFirma?:"",id)
                     repositorio.hacerEntrega(entregaServer)
+                }else{
+                    eventosViewModel.setState(EventosUIState.Error("No hay Internet. Inténtelo de nuevo"))
                 }
                 _entrega.value = dao.estanTodos(id)
+                eventosViewModel.setState(EventosUIState.Done)
             }
     }
 }

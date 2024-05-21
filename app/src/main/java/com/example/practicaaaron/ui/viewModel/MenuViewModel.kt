@@ -13,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MenuViewModel @Inject constructor(
-    private val dao: UsuarioRepositorioOffline
+    private val dao: UsuarioRepositorioOffline,
+    private val eventosViewModel: EventosViewModel = EventosViewModel()
 ): ViewModel(){
 
     private val _tipoPerfil = MutableStateFlow(-1)
@@ -22,15 +23,12 @@ class MenuViewModel @Inject constructor(
     private val _idUser = MutableStateFlow(-1)
     val idUser:StateFlow<Int> get() = _idUser.asStateFlow()
 
-    fun getTipoPerfil(){
+    fun getDatos(){
         viewModelScope.launch (Dispatchers.IO){
+            eventosViewModel.setState(EventosUIState.Cargando)
             _tipoPerfil.value = dao.getTipoPerfil()
-        }
-    }
-
-    fun setId(){
-        viewModelScope.launch (Dispatchers.IO){
             _idUser.value = dao.getId()
+            eventosViewModel.setState(EventosUIState.Done)
         }
     }
 }

@@ -7,4 +7,5 @@ import javax.inject.Inject
 class EstadisticaRepositorioOffline @Inject constructor(private val estadisticaDao: EstadisticaDao) {
     fun insertar(estadisticaUsuario: EstadisticaUsuario) = estadisticaDao.insertar(estadisticaUsuario)
     fun encontrar(id:Int):EstadisticaUsuario = estadisticaDao.encontrar(id)
+    fun borrar() = estadisticaDao.borrar()
 }

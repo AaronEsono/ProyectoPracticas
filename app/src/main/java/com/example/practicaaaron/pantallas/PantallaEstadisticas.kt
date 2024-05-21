@@ -45,7 +45,7 @@ fun VentanaEstadisticas(estadisticasViewModel: EstadisticasViewModel = hiltViewM
         estadisticasViewModel.obtenerInformacion(id,context)
     }
 
-    if( informacion.totales != -1){
+    if(informacion != null && informacion.totales != -1){
 
         mapa[stringResource(id = R.string.entregados)] = informacion.entregados
         mapa[stringResource(id = R.string.incidencias)] = informacion.incidencias
@@ -68,14 +68,12 @@ fun VentanaEstadisticas(estadisticasViewModel: EstadisticasViewModel = hiltViewM
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(terminado.value){
+            if(terminado.value != null){
                 Text(text = stringResource(id = R.string.estadisticas2), fontSize = 25.sp, modifier = Modifier.padding(0.dp,15.dp))
                 PieChart(data = mapa,porcentajes = porcentajes.value, total = informacion.totales)
             }else{
                 Text(text = stringResource(id = R.string.noPed), fontSize = 12.sp, maxLines = 1)
             }
         }
-    }else{
-        AnimatedPreloader(modifier = Modifier.size(100.dp), R.raw.animacioncargando, 1.5f)
     }
 }

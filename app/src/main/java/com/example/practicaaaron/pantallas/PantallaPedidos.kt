@@ -80,7 +80,6 @@ fun VentanaPedidos(
     //Variable que guarda los distintos pedidos de cada usuario
 
     val prueba = pedidosViewModel.pedidos.collectAsState().value
-    val cargando = pedidosViewModel.loading.collectAsState().value
     val info = pedidosViewModel.informacion.collectAsState().value
 
     val context = LocalContext.current
@@ -176,26 +175,15 @@ fun VentanaPedidos(
                 .verticalScroll(state),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (cargando) {
-                AnimatedPreloader(
-                    Modifier.size(100.dp),
-                    animacioncompletado = R.raw.animacioncargando,
-                    1.0f
-                )
-            } else {
-                if(prueba.isNotEmpty()){
-                    prueba.forEach {
-                        Spacer(modifier = Modifier.padding(0.dp, 5.dp))
-                        Carta(navHostController, it)
-                        Divider(thickness = 3.dp, color = colorPrimario)
-                    }
-                }else{
-                    Text(text = "No hay pedidos", fontSize = 23.sp, fontWeight = FontWeight.Black)
+            if (prueba.isNotEmpty()) {
+                prueba.forEach {
+                    Spacer(modifier = Modifier.padding(0.dp, 5.dp))
+                    Carta(navHostController, it)
+                    Divider(thickness = 3.dp, color = colorPrimario)
                 }
             }
         }
     }
-
 }
 
 @Composable

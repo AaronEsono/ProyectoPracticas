@@ -149,11 +149,8 @@ fun PantallaInfoProducto(
         }
 
         if (entrega != -1) {
-            Log.i("entrega","$entrega")
             if (entrega == 0) {
                 navHostController.navigate("Hecho/${tipoPerfil.idUsuario}/${fechaPed}")
-            } else {
-                navHostController.navigate("pedidos/${fechaPed}/${tipoPerfil.idUsuario}")
             }
         }
     }

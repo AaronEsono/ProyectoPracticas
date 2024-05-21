@@ -6,10 +6,13 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.BuildConfig
+import com.example.practicaaaron.clases.basedatos.repositorio.DataUsuarioRepositorioOffline
+import com.example.practicaaaron.clases.basedatos.repositorio.EstadisticaRepositorioOffline
+import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
+import com.example.practicaaaron.clases.entidades.Usuario
 import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.usuarios.Data
-import com.example.practicaaaron.clases.entidades.Usuario
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
@@ -25,7 +28,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val dao: UsuarioRepositorioOffline
+    private val dao: UsuarioRepositorioOffline,
+    private val pDao: PedidosRepositorioOffline,
+    private val uDao: DataUsuarioRepositorioOffline,
+    private val eDao: EstadisticaRepositorioOffline,
+    private val eventosViewModel: EventosViewModel = EventosViewModel()
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -34,30 +41,27 @@ class LoginViewModel @Inject constructor(
     private val _isLogged = MutableStateFlow<Int?>(-1)
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
 
-    private val _mensaje = MutableStateFlow("")
-    val mensaje: StateFlow<String> get() = _mensaje.asStateFlow()
-
     private val _informacionUsuario = MutableStateFlow<Data?>(null)
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> get() = _isLoading.asStateFlow()
-
-    fun borrarUser(){
-        viewModelScope.launch(Dispatchers.IO) {
+    fun borrarDatos(){
+        viewModelScope.launch (Dispatchers.IO){
+            pDao.borrarEntregas()
+            pDao.borrarPedidos()
+            pDao.borrarBultos()
+            pDao.borrarClientes()
+            pDao.borrarDireccion()
             dao.borrar()
+            uDao.borrarTodos()
+            eDao.borrar()
         }
-    }
-
-    fun isLoading(){
-        _isLoading.value = false
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun hacerLogin(usuarioLogin: UsuarioLogin,context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                eventosViewModel.setState(EventosUIState.Cargando)
                 if(isInternetAvailable(context)){
-                    _isLoading.value = true
                     delay(3000)
                     _isLogged.value = -1
 
@@ -70,8 +74,6 @@ class LoginViewModel @Inject constructor(
                         _isLogged.value = 2
                     }
 
-                    _mensaje.value = ""
-
                     if (_informacionUsuario.value?.dataUser != null && _isLogged.value != -1) {
                         val user = Usuario(
                             _informacionUsuario.value?.dataUser?.idUsuario!!,
@@ -83,16 +85,16 @@ class LoginViewModel @Inject constructor(
                         )
 
                         dao.insertarUsuario(user)
+                        eventosViewModel.setState(EventosUIState.Done)
                     }
-
-                    if (_isLogged.value == -1)
-                        _mensaje.value = "Usuario o contraseña incorrectos"
+                    if (_isLogged.value == -1){
+                        eventosViewModel.setState(EventosUIState.Error("El usuario o la contraseña son incorrectos"))
+                    }
                 }else{
-                    val mensaje = "No hay Internet. Compruebe su conexión"
-                    _mensaje.value = mensaje
+                    eventosViewModel.setState(EventosUIState.Error("No hay Internet. Compruebe su conexión"))
                 }
             } catch (e: Exception) {
-                _mensaje.value = "Algo ha fallado. Inténtelo de nuevo"
+                eventosViewModel.setState(EventosUIState.Error("$e"))
                 viewModelScope.launch {
                     val err = ErrorLog(
                         ::hacerLogin.name,
@@ -107,7 +109,6 @@ class LoginViewModel @Inject constructor(
                     repositorio.mandarError(err)
                 }
             }
-            _isLoading.value = false
         }
     }
 }

@@ -58,8 +58,7 @@ fun VentanaPrincipal(
     )
 
     LaunchedEffect(true) {
-        menuViewModel.getTipoPerfil()
-        menuViewModel.setId()
+        menuViewModel.getDatos()
     }
 
     val tipoPerfil = menuViewModel.tipoPerfil.collectAsState().value
@@ -79,10 +78,7 @@ fun VentanaPrincipal(
             else
                 MostrarOpciones(opcionesAdmin, navHostController)
         }
-    } else {
-        AnimatedPreloader(modifier = Modifier.size(100.dp), R.raw.animacioncargando, 1.0f)
     }
-
 }
 
  @RequiresApi(Build.VERSION_CODES.O)

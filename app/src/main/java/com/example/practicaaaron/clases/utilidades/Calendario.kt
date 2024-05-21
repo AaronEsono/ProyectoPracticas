@@ -64,7 +64,7 @@ fun ManufacturedDate(navHostController: NavHostController, menuViewModel: MenuVi
     val id = menuViewModel.idUser.collectAsState().value
 
     LaunchedEffect(true) {
-        menuViewModel.setId()
+        menuViewModel.getDatos()
     }
 
     val done = remember{ mutableStateOf(false) }

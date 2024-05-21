@@ -6,8 +6,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,11 +30,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -56,7 +52,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -64,13 +59,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
-import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
-import com.example.practicaaaron.ui.theme.cargando
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.theme.colorSecundario
 import com.example.practicaaaron.ui.theme.colorTerciario
@@ -78,7 +70,7 @@ import com.example.practicaaaron.ui.viewModel.LoginViewModel
 
 
 @SuppressLint("StateFlowValueCalledInComposition")
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 @Preview
@@ -88,8 +80,7 @@ fun VentanaLogin(
 ) {
 
     LaunchedEffect(true){
-        loginViewModel.borrarUser()
-        loginViewModel.isLoading()
+        loginViewModel.borrarDatos()
     }
 
     //Variables que controlan el estado de los campos del login
@@ -102,7 +93,6 @@ fun VentanaLogin(
     // Variable que controla cuando se le ha dado por primera vez al boton
     var firstTimeButton by remember { mutableStateOf(false) }
 
-    val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // Objeto que tiene los dos parametros del login
@@ -110,11 +100,6 @@ fun VentanaLogin(
 
     // Variable que controla si alguien se ha logeado correctamente o no
     val isLog = loginViewModel.isLogged.collectAsState().value
-
-    // Variable que muestra el error en el login
-    val mensaje = loginViewModel.mensaje.collectAsState().value
-
-    val isLoading = loginViewModel.isLoading.collectAsState().value
 
     val (focusRequester) = FocusRequester.createRefs()
 
@@ -187,50 +172,6 @@ fun VentanaLogin(
                 ) {
                     Text(stringResource(id = R.string.entrar), fontSize = 25.sp)
                 }
-            }
-        }
-        if (isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(cargando) // Fondo semi-transparente
-                    .zIndex(1f)
-                    .clickable(enabled = false) {} // Captura los toques y no los deja pasar
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    AnimatedPreloader(modifier = Modifier.size(100.dp), R.raw.animacioncargando, 1.5f)
-                }
-            }
-        }
-    }
-
-    //Ventana modal que muestra el error encontrado en el login
-    if (showBottomSheet && mensaje.isNotEmpty() && !isLoading) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                showBottomSheet = false
-            },
-            sheetState = sheetState, modifier = Modifier.fillMaxHeight(0.3f)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(0.dp, 0.dp, 0.dp, 40.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = mensaje,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Black,
-                    modifier = Modifier.padding(5.dp, 10.dp).basicMarquee(),
-                    maxLines = 1
-                )
             }
         }
     }

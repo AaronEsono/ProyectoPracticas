@@ -82,6 +82,14 @@
     <string name="cancelar">Cancelar</string>
     <string name="confirmarBot">Confirmar</string>
 
+    <!--Entrega-->
+    <string name="lectura">Lectura barras</string>
+    <string name="firma">Firma</string>
+    <string name="limpiar">Limpiar</string>
+    <string name="galeria">Galería</string>
+    <string name="foto">Foto</string>
 
+    <!--Internet-->
+    <string name="internet">No hay Internet. Compruebe su conexión</string>
 
 </resources>

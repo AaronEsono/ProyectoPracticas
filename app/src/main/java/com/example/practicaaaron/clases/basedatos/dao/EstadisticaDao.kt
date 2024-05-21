@@ -13,4 +13,7 @@ interface EstadisticaDao {
 
     @Query("Select * from Estadisticas where idUsuario = :id")
     fun encontrar(id:Int):EstadisticaUsuario
+
+    @Query("DELETE FROM ESTADISTICAS")
+    fun borrar()
 }

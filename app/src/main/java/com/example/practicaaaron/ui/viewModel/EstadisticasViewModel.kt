@@ -2,6 +2,7 @@ package com.example.practicaaaron.ui.viewModel
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EstadisticasViewModel @Inject constructor(
-    private val dao: EstadisticaRepositorioOffline
+    private val dao: EstadisticaRepositorioOffline,
+    private val eventosViewModel: EventosViewModel = EventosViewModel()
 ): ViewModel(){
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -31,6 +33,7 @@ class EstadisticasViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun obtenerInformacion(id: Int,context:Context) {
         viewModelScope.launch(Dispatchers.IO) {
+            eventosViewModel.setState(EventosUIState.Cargando)
 
             if(isInternetAvailable(context)){
                 val response = repositorio.resultadosTrabajadores(id)
@@ -45,9 +48,15 @@ class EstadisticasViewModel @Inject constructor(
                     response.nombre.pedidosTotales
                 )
                 dao.insertar(_informacion.value)
+                eventosViewModel.setState(EventosUIState.Done)
             }else{
                 _informacion.value = dao.encontrar(id)
+                if(_informacion.value != null)
+                    eventosViewModel.setState(EventosUIState.Error("No hay conexion. Recuperando datos pasados"))
+                else
+                    eventosViewModel.setState(EventosUIState.Error("No hay conexion."))
             }
+
         }
     }
 }

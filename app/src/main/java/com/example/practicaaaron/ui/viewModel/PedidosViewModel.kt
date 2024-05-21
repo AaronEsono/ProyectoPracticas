@@ -33,7 +33,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PedidosViewModel @Inject constructor(
-    private val dao: PedidosRepositorioOffline
+    private val dao: PedidosRepositorioOffline,
+    private val eventosViewModel: EventosViewModel = EventosViewModel()
 ) :ViewModel(){
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -45,14 +46,10 @@ class PedidosViewModel @Inject constructor(
     private val _informacion = MutableStateFlow(Informacion())
     val informacion:StateFlow<Informacion> get() = _informacion.asStateFlow()
 
-    private val _loading = MutableStateFlow(true)
-    val loading:StateFlow<Boolean> get() = _loading.asStateFlow()
-
-
     @RequiresApi(Build.VERSION_CODES.O)
     fun obtenerPedidos(id:Int, fecha: LocalDate, context: Context){
         viewModelScope.launch (Dispatchers.IO){
-            _loading.value = true
+            eventosViewModel.setState(EventosUIState.Cargando)
             if(isInternetAvailable(context)){
                 val entrega = repositorio.recuperarPedidos(id,fecha) ?: DataPedido()
 
@@ -85,19 +82,20 @@ class PedidosViewModel @Inject constructor(
 
                         _pedidos.value = dao.getPedidosHoy(id,fecha.toString()).stream().sorted { o1, o2 ->  o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
                         setInfo(_pedidos.value)
-
+                        eventosViewModel.setState(EventosUIState.Done)
                     }else{
+                        eventosViewModel.setState(EventosUIState.Error("Ha habido un error con los datos."))
                         _pedidos.value = listOf()
                     }
                 }catch (e:Exception){
-                    Log.i("e", e.toString())
+                    eventosViewModel.setState(EventosUIState.Error("No hay pedidos"))
                     _pedidos.value = listOf()
                 }
             }else{
+                eventosViewModel.setState(EventosUIState.Error("No hay internet. Intentando recuperar datos pasados."))
                 _pedidos.value = dao.getPedidosHoy(id,fecha.toString()).stream().sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
                 setInfo(_pedidos.value)
             }
-            _loading.value = false
         }
     }
 
@@ -110,10 +108,8 @@ class PedidosViewModel @Inject constructor(
 
     fun filtrar(texto:String,id:Int,fecha:LocalDate){
         viewModelScope.launch (Dispatchers.IO){
-            _loading.value = true
             _pedidos.value = dao.getPedidosHoy(id,fecha.toString())
             _pedidos.value = _pedidos.value.stream().filter { it.pedido.nombre.contains(texto) }.sorted { o1, o2 ->  o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
-            _loading.value = false
         }
     }
 }

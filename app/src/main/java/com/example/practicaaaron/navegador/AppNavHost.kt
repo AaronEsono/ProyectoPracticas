@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -99,7 +100,7 @@ enum class Estados(val numero:Int){
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    opcionesViewModel: OpcionesViewModel ,
+    opcionesViewModel: OpcionesViewModel = hiltViewModel() ,
 ) {
     val showToolbar = remember { mutableIntStateOf(1) }
 
@@ -113,7 +114,7 @@ fun AppNavHost(
         Estados.SCAFFOLD.numero ->
             InterfazScaffold(navHostController = navController,showToolbar = showToolbar,opcionesViewModel)
         Estados.NAVEGACION.numero ->
-            Navegacion(navController = navController, opcionesViewModel = opcionesViewModel)
+            Navegacion(navController = navController)
         Estados.DRAWER.numero ->
             BarraArriba(
                 navHostController = navController,
@@ -202,7 +203,7 @@ fun InterfazScaffold(
 //Funcion para navegar entre las distintas funciones
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Navegacion(navController: NavHostController, opcionesViewModel: OpcionesViewModel){
+fun Navegacion(navController: NavHostController){
         NavHost(
             navController = navController,
             startDestination = Pantallas.Login.route
@@ -386,6 +387,6 @@ fun BarraArriba(
                 )
         },
     ){
-        Navegacion(navController = navHostController, opcionesViewModel)
+        Navegacion(navController = navHostController)
     }
 }

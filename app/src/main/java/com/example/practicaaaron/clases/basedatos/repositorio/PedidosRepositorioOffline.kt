@@ -26,4 +26,10 @@ class PedidosRepositorioOffline @Inject constructor(private val pedidosDao: Pedi
     fun getIdEntrega(id:Int) = pedidosDao.getIdEntrega(id)
     fun updateEntrega(entrega: Entrega) = pedidosDao.updateEntrega(entrega)
     fun updatePedido(id:Int) = pedidosDao.actualizarPedido(id)
+
+    fun borrarPedidos() = pedidosDao.borrarPedidos()
+    fun borrarClientes() = pedidosDao.borrarClientes()
+    fun borrarBultos() = pedidosDao.borrarBultos()
+    fun borrarEntregas() = pedidosDao.borrarEntregas()
+    fun borrarDireccion() = pedidosDao.borrarDirecciones()
 }

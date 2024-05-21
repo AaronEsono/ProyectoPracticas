@@ -24,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class InfoProductoViewModel @Inject constructor(
     private val dao: PedidosRepositorioOffline,
-    private val uDao: UsuarioRepositorioOffline
+    private val uDao: UsuarioRepositorioOffline,
+    private val eventosViewModel: EventosViewModel = EventosViewModel()
 ) : ViewModel(){
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -54,14 +55,22 @@ class InfoProductoViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun actualizarIncidencia(valor: String, context:Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val incidencia: Int = coloresIncidencias.stream().filter { it.nombre == valor }.findFirst().map { it.incidencia }.get()
-            val idUsuario = uDao.getId()
+            try{
+                eventosViewModel.setState(EventosUIState.Cargando)
+                val incidencia: Int = coloresIncidencias.stream().filter { it.nombre == valor }.findFirst().map { it.incidencia }.get()
+                val idUsuario = uDao.getId()
 
-            dao.actualizarIncidencia(incidencia, _pedido.value.pedido.idPedido)
-            if(isInternetAvailable(context)){
-                repositorio.actualizarPedido(PedidoActualizar(_pedido.value.pedido.idPedido, incidencia, idUsuario))
+                dao.actualizarIncidencia(incidencia, _pedido.value.pedido.idPedido)
+                if(isInternetAvailable(context)){
+                    repositorio.actualizarPedido(PedidoActualizar(_pedido.value.pedido.idPedido, incidencia, idUsuario))
+                    eventosViewModel.setState(EventosUIState.Success("Incidencia marcada correctamente"))
+                }else{
+                    eventosViewModel.setState(EventosUIState.Error("No hay internet. Revisa su conexión. Guardando la incidencia en la base de datos"))
+                }
+                _entrega.value = dao.estanTodos(idUsuario)
+            }catch(e:Exception){
+                eventosViewModel.setState(EventosUIState.Error(e.toString()))
             }
-            _entrega.value = dao.estanTodos(idUsuario)
         }
     }
 }

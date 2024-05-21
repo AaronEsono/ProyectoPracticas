@@ -1,6 +1,7 @@
 package com.example.practicaaaron.clases.basedatos.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -52,4 +53,19 @@ interface PedidosDao {
 
     @Query("UPDATE PEDIDOS set estado = 1, incidencia = 100 where idPedido = :id")
     fun actualizarPedido(id:Int)
+
+    @Query("DELETE FROM PEDIDOS")
+    fun borrarPedidos()
+
+    @Query("DELETE FROM BULTOS")
+    fun borrarBultos()
+
+    @Query("DELETE FROM CLIENTES")
+    fun borrarClientes()
+
+    @Query("DELETE FROM DIRECCIONES")
+    fun borrarDirecciones()
+
+    @Query("DELETE FROM ENTREGAS")
+    fun borrarEntregas()
 }

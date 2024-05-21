@@ -24,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UsuariosViewModel @Inject constructor(
-    private val dao: DataUsuarioRepositorioOffline
+    private val dao: DataUsuarioRepositorioOffline,
+    private val eventosViewModel: EventosViewModel = EventosViewModel()
 ):ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -36,13 +37,20 @@ class UsuariosViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun getUsuarios(context: Context){
         viewModelScope.launch (Dispatchers.IO){
+            eventosViewModel.setState(EventosUIState.Cargando)
             if(isInternetAvailable(context)){
                 val todos = repositorio.obtenerTodos()
                 _usuarios.value = todos.usuarios.stream().map { DataUsuario(it.idUsuario,it.username,it.idPerfil,it.nombre,it.email) }.collect(Collectors.toList())
                 dao.borrarTodos()
                 _usuarios.value.stream().forEach { dao.insertar(it) }
+                eventosViewModel.setState(EventosUIState.Done)
             }else{
                 _usuarios.value = dao.obtenerTodos()
+                if(_usuarios.value.isEmpty()){
+                    eventosViewModel.setState(EventosUIState.Error("No hay conexión."))
+                }else{
+                    eventosViewModel.setState(EventosUIState.Error("No hay conexión. Recuperando datos pasados"))
+                }
             }
         }
     }

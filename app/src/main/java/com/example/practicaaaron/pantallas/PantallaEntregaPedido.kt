@@ -63,12 +63,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.practicaaaron.R
 import com.example.practicaaaron.ui.viewModel.EntregaViewModel
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -197,7 +199,7 @@ fun VentanaEntregaPedido(
                 Button(onClick = {
                     checkCameraPermission(content, barCodeLanzador, requestPermissionLauncher)
                 }, modifier = Modifier.height(50.dp)) {
-                    Text(text = "Lectura barras")
+                    Text(text = stringResource(id = R.string.lectura))
                 }
                 Text(text = valorBarras.value, fontSize = 25.sp)
             }
@@ -206,7 +208,7 @@ fun VentanaEntregaPedido(
 
             Spacer(modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 10.dp))
 
-            Text(text = "Firma", fontSize = 17.sp, modifier = Modifier.padding(0.dp, 10.dp))
+            Text(text = stringResource(id = R.string.firma), fontSize = 17.sp, modifier = Modifier.padding(0.dp, 10.dp))
             //Funcion con la que dibujas la firma
             Column(
                 modifier = Modifier.fillMaxWidth(0.9f),
@@ -250,7 +252,7 @@ fun VentanaEntregaPedido(
                                     colorBorde.value = Color.Black
                                     action(SignatureAction.CLEAR)
                                 }) {
-                                Text("Limpiar")
+                                Text(text = stringResource(id = R.string.limpiar))
                             }
                         }else{
                             action(SignatureAction.COMPLETE)
@@ -277,7 +279,7 @@ fun VentanaEntregaPedido(
                     BotonCancelarPedido(
                         valor = "pedidos",
                         navHostController = navController,
-                        texto = "cancelar",
+                        texto = stringResource(id = R.string.cancelar),
                         id = idUser,
                         fecha = fecha
                     )
@@ -295,7 +297,7 @@ fun VentanaEntregaPedido(
                         }
 
                     }, modifier = Modifier.size(130.dp, 60.dp)) {
-                        Text(text = "Confirmar")
+                        Text(text = stringResource(id = R.string.confirmarBot))
                     }
                 }
             }
@@ -323,7 +325,7 @@ fun VentanaEntregaPedido(
                                     galleryLauncher.launch("image/*")
                                     showBottomSheet.value = false
                                 })
-                        Text(text = "Galeria")
+                        Text(text = stringResource(id = R.string.galeria))
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -335,7 +337,7 @@ fun VentanaEntregaPedido(
                                     launcher.launch()
                                     showBottomSheet.value = false
                                 })
-                        Text(text = "Foto")
+                        Text(text = stringResource(id = R.string.foto))
                     }
                 }
             }
