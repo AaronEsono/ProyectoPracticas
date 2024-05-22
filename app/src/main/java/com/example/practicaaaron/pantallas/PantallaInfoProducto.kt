@@ -139,7 +139,7 @@ fun PantallaInfoProducto(
                         onDismissRequest = { openAlertDialog.value = false },
                         onConfirmation = {
                             openAlertDialog.value = false
-                            infoProductoViewModel.actualizarIncidencia(valorOpcion.value,context)
+                            infoProductoViewModel.actualizarIncidencia(valorOpcion.value,context,fechaPed)
                         },
                         dialogTitle = stringResource(id = R.string.seleccione),
                         valorOpcion

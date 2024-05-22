@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
@@ -14,6 +15,7 @@ import com.example.practicaaaron.clases.usuarios.Usuarios
 import com.example.practicaaaron.clases.utilidades.coloresIncidencias
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +26,7 @@ import javax.inject.Inject
 @RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class OpcionesViewModel @Inject constructor(
+    val dao:UsuarioRepositorioOffline
 ) : ViewModel() {
 
     private val repositorio: RepositorioRetrofit = RepositorioRetrofit()
@@ -35,8 +38,8 @@ class OpcionesViewModel @Inject constructor(
     private val _informacionUsuario = MutableStateFlow<Data?>(null)
 
     fun mandarCerrarSesion(){
-        viewModelScope.launch {
-            _informacionUsuario.value?.dataUser?.idUsuario?.let { repositorio.cerrarSesion(it) }
+        viewModelScope.launch(Dispatchers.IO){
+            repositorio.cerrarSesion(dao.getId())
         }
     }
 }

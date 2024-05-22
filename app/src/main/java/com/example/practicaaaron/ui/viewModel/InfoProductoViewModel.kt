@@ -2,9 +2,11 @@ package com.example.practicaaaron.ui.viewModel
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.Usuario
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,23 +56,25 @@ class InfoProductoViewModel @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun actualizarIncidencia(valor: String, context:Context) {
+    fun actualizarIncidencia(valor: String, context:Context,fecha:LocalDate) {
         viewModelScope.launch(Dispatchers.IO) {
             try{
                 eventosViewModel.setState(EventosUIState.Cargando)
                 val incidencia: Int = coloresIncidencias.stream().filter { it.nombre == valor }.findFirst().map { it.incidencia }.get()
                 val idUsuario = uDao.getId()
 
-                dao.actualizarIncidencia(incidencia, _pedido.value.pedido.idPedido)
                 if(isInternetAvailable(context)){
                     repositorio.actualizarPedido(PedidoActualizar(_pedido.value.pedido.idPedido, incidencia, idUsuario))
-                    eventosViewModel.setState(EventosUIState.Success("Incidencia marcada correctamente"))
+                    eventosViewModel.setState(EventosUIState.Success(R.string.textoIncidencia,R.string.incidencia,fecha,idUsuario))
+                    dao.actualizarIncidencia(incidencia, _pedido.value.pedido.idPedido)
                 }else{
-                    eventosViewModel.setState(EventosUIState.Error("No hay internet. Revisa su conexión. Guardando la incidencia en la base de datos"))
+                    dao.actualizarIncidenciaOffline(incidencia, _pedido.value.pedido.idPedido)
+                    eventosViewModel.setState(EventosUIState.Error(R.string.errorIncidencia))
                 }
                 _entrega.value = dao.estanTodos(idUsuario)
             }catch(e:Exception){
-                eventosViewModel.setState(EventosUIState.Error(e.toString()))
+                Log.i("error", e.toString())
+                eventosViewModel.setState(EventosUIState.Error(-1))
             }
         }
     }

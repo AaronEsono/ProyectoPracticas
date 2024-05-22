@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,8 +25,9 @@ class EventosViewModel  @Inject constructor(): ViewModel() {
 }
 
 sealed class EventosUIState(){
-    data class Error(val texto:String): EventosUIState()
+    data class Error(val texto:Int): EventosUIState()
     data object Cargando: EventosUIState()
     data object Done: EventosUIState()
-    data class Success(val texto:String) : EventosUIState()
+    data class Success(val texto:Int,val textoTitulo:Int, val fecha: LocalDate, val id:Int) : EventosUIState()
+    data object ConnectionBack: EventosUIState()
 }

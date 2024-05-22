@@ -92,4 +92,22 @@
     <!--Internet-->
     <string name="internet">No hay Internet. Compruebe su conexión</string>
 
+    <!--Errores-->
+    <string name="errorEntrega">No hay Internet. Guardando la entrega en la base de datos</string>
+    <string name="errorIncidencia">No hay internet. Revisa su conexión. Guardando la incidencia en la base de datos local</string>
+    <string name="recuperarConexion">No hay conexion. Recuperando datos pasados</string>
+    <string name="noConexion">No hay conexion.</string>
+    <string name="usuarios">El usuario o la contraseña son incorrectos</string>
+    <string name="conexionLogin">No hay Internet. Compruebe su conexión</string>
+    <string name="conexionMapa">No hay conexión. Mostrando el mapa.</string>
+    <string name="errorDatos">Ha habido un error con los datos.</string>
+    <string name="noPedidos2">No hay pedidos</string>
+    <string name="noInternetPed">No hay internet. Intentando recuperar datos pasados.</string>
+
+    <!--Success-->
+    <string name="entregaEnviada">Entrega enviada</string>
+    <string name="textoEntrega">Su entrega ha sido enviada con éxito</string>
+    <string name="incidencia">Incidencia enviada</string>
+    <string name="textoIncidencia">Tu incidencia ha sido enviada con éxito</string>
+
 </resources>

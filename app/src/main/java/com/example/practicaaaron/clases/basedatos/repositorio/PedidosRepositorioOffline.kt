@@ -32,4 +32,7 @@ class PedidosRepositorioOffline @Inject constructor(private val pedidosDao: Pedi
     fun borrarBultos() = pedidosDao.borrarBultos()
     fun borrarEntregas() = pedidosDao.borrarEntregas()
     fun borrarDireccion() = pedidosDao.borrarDirecciones()
+
+    fun actualizarIncidenciaOffline(incidencia:Int,id:Int) = pedidosDao.updateIncidenciaOffline(incidencia, id)
+    fun actualizarPedidoOflline(id:Int) = pedidosDao.actualizarPedidoOffline(id)
 }

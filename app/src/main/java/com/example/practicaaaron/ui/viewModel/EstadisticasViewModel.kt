@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.EstadisticaRepositorioOffline
 import com.example.practicaaaron.clases.entidades.EstadisticaUsuario
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
@@ -52,9 +53,9 @@ class EstadisticasViewModel @Inject constructor(
             }else{
                 _informacion.value = dao.encontrar(id)
                 if(_informacion.value != null)
-                    eventosViewModel.setState(EventosUIState.Error("No hay conexion. Recuperando datos pasados"))
+                    eventosViewModel.setState(EventosUIState.Error(R.string.recuperarConexion))
                 else
-                    eventosViewModel.setState(EventosUIState.Error("No hay conexion."))
+                    eventosViewModel.setState(EventosUIState.Error(R.string.noConexion))
             }
 
         }

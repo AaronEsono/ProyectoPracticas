@@ -265,8 +265,6 @@ fun VentanaEntregaPedido(
             if(entrega != -1){
                 if(entrega == 0){
                     navController.navigate("Hecho/${idUser}/${fecha}")
-                }else{
-                    navController.navigate("pedidos/${fecha}/${idUser}")
                 }
             }
 
@@ -288,7 +286,7 @@ fun VentanaEntregaPedido(
                     Button(onClick = {
                         Log.i("etiqueta", "${imagenCamara.value}")
                         if (imageBitmap != null && valorBarras.value != "0000000000" && imagenHecha.value) {
-                            entregaViewModel.hacerEntrega(imagenCamara.value, valorBarras.value, content,imageBitmap!!,id)
+                            entregaViewModel.hacerEntrega(imagenCamara.value, valorBarras.value, content,imageBitmap!!,id,fecha)
                         } else {
                             Toast.makeText(
                                 content,

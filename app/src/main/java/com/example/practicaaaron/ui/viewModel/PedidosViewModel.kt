@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.entidades.pedidos.Cliente
 import com.example.practicaaaron.clases.entidades.pedidos.Direccion
@@ -64,7 +65,7 @@ class PedidosViewModel @Inject constructor(
                         val entregas:MutableList<Entrega> = mutableListOf()
 
                         pedidos.stream().forEach {
-                            pcabs.add(PCab(it.idPedido,it.fechaEntrega.toString(),if(it.entregado) 1 else 0,it.nombre,it.incidencia,it.latitud.toFloat(),it.altitud.toFloat(),it.descripcion,it.imagenDescripcion,id,it.cliente.idCliente,it.idEntrega,it.cliente.direccion.idDireccion))
+                            pcabs.add(PCab(it.idPedido,it.fechaEntrega.toString(),if(it.entregado) 1 else 0,it.nombre,it.incidencia,it.latitud.toFloat(),it.altitud.toFloat(),it.descripcion,it.imagenDescripcion,id,it.cliente.idCliente,it.idEntrega,it.cliente.direccion.idDireccion,false))
                             clientes.add(Cliente(it.cliente.idCliente,it.cliente.dni,it.cliente.telefono,it.cliente.nombre))
                             it.bultos.stream().forEach { it2 ->
                                 bultos.add(PLin(it2.idBulto,it2.refBulto,it2.descripcion,it2.unidades,it.idPedido))
@@ -84,15 +85,15 @@ class PedidosViewModel @Inject constructor(
                         setInfo(_pedidos.value)
                         eventosViewModel.setState(EventosUIState.Done)
                     }else{
-                        eventosViewModel.setState(EventosUIState.Error("Ha habido un error con los datos."))
+                        eventosViewModel.setState(EventosUIState.Error(R.string.errorDatos))
                         _pedidos.value = listOf()
                     }
                 }catch (e:Exception){
-                    eventosViewModel.setState(EventosUIState.Error("No hay pedidos"))
+                    eventosViewModel.setState(EventosUIState.Error(R.string.noPedidos2))
                     _pedidos.value = listOf()
                 }
             }else{
-                eventosViewModel.setState(EventosUIState.Error("No hay internet. Intentando recuperar datos pasados."))
+                eventosViewModel.setState(EventosUIState.Error(R.string.noInternetPed))
                 _pedidos.value = dao.getPedidosHoy(id,fecha.toString()).stream().sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
                 setInfo(_pedidos.value)
             }

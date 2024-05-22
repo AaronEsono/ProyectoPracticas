@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.BuildConfig
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.DataUsuarioRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.EstadisticaRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
@@ -88,13 +89,13 @@ class LoginViewModel @Inject constructor(
                         eventosViewModel.setState(EventosUIState.Done)
                     }
                     if (_isLogged.value == -1){
-                        eventosViewModel.setState(EventosUIState.Error("El usuario o la contraseña son incorrectos"))
+                        eventosViewModel.setState(EventosUIState.Error(R.string.usuarios))
                     }
                 }else{
-                    eventosViewModel.setState(EventosUIState.Error("No hay Internet. Compruebe su conexión"))
+                    eventosViewModel.setState(EventosUIState.Error(R.string.conexionLogin))
                 }
             } catch (e: Exception) {
-                eventosViewModel.setState(EventosUIState.Error("$e"))
+                eventosViewModel.setState(EventosUIState.Error(-1))
                 viewModelScope.launch {
                     val err = ErrorLog(
                         ::hacerLogin.name,

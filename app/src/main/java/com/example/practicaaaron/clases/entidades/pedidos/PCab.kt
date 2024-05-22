@@ -23,5 +23,6 @@ data class PCab(
     var idUsuario:Int = 0,
     var idCliente:Int = 0,
     var idEntrega:Int = 0,
-    var idDireccion:Int = 0
+    var idDireccion:Int = 0,
+    var porEntregar:Boolean = false
 )

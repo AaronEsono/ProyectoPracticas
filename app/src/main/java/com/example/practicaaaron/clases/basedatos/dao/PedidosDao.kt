@@ -1,7 +1,6 @@
 package com.example.practicaaaron.clases.basedatos.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -36,8 +35,11 @@ interface PedidosDao {
     @Query("Select * FROM PEDIDOS where idPedido = :id")
     fun getPedido(id:Int):PedidoEntero
 
-    @Query("UPDATE PEDIDOS set incidencia = :incidencia where idPedido = :id")
+    @Query("UPDATE PEDIDOS set incidencia = :incidencia, porEntregar = 0 where idPedido = :id")
     fun updateIncidencia(incidencia:Int,id:Int)
+
+    @Query("UPDATE PEDIDOS set incidencia = :incidencia, porEntregar = 1 where idPedido = :id")
+    fun updateIncidenciaOffline(incidencia:Int,id:Int)
 
     @Query("SELECT ((SELECT COUNT(*) FROM PEDIDOS where idUsuario = :id and date(fEntrega) = date('now')) - (SELECT COUNT(*) FROM PEDIDOS WHERE incidencia != 0 and idUsuario = :id and date(fEntrega) = date('now'))) AS resultado from pedidos")
     fun todosEntregadosDia(id:Int):Int
@@ -51,8 +53,11 @@ interface PedidosDao {
     @Update
     fun updateEntrega(entrega: Entrega)
 
-    @Query("UPDATE PEDIDOS set estado = 1, incidencia = 100 where idPedido = :id")
+    @Query("UPDATE PEDIDOS set estado = 1, incidencia = 100, porEntregar = 0 where idPedido = :id")
     fun actualizarPedido(id:Int)
+
+    @Query("UPDATE PEDIDOS set estado = 1, incidencia = 100, porEntregar = 1 where idPedido = :id")
+    fun actualizarPedidoOffline(id:Int)
 
     @Query("DELETE FROM PEDIDOS")
     fun borrarPedidos()

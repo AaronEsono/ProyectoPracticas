@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.pedidos.Entrega
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,7 +65,8 @@ class EntregaViewModel @Inject constructor(
         valorBarras: String,
         content: Context,
         imageBitmap: ImageBitmap,
-        idPedido:Int
+        idPedido:Int,
+        fecha:LocalDate
     ) {
             eventosViewModel.setState(EventosUIState.Cargando)
             val entrega = com.example.practicaaaron.clases.entrega.Entrega()
@@ -82,16 +85,17 @@ class EntregaViewModel @Inject constructor(
 
                 val entregar = Entrega(idEntrega,fotoBase64 ?: "",valorBarras,entrega.latitud,entrega.longitud,fotoFirma ?: "")
                 dao.updateEntrega(entregar)
-                dao.updatePedido(idPedido)
 
                 if(isInternetAvailable(content)){
                     val entregaServer = com.example.practicaaaron.clases.entrega.Entrega(fotoBase64?:"",entrega.latitud,entrega.longitud,valorBarras,idPedido,fotoFirma?:"",id)
                     repositorio.hacerEntrega(entregaServer)
+                    dao.updatePedido(idPedido)
+                    eventosViewModel.setState(EventosUIState.Success(R.string.textoEntrega,R.string.entregaEnviada,fecha,id))
                 }else{
-                    eventosViewModel.setState(EventosUIState.Error("No hay Internet. Inténtelo de nuevo"))
+                    dao.actualizarPedidoOflline(idPedido)
+                    eventosViewModel.setState(EventosUIState.Error(R.string.errorEntrega))
                 }
                 _entrega.value = dao.estanTodos(id)
-                eventosViewModel.setState(EventosUIState.Done)
             }
     }
 }

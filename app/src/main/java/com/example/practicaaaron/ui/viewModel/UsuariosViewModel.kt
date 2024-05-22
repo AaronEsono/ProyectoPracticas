@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.DataUsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.DataUsuario
 import com.example.practicaaaron.clases.utilidades.Eventos
@@ -47,9 +48,9 @@ class UsuariosViewModel @Inject constructor(
             }else{
                 _usuarios.value = dao.obtenerTodos()
                 if(_usuarios.value.isEmpty()){
-                    eventosViewModel.setState(EventosUIState.Error("No hay conexión."))
+                    eventosViewModel.setState(EventosUIState.Error(R.string.noConexion))
                 }else{
-                    eventosViewModel.setState(EventosUIState.Error("No hay conexión. Recuperando datos pasados"))
+                    eventosViewModel.setState(EventosUIState.Error(R.string.recuperarConexion))
                 }
             }
         }

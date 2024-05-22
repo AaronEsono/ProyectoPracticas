@@ -15,4 +15,6 @@ val colorTerciario = Color(0xFF4282eb)
 val colorBarraEncima = Color(0xFF34599E)
 
 val cargando = Color(0x90FFFFFF)
-val desabilitado = Color(0xFF292929)
+
+val colorError = Color(0xFFF14444)
+val colorBoton = Color(0xFF5CFFFF)
