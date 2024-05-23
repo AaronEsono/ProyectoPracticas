@@ -13,6 +13,7 @@ import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorio
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.Usuario
 import com.example.practicaaaron.clases.errores.ErrorLog
+import com.example.practicaaaron.clases.pedidos.Perfiles
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
@@ -69,10 +70,10 @@ class LoginViewModel @Inject constructor(
                     val response = repositorio.hacerLogin(usuarioLogin)
                     _informacionUsuario.value = response
 
-                    if (_informacionUsuario.value?.dataUser?.tipoPerfil == 1) {
-                        _isLogged.value = 1
-                    } else if (_informacionUsuario.value?.dataUser?.tipoPerfil == 2) {
-                        _isLogged.value = 2
+                    if (_informacionUsuario.value?.dataUser?.tipoPerfil == Perfiles.USUARIO.num) {
+                        _isLogged.value = Perfiles.USUARIO.num
+                    } else if (_informacionUsuario.value?.dataUser?.tipoPerfil == Perfiles.ADMIN.num) {
+                        _isLogged.value = Perfiles.ADMIN.num
                     }
 
                     if (_informacionUsuario.value?.dataUser != null && _isLogged.value != -1) {
@@ -86,7 +87,6 @@ class LoginViewModel @Inject constructor(
                         )
 
                         dao.insertarUsuario(user)
-                        eventosViewModel.setState(EventosUIState.Done)
                     }
                     if (_isLogged.value == -1){
                         eventosViewModel.setState(EventosUIState.Error(R.string.usuarios))
@@ -97,17 +97,9 @@ class LoginViewModel @Inject constructor(
             } catch (e: Exception) {
                 eventosViewModel.setState(EventosUIState.Error(-1))
                 viewModelScope.launch {
-                    val err = ErrorLog(
-                        ::hacerLogin.name,
-                        "App",
-                        "$e",
-                        "",
-                        _informacionUsuario.value?.dataUser?.idUsuario ?: 0,
-                        BuildConfig.VERSION_CODE,
-                        usuarioLogin.toString(),
-                        LocalDate.now().toString()
-                    )
-                    repositorio.mandarError(err)
+                    val err = ErrorLog(::hacerLogin.name, "App", "$e", "", _informacionUsuario.value?.dataUser?.idUsuario ?: 0, BuildConfig.VERSION_CODE, usuarioLogin.toString(), LocalDate.now().toString())
+                    if(isInternetAvailable(context))
+                        repositorio.mandarError(err)
                 }
             }
         }

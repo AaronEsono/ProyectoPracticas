@@ -19,17 +19,15 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.practicaaaron.ui.theme.colorBoton
 import com.example.practicaaaron.ui.theme.colorError
 import kotlinx.coroutines.Job
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MensajeError(texto:Int,onDismiss: () -> Job){
+fun MensajeError(texto:Int = -1,onDismiss: () -> Job){
     val modalBottomSheetState = rememberModalBottomSheetState()
     val textoMensaje = if(texto == -1) "Algo ha fallado." else stringResource(id = texto)
 

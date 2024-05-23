@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -287,13 +288,14 @@ fun FilaInformacionDrawer(
     texto: Int,
     opcionesViewModel: OpcionesViewModel? = null
 ){
+    val context = LocalContext.current
      Row(verticalAlignment = Alignment.CenterVertically,
          //Si el usuario le da a cerrar sesion, borrar todos los datos del viewModel del usuario
          modifier = Modifier
              .padding(15.dp, 10.dp)
              .clickable {
                  if (ruta == "login") {
-                     opcionesViewModel?.mandarCerrarSesion()
+                     opcionesViewModel?.mandarCerrarSesion(context)
                  }
                  navController.navigate(ruta)
                  scope.launch { drawerState.apply { close() } }

@@ -28,6 +28,5 @@ sealed class EventosUIState(){
     data class Error(val texto:Int): EventosUIState()
     data object Cargando: EventosUIState()
     data object Done: EventosUIState()
-    data class Success(val texto:Int,val textoTitulo:Int, val fecha: LocalDate, val id:Int) : EventosUIState()
-    data object ConnectionBack: EventosUIState()
+    data class Success(val texto:Int,val textoTitulo:Int, val fecha: LocalDate, val id:Int, val todos:Int, val entrega:Boolean) : EventosUIState()
 }

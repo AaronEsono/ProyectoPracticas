@@ -124,7 +124,6 @@ fun VentanaEntregaPedido(
             //Transforma la imagen de la galeria de uri a bitmap
             transformar(imageUri, imagenCamara, content, pintador)
             imagenHecha.value = true
-            Log.i("entroGaleria","Hola")
         })
 
     val showBottomSheet = remember { mutableStateOf(false) }
@@ -165,7 +164,6 @@ fun VentanaEntregaPedido(
 
     val colorBorde = remember { mutableStateOf(Color.Black) }
 
-    val entrega = entregaViewModel.entrega.collectAsState().value
     LaunchedEffect (true){
         entregaViewModel.getName(id)
         entregaViewModel.getId()
@@ -259,12 +257,6 @@ fun VentanaEntregaPedido(
                             Spacer(modifier = Modifier.padding(top = 48.dp))
                         }
                     }
-                }
-            }
-
-            if(entrega != -1){
-                if(entrega == 0){
-                    navController.navigate("Hecho/${idUser}/${fecha}")
                 }
             }
 

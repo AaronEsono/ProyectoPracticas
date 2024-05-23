@@ -35,4 +35,6 @@ class PedidosRepositorioOffline @Inject constructor(private val pedidosDao: Pedi
 
     fun actualizarIncidenciaOffline(incidencia:Int,id:Int) = pedidosDao.updateIncidenciaOffline(incidencia, id)
     fun actualizarPedidoOflline(id:Int) = pedidosDao.actualizarPedidoOffline(id)
+
+    fun entregasEnLocal():List<Entrega> = pedidosDao.devolverEnLocal()
 }

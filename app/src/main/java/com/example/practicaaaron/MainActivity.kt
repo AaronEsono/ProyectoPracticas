@@ -10,17 +10,14 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.example.practicaaaron.clases.utilidades.ConnectivityStatus
 import com.example.practicaaaron.clases.utilidades.DialogoConseguido
-import com.example.practicaaaron.clases.utilidades.cargando
 import com.example.practicaaaron.clases.utilidades.MensajeError
-import com.example.practicaaaron.clases.utilidades.isInternetAvailable
+import com.example.practicaaaron.clases.utilidades.cargando
+import com.example.practicaaaron.clases.utilidades.noConexion
 import com.example.practicaaaron.navegador.AppNavHost
 import com.example.practicaaaron.ui.theme.PracticaAaronTheme
 import com.example.practicaaaron.ui.theme.colorPrimario
@@ -28,6 +25,7 @@ import com.example.practicaaaron.ui.viewModel.EventosUIState
 import com.example.practicaaaron.ui.viewModel.EventosViewModel
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
  * @author Aarón Esono Borreguero
@@ -38,6 +36,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val eventosViewModel:EventosViewModel by viewModels()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @SuppressLint("StateFlowValueCalledInComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,21 +51,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = colorPrimario
                 ) {
-                    //Función para navegar entre las distintas pantallas
-                    AppNavHost(navController = navController)
-                    val bandera by remember {mutableStateOf(isInternetAvailable(this))}
-
                     when(uiState){
                         EventosUIState.Cargando -> {cargando()}
                         is EventosUIState.Error -> {MensajeError(texto = uiState.texto){eventosViewModel.setState(EventosUIState.Done)}}
+                        is EventosUIState.Success -> {DialogoConseguido(texto = uiState.texto,uiState.textoTitulo,navController,uiState.fecha,uiState.id,uiState.todos,uiState.entrega){eventosViewModel.setState(EventosUIState.Done)}}
                         EventosUIState.Done -> {}
-                        is EventosUIState.Success -> {DialogoConseguido(texto = uiState.texto,uiState.textoTitulo,navController,uiState.fecha,uiState.id){eventosViewModel.setState(EventosUIState.Done)}}
-                        EventosUIState.ConnectionBack -> {}
                     }
-
-                    LaunchedEffect (bandera){
-                        eventosViewModel.setState(EventosUIState.Error(-1))
-                    }
+                    //Función para navegar entre las distintas pantallas
+                    AppNavHost(navController = navController)
+                    ConnectivityStatus()
                 }
             }
         }

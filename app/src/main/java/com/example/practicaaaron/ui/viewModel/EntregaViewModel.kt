@@ -9,10 +9,12 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.pedidos.Entrega
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
@@ -68,6 +70,7 @@ class EntregaViewModel @Inject constructor(
         idPedido:Int,
         fecha:LocalDate
     ) {
+        try{
             eventosViewModel.setState(EventosUIState.Cargando)
             val entrega = com.example.practicaaaron.clases.entrega.Entrega()
             val fotoBase64 = encodeImage(foto)
@@ -90,13 +93,32 @@ class EntregaViewModel @Inject constructor(
                     val entregaServer = com.example.practicaaaron.clases.entrega.Entrega(fotoBase64?:"",entrega.latitud,entrega.longitud,valorBarras,idPedido,fotoFirma?:"",id)
                     repositorio.hacerEntrega(entregaServer)
                     dao.updatePedido(idPedido)
-                    eventosViewModel.setState(EventosUIState.Success(R.string.textoEntrega,R.string.entregaEnviada,fecha,id))
+                    _entrega.value = dao.estanTodos(id)
+                    eventosViewModel.setState(EventosUIState.Success(R.string.textoEntrega,R.string.entregaEnviada,fecha,id,_entrega.value,true))
                 }else{
                     dao.actualizarPedidoOflline(idPedido)
-                    eventosViewModel.setState(EventosUIState.Error(R.string.errorEntrega))
+                    _entrega.value = dao.estanTodos(id)
+                    eventosViewModel.setState(EventosUIState.Success(R.string.entregaGuardada,R.string.entregaEnviada,fecha,id,_entrega.value,true))
                 }
-                _entrega.value = dao.estanTodos(id)
             }
+        }catch (e:Exception){
+            val id = uDao.getId()
+            val fotoBase64 = encodeImage(foto)
+            val fotoFirma = encodeImage(imageBitmap.asAndroidBitmap())
+            viewModelScope.launch {
+                val entrega = Entrega(idPedido,fotoBase64 ?: "",valorBarras,0f,0f, fotoFirma ?: "")
+                val resultado = conseguirLocalizacion.getUserLocation(content)
+
+                if (resultado != null) {
+                    entrega.latitud = resultado.latitude.toFloat()
+                    entrega.altitud = resultado.longitude.toFloat()
+                }
+
+                if(isInternetAvailable(content))
+                    repositorio.mandarError(ErrorLog("HacerEntrega","App",e.toString(),"",id,BuildConfig.VERSION_CODE,entrega.toString(),LocalDate.now().toString()))
+            }
+            eventosViewModel.setState(EventosUIState.Error(R.string.falloEntrega))
+        }
     }
 }
 

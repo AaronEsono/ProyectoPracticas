@@ -1,18 +1,14 @@
 package com.example.practicaaaron.ui.viewModel
 
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
-import com.example.practicaaaron.clases.incidencias.Entregado
-import com.example.practicaaaron.clases.pedidos.DataPedido
-import com.example.practicaaaron.clases.pedidos.Informacion
-import com.example.practicaaaron.clases.pedidos.PedidoCab
-import com.example.practicaaaron.clases.usuarios.Data
-import com.example.practicaaaron.clases.usuarios.Usuarios
-import com.example.practicaaaron.clases.utilidades.coloresIncidencias
+import com.example.practicaaaron.clases.errores.ErrorLog
+import com.example.practicaaaron.clases.utilidades.isInternetAvailable
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -35,11 +31,17 @@ class OpcionesViewModel @Inject constructor(
     private val _isLogged = MutableStateFlow<Int?>(-1)
     val isLogged: StateFlow<Int?> get() = _isLogged.asStateFlow()
 
-    private val _informacionUsuario = MutableStateFlow<Data?>(null)
-
-    fun mandarCerrarSesion(){
+    fun mandarCerrarSesion(context: Context){
         viewModelScope.launch(Dispatchers.IO){
-            repositorio.cerrarSesion(dao.getId())
+            try {
+                if(isInternetAvailable(context))
+                    repositorio.cerrarSesion(dao.getId())
+            }catch(e:Exception){
+                val id = dao.getId()
+                val err = ErrorLog("mandarCerrarSesion", "App", "$e", "",BuildConfig.VERSION_CODE,id,"", LocalDate.now().toString())
+                if(isInternetAvailable(context))
+                    repositorio.mandarError(err)
+            }
         }
     }
 }

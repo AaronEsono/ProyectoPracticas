@@ -107,7 +107,12 @@
     <!--Success-->
     <string name="entregaEnviada">Entrega enviada</string>
     <string name="textoEntrega">Su entrega ha sido enviada con éxito</string>
+    <string name="entregaRoom">Entrega guardada</string>
+
     <string name="incidencia">Incidencia enviada</string>
     <string name="textoIncidencia">Tu incidencia ha sido enviada con éxito</string>
+    <string name="entregaGuardada">Entrega guardada</string>
 
+    <string name="falloEntrega">Su entrega no se ha enviado</string>
+    <string name="algo">Algo ha fallado</string>
 </resources>

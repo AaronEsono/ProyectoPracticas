@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.EstadisticaRepositorioOffline
 import com.example.practicaaaron.clases.entidades.EstadisticaUsuario
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,30 +37,35 @@ class EstadisticasViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun obtenerInformacion(id: Int,context:Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            eventosViewModel.setState(EventosUIState.Cargando)
+            try {
+                eventosViewModel.setState(EventosUIState.Cargando)
 
-            if(isInternetAvailable(context)){
-                val response = repositorio.resultadosTrabajadores(id)
-                _informacion.value = EstadisticaUsuario(
-                    id,
-                    response.nombre.resultados.entregados,
-                    response.nombre.resultados.incidencias,
-                    response.nombre.resultados.sientregar,
-                    response.nombre.porcentajes.pEntregados,
-                    response.nombre.porcentajes.pIncidencias,
-                    response.nombre.porcentajes.pSinEntregar,
-                    response.nombre.pedidosTotales
-                )
-                dao.insertar(_informacion.value)
-                eventosViewModel.setState(EventosUIState.Done)
-            }else{
-                _informacion.value = dao.encontrar(id)
-                if(_informacion.value != null)
-                    eventosViewModel.setState(EventosUIState.Error(R.string.recuperarConexion))
-                else
-                    eventosViewModel.setState(EventosUIState.Error(R.string.noConexion))
+                if(isInternetAvailable(context)){
+                    val response = repositorio.resultadosTrabajadores(id)
+                    _informacion.value = EstadisticaUsuario(
+                        id,
+                        response.nombre.resultados.entregados,
+                        response.nombre.resultados.incidencias,
+                        response.nombre.resultados.sientregar,
+                        response.nombre.porcentajes.pEntregados,
+                        response.nombre.porcentajes.pIncidencias,
+                        response.nombre.porcentajes.pSinEntregar,
+                        response.nombre.pedidosTotales
+                    )
+                    dao.insertar(_informacion.value)
+                    eventosViewModel.setState(EventosUIState.Done)
+                }else{
+                    _informacion.value = dao.encontrar(id)
+                    if(_informacion.value != null)
+                        eventosViewModel.setState(EventosUIState.Error(R.string.recuperarConexion))
+                    else
+                        eventosViewModel.setState(EventosUIState.Error(R.string.noConexion))
+                }
+            }catch (e:Exception){
+                eventosViewModel.setState(EventosUIState.Error(R.string.algo))
+                if(isInternetAvailable(context))
+                    repositorio.mandarError(ErrorLog("obtenerInformacion","App",e.toString(),"",id,BuildConfig.VERSION_CODE,id.toString(),LocalDate.now().toString()))
             }
-
         }
     }
 }

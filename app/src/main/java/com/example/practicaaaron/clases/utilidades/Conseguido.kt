@@ -21,6 +21,8 @@ fun DialogoConseguido(
     navHostController: NavHostController,
     fecha: LocalDate,
     id: Int,
+    todos:Int,
+    entrega:Boolean,
     onDismiss: () -> Job
 ) {
     val openAlertDialog = remember { mutableStateOf(true) }
@@ -44,22 +46,28 @@ fun DialogoConseguido(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            navHostController.navigate("pedidos/${fecha}/${id}")
-                            openAlertDialog.value = false
+                            if(todos != 0){
+                                navHostController.navigate("pedidos/${fecha}/${id}")
+                            }else{
+                                navHostController.navigate("hecho/${id}/${fecha}")
+                            }
                             onDismiss()
+                            openAlertDialog.value = false
                         }
                     ) {
                         Text("Volver a pedidos")
                     }
                 },
                 dismissButton = {
-                    TextButton(
-                        onClick = {
-                            openAlertDialog.value = false
-                            onDismiss()
+                    if(!entrega){
+                        TextButton(
+                            onClick = {
+                                onDismiss()
+                                openAlertDialog.value = false
+                            }
+                        ) {
+                            Text("Quedarse")
                         }
-                    ) {
-                        Text("Quedarse")
                     }
                 }
             )

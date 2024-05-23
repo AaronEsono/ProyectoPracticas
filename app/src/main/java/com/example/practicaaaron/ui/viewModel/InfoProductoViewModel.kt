@@ -6,11 +6,13 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.Usuario
 import com.example.practicaaaron.clases.entidades.pedidos.PedidoEntero
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.utilidades.coloresIncidencias
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
@@ -65,16 +67,23 @@ class InfoProductoViewModel @Inject constructor(
 
                 if(isInternetAvailable(context)){
                     repositorio.actualizarPedido(PedidoActualizar(_pedido.value.pedido.idPedido, incidencia, idUsuario))
-                    eventosViewModel.setState(EventosUIState.Success(R.string.textoIncidencia,R.string.incidencia,fecha,idUsuario))
                     dao.actualizarIncidencia(incidencia, _pedido.value.pedido.idPedido)
+                    _entrega.value = dao.estanTodos(idUsuario)
+                    eventosViewModel.setState(EventosUIState.Success(R.string.textoIncidencia,R.string.incidencia,fecha,idUsuario,_entrega.value,false))
                 }else{
                     dao.actualizarIncidenciaOffline(incidencia, _pedido.value.pedido.idPedido)
-                    eventosViewModel.setState(EventosUIState.Error(R.string.errorIncidencia))
+                    _entrega.value = dao.estanTodos(idUsuario)
+                    eventosViewModel.setState(EventosUIState.Success(R.string.entregaRoom,R.string.incidencia,fecha,idUsuario,_entrega.value, false))
                 }
-                _entrega.value = dao.estanTodos(idUsuario)
             }catch(e:Exception){
-                Log.i("error", e.toString())
                 eventosViewModel.setState(EventosUIState.Error(-1))
+                if(isInternetAvailable(context)){
+                    val id = uDao.getId()
+                    repositorio.mandarError(
+                        ErrorLog("actualizarIncidencia","App",e.toString(),"",id,
+                            BuildConfig.VERSION_CODE, "$valor $fecha",LocalDate.now().toString())
+                    )
+                }
             }
         }
     }

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.pedidos.Perfiles
 import com.example.practicaaaron.clases.usuarios.Opcion
 import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
 import com.example.practicaaaron.ui.theme.colorPrimario
@@ -73,7 +74,7 @@ fun VentanaPrincipal(
         ) {
             Spacer(modifier = Modifier.padding(0.dp, 15.dp))
             //Layout para mostrar las diferentes opciones
-            if (tipoPerfil == 1)
+            if (tipoPerfil == Perfiles.USUARIO.num)
                 MostrarOpciones(opcionesUser, navHostController, id)
             else
                 MostrarOpciones(opcionesAdmin, navHostController)

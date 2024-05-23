@@ -80,7 +80,6 @@ fun PantallaInfoProducto(
 
     val pedidoInfo = infoProductoViewModel.pedido.collectAsState().value
     val tipoPerfil = infoProductoViewModel.tipoPerfil.collectAsState().value
-    val entrega = infoProductoViewModel.entrega.collectAsState().value
 
     val valorOpcion = remember { mutableStateOf("") }
 
@@ -145,12 +144,6 @@ fun PantallaInfoProducto(
                         valorOpcion
                     )
                 }
-            }
-        }
-
-        if (entrega != -1) {
-            if (entrega == 0) {
-                navHostController.navigate("Hecho/${tipoPerfil.idUsuario}/${fechaPed}")
             }
         }
     }

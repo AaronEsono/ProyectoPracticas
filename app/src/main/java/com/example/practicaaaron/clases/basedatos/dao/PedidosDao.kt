@@ -73,4 +73,7 @@ interface PedidosDao {
 
     @Query("DELETE FROM ENTREGAS")
     fun borrarEntregas()
+
+    @Query("SELECT E.* FROM PEDIDOS P INNER JOIN ENTREGAS E ON E.idEntrega = P.idEntrega WHERE porEntregar = 1")
+    fun devolverEnLocal():List<Entrega>
 }

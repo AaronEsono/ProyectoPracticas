@@ -9,14 +9,17 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
+import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.pedidos.Cliente
 import com.example.practicaaaron.clases.entidades.pedidos.Direccion
 import com.example.practicaaaron.clases.entidades.pedidos.Entrega
 import com.example.practicaaaron.clases.entidades.pedidos.PCab
 import com.example.practicaaaron.clases.entidades.pedidos.PLin
 import com.example.practicaaaron.clases.entidades.pedidos.PedidoEntero
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.Informacion
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
@@ -35,44 +38,88 @@ import javax.inject.Inject
 @HiltViewModel
 class PedidosViewModel @Inject constructor(
     private val dao: PedidosRepositorioOffline,
+    private val uDao:UsuarioRepositorioOffline,
     private val eventosViewModel: EventosViewModel = EventosViewModel()
-) :ViewModel(){
+) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private val repositorio: RepositorioRetrofit = RepositorioRetrofit()
 
     private val _pedidos = MutableStateFlow<List<PedidoEntero>>(listOf())
-    val pedidos:StateFlow<List<PedidoEntero>> get() = _pedidos.asStateFlow()
+    val pedidos: StateFlow<List<PedidoEntero>> get() = _pedidos.asStateFlow()
 
     private val _informacion = MutableStateFlow(Informacion())
-    val informacion:StateFlow<Informacion> get() = _informacion.asStateFlow()
+    val informacion: StateFlow<Informacion> get() = _informacion.asStateFlow()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun obtenerPedidos(id:Int, fecha: LocalDate, context: Context){
-        viewModelScope.launch (Dispatchers.IO){
-            eventosViewModel.setState(EventosUIState.Cargando)
-            if(isInternetAvailable(context)){
-                val entrega = repositorio.recuperarPedidos(id,fecha) ?: DataPedido()
+    fun obtenerPedidos(id: Int, fecha: LocalDate, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                eventosViewModel.setState(EventosUIState.Cargando)
+                if (isInternetAvailable(context)) {
+                    val entrega = repositorio.recuperarPedidos(id, fecha) ?: DataPedido()
 
-                try{
-                    if(entrega.data.retcode != -3){
+                    if (entrega.data.retcode != -3) {
                         val pedidos = entrega.data.pedidos
 
-                        val pcabs:MutableList<PCab> = mutableListOf()
-                        val clientes:MutableSet<Cliente> = mutableSetOf()
-                        val bultos:MutableList<PLin> = mutableListOf()
-                        val direcciones:MutableSet<Direccion> = mutableSetOf()
-                        val entregas:MutableList<Entrega> = mutableListOf()
+                        val pcabs: MutableList<PCab> = mutableListOf()
+                        val clientes: MutableSet<Cliente> = mutableSetOf()
+                        val bultos: MutableList<PLin> = mutableListOf()
+                        val direcciones: MutableSet<Direccion> = mutableSetOf()
+                        val entregas: MutableList<Entrega> = mutableListOf()
 
                         pedidos.stream().forEach {
-                            pcabs.add(PCab(it.idPedido,it.fechaEntrega.toString(),if(it.entregado) 1 else 0,it.nombre,it.incidencia,it.latitud.toFloat(),it.altitud.toFloat(),it.descripcion,it.imagenDescripcion,id,it.cliente.idCliente,it.idEntrega,it.cliente.direccion.idDireccion,false))
-                            clientes.add(Cliente(it.cliente.idCliente,it.cliente.dni,it.cliente.telefono,it.cliente.nombre))
+                            pcabs.add(
+                                PCab(
+                                    it.idPedido,
+                                    it.fechaEntrega.toString(),
+                                    if (it.entregado) 1 else 0,
+                                    it.nombre,
+                                    it.incidencia,
+                                    it.latitud.toFloat(),
+                                    it.altitud.toFloat(),
+                                    it.descripcion,
+                                    it.imagenDescripcion,
+                                    id,
+                                    it.cliente.idCliente,
+                                    it.idEntrega,
+                                    it.cliente.direccion.idDireccion,
+                                    false
+                                )
+                            )
+                            clientes.add(
+                                Cliente(
+                                    it.cliente.idCliente,
+                                    it.cliente.dni,
+                                    it.cliente.telefono,
+                                    it.cliente.nombre
+                                )
+                            )
                             it.bultos.stream().forEach { it2 ->
-                                bultos.add(PLin(it2.idBulto,it2.refBulto,it2.descripcion,it2.unidades,it.idPedido))
+                                bultos.add(
+                                    PLin(
+                                        it2.idBulto,
+                                        it2.refBulto,
+                                        it2.descripcion,
+                                        it2.unidades,
+                                        it.idPedido
+                                    )
+                                )
                             }
-                            direcciones.add(Direccion(it.cliente.direccion.idDireccion,it.cliente.direccion.tipoCalle,it.cliente.direccion.nombreCalle,it.cliente.direccion.portal
-                                ,it.cliente.direccion.numero,it.cliente.direccion.poblacion,it.cliente.direccion.municipio,it.cliente.direccion.codigoPostal,it.cliente.idCliente))
-                            entregas.add(Entrega(it.idEntrega,"","",0f,0f))
+                            direcciones.add(
+                                Direccion(
+                                    it.cliente.direccion.idDireccion,
+                                    it.cliente.direccion.tipoCalle,
+                                    it.cliente.direccion.nombreCalle,
+                                    it.cliente.direccion.portal,
+                                    it.cliente.direccion.numero,
+                                    it.cliente.direccion.poblacion,
+                                    it.cliente.direccion.municipio,
+                                    it.cliente.direccion.codigoPostal,
+                                    it.cliente.idCliente
+                                )
+                            )
+                            entregas.add(Entrega(it.idEntrega, "", "", 0f, 0f))
                         }
 
                         pcabs.stream().forEach { dao.insertarPedido(it) }
@@ -81,36 +128,52 @@ class PedidosViewModel @Inject constructor(
                         direcciones.stream().forEach { dao.insertarDireccion(it) }
                         entregas.stream().forEach { dao.insertarEntrega(it) }
 
-                        _pedidos.value = dao.getPedidosHoy(id,fecha.toString()).stream().sorted { o1, o2 ->  o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
+                        _pedidos.value = dao.getPedidosHoy(id, fecha.toString()).stream()
+                            .sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }
+                            .collect(Collectors.toList())
                         setInfo(_pedidos.value)
                         eventosViewModel.setState(EventosUIState.Done)
-                    }else{
+                    } else {
                         eventosViewModel.setState(EventosUIState.Error(R.string.errorDatos))
                         _pedidos.value = listOf()
                     }
-                }catch (e:Exception){
-                    eventosViewModel.setState(EventosUIState.Error(R.string.noPedidos2))
-                    _pedidos.value = listOf()
+                } else {
+                    eventosViewModel.setState(EventosUIState.Error(R.string.noInternetPed))
+                    _pedidos.value = dao.getPedidosHoy(id, fecha.toString()).stream()
+                        .sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }
+                        .collect(Collectors.toList())
+                    setInfo(_pedidos.value)
                 }
-            }else{
-                eventosViewModel.setState(EventosUIState.Error(R.string.noInternetPed))
-                _pedidos.value = dao.getPedidosHoy(id,fecha.toString()).stream().sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
-                setInfo(_pedidos.value)
+            } catch (e: Exception) {
+                if(isInternetAvailable(context)){
+                    val id2 = uDao.getId()
+                    val err = ErrorLog("obtenerPedidos", "App", "$e", "", id2, BuildConfig.VERSION_CODE,"$id $fecha", LocalDate.now().toString())
+                    viewModelScope.launch {
+                        repositorio.mandarError(err)
+                    }
+                }
+                eventosViewModel.setState(EventosUIState.Error(R.string.algo))
             }
         }
     }
 
-    private fun setInfo(lista:List<PedidoEntero>){
+    private fun setInfo(lista: List<PedidoEntero>) {
         _informacion.value.pedidos = lista.count()
-        _informacion.value.porEntregar = lista.stream().filter { it.pedido.incidencia == 0 }.count().toInt()
-        _informacion.value.incidencia = lista.stream().filter { it.pedido.incidencia != 0 && it.pedido.incidencia != 100 }.count().toInt()
-        _informacion.value.entregados = lista.stream().filter { it.pedido.incidencia == 100 }.count().toInt()
+        _informacion.value.porEntregar =
+            lista.stream().filter { it.pedido.incidencia == 0 }.count().toInt()
+        _informacion.value.incidencia =
+            lista.stream().filter { it.pedido.incidencia != 0 && it.pedido.incidencia != 100 }
+                .count().toInt()
+        _informacion.value.entregados =
+            lista.stream().filter { it.pedido.incidencia == 100 }.count().toInt()
     }
 
-    fun filtrar(texto:String,id:Int,fecha:LocalDate){
-        viewModelScope.launch (Dispatchers.IO){
-            _pedidos.value = dao.getPedidosHoy(id,fecha.toString())
-            _pedidos.value = _pedidos.value.stream().filter { it.pedido.nombre.contains(texto) }.sorted { o1, o2 ->  o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
+    fun filtrar(texto: String, id: Int, fecha: LocalDate) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _pedidos.value = dao.getPedidosHoy(id, fecha.toString())
+            _pedidos.value = _pedidos.value.stream().filter { it.pedido.nombre.contains(texto) }
+                .sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }
+                .collect(Collectors.toList())
         }
     }
 }
