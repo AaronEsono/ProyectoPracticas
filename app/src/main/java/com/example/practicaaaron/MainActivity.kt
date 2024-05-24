@@ -15,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.practicaaaron.clases.utilidades.ConnectivityStatus
 import com.example.practicaaaron.clases.utilidades.DialogoConseguido
+import com.example.practicaaaron.clases.utilidades.Entregando
 import com.example.practicaaaron.clases.utilidades.MensajeError
 import com.example.practicaaaron.clases.utilidades.cargando
-import com.example.practicaaaron.clases.utilidades.noConexion
 import com.example.practicaaaron.navegador.AppNavHost
 import com.example.practicaaaron.ui.theme.PracticaAaronTheme
 import com.example.practicaaaron.ui.theme.colorPrimario
@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     }
                     //Función para navegar entre las distintas pantallas
                     AppNavHost(navController = navController)
-                    ConnectivityStatus()
+                    ConnectivityStatus(navHostController = navController)
                 }
             }
         }

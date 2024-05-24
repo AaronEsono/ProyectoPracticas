@@ -28,6 +28,7 @@
     <string name="dPedido">Pedidos</string>
     <string name="dRuta">Rutas</string>
     <string name="dLogistica">Pedidos futuro</string>
+    <string name="traspasos">Traspasos</string>
 
     <string name="dConsultar">Consultar</string>
     <string name="dEstadisticas">Estadísticas</string>
@@ -115,4 +116,7 @@
 
     <string name="falloEntrega">Su entrega no se ha enviado</string>
     <string name="algo">Algo ha fallado</string>
+
+    <string name="pedidosBase">Los repartos e incidencias se han entregado</string>
+    <string name="pedidosEntregados">Pedidos entregados</string>
 </resources>

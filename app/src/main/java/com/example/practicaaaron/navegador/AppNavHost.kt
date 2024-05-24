@@ -36,6 +36,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.practicaaaron.R
 import com.example.practicaaaron.pantallas.PantallaInfoProducto
@@ -65,6 +67,7 @@ import com.example.practicaaaron.pantallas.VentanaPerfil
 import com.example.practicaaaron.pantallas.Hecho
 import com.example.practicaaaron.pantallas.PantallaMapa
 import com.example.practicaaaron.pantallas.PantallaMenuFuturo
+import com.example.practicaaaron.pantallas.PantallaTraspasos
 import com.example.practicaaaron.pantallas.PantallaUsuarios
 import com.example.practicaaaron.pantallas.VentanaEstadisticas
 import com.example.practicaaaron.pantallas.VentanaPedidos
@@ -89,6 +92,7 @@ sealed class Pantallas(var route:String){
     data object Estadistica:Pantallas("estadistica")
     data object Informacion:Pantallas("informacion")
     data object Futuro:Pantallas("futuro")
+    data object Traspasos:Pantallas("traspasos")
 }
 
 enum class Estados(val numero:Int){
@@ -273,6 +277,9 @@ fun Navegacion(navController: NavHostController){
             composable(Pantallas.Futuro.route){
                 PantallaMenuFuturo(navController)
             }
+            composable(Pantallas.Traspasos.route){
+                PantallaTraspasos()
+            }
         }
 }
 
@@ -342,6 +349,7 @@ fun BarraArriba(
                                 .size(75.dp))
                     },
                     navigationIcon = {
+                        val navBackStackEntry = navHostController.previousBackStackEntry
                         if (showToolbar.value == 3){
                             val icono = remember { mutableStateOf(Icons.Rounded.Menu) }
                             navHostController.addOnDestinationChangedListener { controller, _, _ ->
@@ -362,7 +370,8 @@ fun BarraArriba(
                                             if (isClosed) open() else close()
                                         }
                                     }else{
-                                        navHostController.popBackStack()
+                                        if(navBackStackEntry?.destination?.route.toString() != "Hecho/{idPedido}/{fecha}")
+                                            navHostController.popBackStack()
                                     }
                                 }
                             }) {

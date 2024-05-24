@@ -77,4 +77,7 @@
     <string name="entregaGuardada">Delivery Saved</string>
     <string name="falloEntrega">Your delivery has not been sent</string>
     <string name="algo">Something went wrong</string>
+    <string name="pedidosBase">The deliveries have been made</string>
+    <string name="pedidosEntregados">Orders delivered</string>
+    <string name="traspasos">Transfers</string>
 </resources>

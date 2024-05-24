@@ -17,6 +17,7 @@ class PedidosRepositorioOffline @Inject constructor(private val pedidosDao: Pedi
     fun insertarEntrega(entrega: Entrega) = pedidosDao.insertarEntrega(entrega)
 
     fun getPedidosHoy(id:Int,fecha:String) = pedidosDao.getPedidos(id,fecha)
+    fun pedidosNoHechos(id:Int,fecha: String) = pedidosDao.getPedidosNoHechos(id,fecha)
 
     fun getPedido(id:Int) = pedidosDao.getPedido(id)
     fun actualizarIncidencia(incidencia:Int,id:Int) = pedidosDao.updateIncidencia(incidencia, id)
@@ -37,4 +38,6 @@ class PedidosRepositorioOffline @Inject constructor(private val pedidosDao: Pedi
     fun actualizarPedidoOflline(id:Int) = pedidosDao.actualizarPedidoOffline(id)
 
     fun entregasEnLocal():List<Entrega> = pedidosDao.devolverEnLocal()
+    fun devolverIdPedido(idEntrega:Int) = pedidosDao.devolverId(idEntrega)
+    fun incidenciasPendientes(id:Int) = pedidosDao.incidenciasPendientes(id)
 }

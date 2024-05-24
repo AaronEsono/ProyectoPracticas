@@ -32,6 +32,9 @@ interface PedidosDao {
     @Query("SELECT * FROM PEDIDOS WHERE idUsuario = :id and date(fEntrega) = date(:fecha)")
     fun getPedidos(id:Int,fecha:String):List<PedidoEntero>
 
+    @Query("SELECT * FROM PEDIDOS WHERE idUsuario = :id and date(fEntrega) = date(:fecha) and incidencia != 100")
+    fun getPedidosNoHechos(id:Int,fecha:String):List<PedidoEntero>
+
     @Query("Select * FROM PEDIDOS where idPedido = :id")
     fun getPedido(id:Int):PedidoEntero
 
@@ -76,4 +79,11 @@ interface PedidosDao {
 
     @Query("SELECT E.* FROM PEDIDOS P INNER JOIN ENTREGAS E ON E.idEntrega = P.idEntrega WHERE porEntregar = 1")
     fun devolverEnLocal():List<Entrega>
+
+    @Query("SELECT P.idPedido FROM PEDIDOS P WHERE P.idEntrega = :idEntrega")
+    fun devolverId(idEntrega:Int):Int
+
+    @Query("SELECT * from pedidos WHERE porEntregar = 1 and idUsuario = :id")
+    fun incidenciasPendientes(id:Int):List<PCab>
+
 }

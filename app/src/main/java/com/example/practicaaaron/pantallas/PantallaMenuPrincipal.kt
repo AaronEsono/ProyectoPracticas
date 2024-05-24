@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -50,6 +52,7 @@ fun VentanaPrincipal(
         Opcion(R.drawable.iconopedidos, R.string.pedido, R.string.dPedido, "pedidos"),
         Opcion(R.drawable.iconorutas, R.string.ruta, R.string.dRuta, "rutas"),
         Opcion(R.drawable.iconologistica, R.string.logistica, R.string.dLogistica, "futuro"),
+        Opcion(R.drawable.traspasos, R.string.traspasos, R.string.traspasos, "traspasos"),
     )
 
     val opcionesAdmin = listOf(
@@ -89,10 +92,8 @@ fun MostrarOpciones(
      navHostController: NavHostController,
      id: Int = 0
  ) {
-    LazyColumn(modifier = Modifier.padding(20.dp,0.dp)) {
-
+    Column(modifier = Modifier.padding(20.dp,0.dp).verticalScroll(rememberScrollState())) {
         opcionesUser.forEach{
-            item {
                 CartaMenuPr(
                     navHostController,
                     imagen = it.idImagen,
@@ -102,7 +103,6 @@ fun MostrarOpciones(
                     id
                 )
                 Spacer(modifier = Modifier.padding(0.dp,10.dp))
-            }
         }
     }
 }

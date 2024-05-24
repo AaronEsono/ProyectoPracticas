@@ -1,5 +1,9 @@
 package com.example.practicaaaron.clases.utilidades
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.AlertDialog
@@ -9,6 +13,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.Job
@@ -26,6 +32,7 @@ fun DialogoConseguido(
     onDismiss: () -> Job
 ) {
     val openAlertDialog = remember { mutableStateOf(true) }
+    val textoMen = remember { mutableStateOf(if(id == -1)"Confirmar" else "Volver a pedidos") }
 
     when {
         openAlertDialog.value -> {
@@ -37,7 +44,9 @@ fun DialogoConseguido(
                     Text(text = stringResource(id = textoTitulo))
                 },
                 text = {
-                    Text(text = stringResource(id = texto))
+                    Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+                        Text(text = stringResource(id = texto))
+                    }
                 },
                 onDismissRequest = {
                     openAlertDialog.value = false
@@ -46,7 +55,10 @@ fun DialogoConseguido(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            if(todos != 0){
+                            if(id == -1){
+
+                            }
+                            else if(todos != 0){
                                 navHostController.navigate("pedidos/${fecha}/${id}")
                             }else{
                                 navHostController.navigate("hecho/${id}/${fecha}")
@@ -55,7 +67,7 @@ fun DialogoConseguido(
                             openAlertDialog.value = false
                         }
                     ) {
-                        Text("Volver a pedidos")
+                        Text(textoMen.value)
                     }
                 },
                 dismissButton = {

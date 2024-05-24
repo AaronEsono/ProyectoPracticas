@@ -17,4 +17,18 @@ val colorBarraEncima = Color(0xFF34599E)
 val cargando = Color(0x90FFFFFF)
 
 val colorError = Color(0xFFF14444)
-val colorBoton = Color(0xFF5CFFFF)
+
+val completado = Color(0xFFABFFC1)
+val completadoIcono = Color(0xFF00BE33)
+
+val ausente = Color(0xFFfccd74)
+val ausenteIcono = Color(0xFFFF0000)
+
+val perdido = Color(0xFF68DCFF)
+val perdidoIcono = Color(0xFF003BEB)
+
+val direccionErronea = Color(0xFFFF93FB)
+val direccionErroneaIcono = Color(0xFFD900FF)
+
+val rechazo = Color(0xFFFF7373)
+val rechazoIcono = Color(0xFF000000)

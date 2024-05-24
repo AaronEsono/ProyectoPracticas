@@ -6,6 +6,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -13,8 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.practicaaaron.ui.viewModel.ConexionViewModel
-import com.example.practicaaaron.ui.viewModel.EventosViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -94,7 +95,7 @@ fun connectivityState(): State<ConnectionState> {
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalCoroutinesApi
 @Composable
-fun ConnectivityStatus(conexionViewModel: ConexionViewModel = hiltViewModel()) {
+fun ConnectivityStatus(conexionViewModel: ConexionViewModel = hiltViewModel(), navHostController: NavHostController) {
     // This will cause re-composition on every network state change
     val connection by connectivityState()
     val isConnected = connection === ConnectionState.Available
@@ -103,6 +104,9 @@ fun ConnectivityStatus(conexionViewModel: ConexionViewModel = hiltViewModel()) {
     if (!isConnected) {
         noConexion()
     }else{
-        conexionViewModel.mandarEnLocal(context)
+        val ruta = navHostController.currentBackStackEntry?.destination?.route
+        Log.i("ruta","$ruta")
+        if(ruta != "login")
+            conexionViewModel.mandarEnLocal(context)
     }
 }

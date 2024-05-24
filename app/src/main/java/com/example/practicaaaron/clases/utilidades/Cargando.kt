@@ -52,3 +52,21 @@ fun noConexion(){
         }
     }
 }
+
+@Composable
+fun Entregando(){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .zIndex(1f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize().padding(10.dp),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            AnimatedPreloader(modifier = Modifier.size(50.dp), R.raw.animacioncargando, 1.5f)
+        }
+    }
+}

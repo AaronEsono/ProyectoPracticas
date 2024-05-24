@@ -3,6 +3,7 @@ package com.example.practicaaaron.pantallas
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowCircleDown
+import androidx.compose.material.icons.rounded.ArrowCircleUp
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.FolderCopy
@@ -89,85 +92,110 @@ fun VentanaPedidos(
     }
 
     val state = rememberScrollState()
+    val mostrarInformacion = remember { mutableStateOf(true) }
+    val tamano = remember { mutableStateOf(80.dp) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(0.dp, 60.dp, 0.dp, 0.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .background(
-                    colorBarraEncima
-                ),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            FilaInformacion(
-                texto = stringResource(id = R.string.pedidos) + "${info.pedidos}",
-                Icons.Rounded.FolderCopy
-            )
-            FilaInformacion(
-                texto = stringResource(id = R.string.porEntregar) + "${info.porEntregar}",
-                Icons.Rounded.LocalShipping
-            )
-            FilaInformacion(
-                texto = stringResource(id = R.string.incidenciasPed) + "${info.incidencia}",
-                Icons.Rounded.GppBad
-            )
-            FilaInformacion(
-                texto = stringResource(id = R.string.entregadosPed) + "${info.entregados}",
-                Icons.Rounded.LocationOn
-            )
-        }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize()
+                    .height(if (mostrarInformacion.value) 80.dp else 40.dp)
+                    .background(
+                        colorBarraEncima
+                    ),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if(mostrarInformacion.value){
+                    FilaInformacion(
+                        texto = stringResource(id = R.string.pedidos) + "${info.pedidos}",
+                        Icons.Rounded.FolderCopy
+                    )
+                    FilaInformacion(
+                        texto = stringResource(id = R.string.porEntregar) + "${info.porEntregar}",
+                        Icons.Rounded.LocalShipping
+                    )
+                    FilaInformacion(
+                        texto = stringResource(id = R.string.incidenciasPed) + "${info.incidencia}",
+                        Icons.Rounded.GppBad
+                    )
+                    FilaInformacion(
+                        texto = stringResource(id = R.string.entregadosPed) + "${info.entregados}",
+                        Icons.Rounded.LocationOn
+                    )
+                }else{
+                    Icon(
+                        Icons.Rounded.ArrowCircleDown,
+                        contentDescription = "",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(25.dp)
+                            .clickable { mostrarInformacion.value = true }
+                    )
+                }
+            }
 
-        Divider(color = Color.White)
+            if(mostrarInformacion.value){
+                Divider(color = Color.White)
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(intrinsicSize = IntrinsicSize.Max)
-                .background(colorBarraEncima),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = stringResource(id = R.string.fecha) + " ${fecha.dayOfMonth}-${fecha.monthValue}-${fecha.year}",
-                modifier = Modifier.padding(5.dp),
-                color = Color.White
-            )
-        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(intrinsicSize = IntrinsicSize.Max)
+                        .background(colorBarraEncima),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.fecha) + " ${fecha.dayOfMonth}-${fecha.monthValue}-${fecha.year}",
+                        modifier = Modifier.padding(5.dp),
+                        color = Color.White
+                    )
+                }
 
-        Divider(color = Color.White)
+                Divider(color = Color.White)
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(70.dp)
-                .background(colorBarraEncima)
-                .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Icon(
-                Icons.Rounded.Search,
-                contentDescription = "Buscar",
-                tint = Color.White,
-                modifier = Modifier.size(25.dp)
-            )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .background(colorBarraEncima)
+                        .padding(5.dp, 0.dp), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Icon(
+                        Icons.Rounded.Search,
+                        contentDescription = "Buscar",
+                        tint = Color.White,
+                        modifier = Modifier.size(25.dp)
+                    )
 
-            var buscador by remember { mutableStateOf("") }
+                    var buscador by remember { mutableStateOf("") }
 
-            TextField(
-                value = buscador,
-                onValueChange = {
-                    buscador = it
-                    pedidosViewModel.filtrar(it,id,fecha)
-                },
-                singleLine = true,
-                label = { Text(stringResource(id = R.string.buscar)) }
-            )
-        }
+                    TextField(
+                        value = buscador,
+                        onValueChange = {
+                            buscador = it
+                            pedidosViewModel.filtrar(it, id, fecha)
+                        },
+                        singleLine = true,
+                        label = { Text(stringResource(id = R.string.buscar)) }
+                    )
+
+                    Icon(
+                        Icons.Rounded.ArrowCircleUp,
+                        contentDescription = "",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(25.dp)
+                            .clickable { mostrarInformacion.value = false }
+                    )
+                }
+            }
 
         Column(
             modifier = Modifier
@@ -295,19 +323,26 @@ fun Carta(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp, 5.dp),
+                        .background(
+                            coloresIncidencias
+                                .stream()
+                                .filter { it.incidencia == pedido.pedido.incidencia }
+                                .findFirst()
+                                .map { it.colorFondo }
+                                .get()
+                        ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val color = if(pedido.pedido.incidencia != 100) Color.Black else Color.Green
+                    Spacer(modifier = Modifier.padding(5.dp,0.dp))
                     Icon(
                         coloresIncidencias.stream().filter { it.incidencia == pedido.pedido.incidencia }.findFirst().map { it.imagen }.get(),
                         contentDescription = "",
                         modifier = Modifier.size(30.dp),
-                        tint = color
+                        tint = coloresIncidencias.stream().filter { it.incidencia == pedido.pedido.incidencia }.findFirst().map { it.colorIcono }.get()
                     )
                     Text(
                         text = stringResource(id = coloresIncidencias.stream().filter { it.incidencia == pedido.pedido.incidencia }.findFirst().map { it.texto }.get()),
-                        modifier = Modifier.padding(20.dp, 0.dp),
+                        modifier = Modifier.padding(20.dp, 5.dp),
                         fontSize = 20.sp
                     )
                 }
