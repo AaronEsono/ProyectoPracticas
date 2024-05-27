@@ -11,7 +11,7 @@ data class PedidoCab(
     @SerializedName("ID_PEDIDO")
     val idPedido:Int = 1,
     @SerializedName("F_ENTREGA")
-    val fechaEntrega:LocalDateTime = LocalDateTime.now(),
+    val fEntrega:LocalDateTime = LocalDateTime.now(),
     @SerializedName("ESTADO")
     val entregado:Boolean = true,
     @SerializedName("NOMBRE")

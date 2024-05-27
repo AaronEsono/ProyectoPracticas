@@ -161,7 +161,7 @@ fun VistaInformacionBulto(info: Int, bultos: List<PLin>){
 
         bultos.forEach {
             Spacer(modifier = Modifier.padding(0.dp,5.dp))
-            InformacionBulto(it.referencia,it.descripcion,it.unidades)
+            InformacionBulto(it.refBulto,it.descripcion,it.unidades)
         }
     }
 }

@@ -32,3 +32,5 @@ val direccionErroneaIcono = Color(0xFFD900FF)
 
 val rechazo = Color(0xFFFF7373)
 val rechazoIcono = Color(0xFF000000)
+
+val seleccionado = Color(0xFFb8c3e6)

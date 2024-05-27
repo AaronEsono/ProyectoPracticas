@@ -19,5 +19,5 @@ data class Direccion(
     @SerializedName("MUNICIPIO")
     val municipio:String = "",
     @SerializedName("CP")
-    val codigoPostal:String = ""
+    val cp:String = ""
 )

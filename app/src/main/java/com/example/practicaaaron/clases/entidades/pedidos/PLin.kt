@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class PLin(
     @PrimaryKey
     var idBulto:Int = 0,
-    var referencia:String = "",
+    var refBulto:String = "",
     var descripcion:String = "",
     var unidades:Int = 0,
     var idPedido:Int = 0

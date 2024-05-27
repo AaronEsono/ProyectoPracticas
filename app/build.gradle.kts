@@ -141,4 +141,8 @@ dependencies {
     // For local unit tests
     testImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
     testAnnotationProcessor ("com.google.dagger:hilt-compiler:2.51.1")
+
+    //ModelMapper
+    implementation("org.modelmapper:modelmapper:3.1.0")
+
 }

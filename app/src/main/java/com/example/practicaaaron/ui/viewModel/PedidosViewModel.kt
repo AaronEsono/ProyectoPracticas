@@ -72,7 +72,7 @@ class PedidosViewModel @Inject constructor(
                             pcabs.add(
                                 PCab(
                                     it.idPedido,
-                                    it.fechaEntrega.toString(),
+                                    it.fEntrega.toString(),
                                     if (it.entregado) 1 else 0,
                                     it.nombre,
                                     it.incidencia,
@@ -115,7 +115,7 @@ class PedidosViewModel @Inject constructor(
                                     it.cliente.direccion.numero,
                                     it.cliente.direccion.poblacion,
                                     it.cliente.direccion.municipio,
-                                    it.cliente.direccion.codigoPostal,
+                                    it.cliente.direccion.cp,
                                     it.cliente.idCliente
                                 )
                             )

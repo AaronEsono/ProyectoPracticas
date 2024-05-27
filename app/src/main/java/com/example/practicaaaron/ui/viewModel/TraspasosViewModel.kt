@@ -2,11 +2,13 @@ package com.example.practicaaaron.ui.viewModel
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
+import com.example.practicaaaron.clases.basedatos.modulos.ModelMapperInstance
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.pedidos.Cliente
@@ -51,7 +53,7 @@ class TraspasosViewModel @Inject constructor(
                 if (isInternetAvailable(context)) {
                     val entrega = repositorio.recuperarPedidos(id, LocalDate.now()) ?: DataPedido()
 
-                    if (entrega.data.retcode != -3) {
+                    if (entrega.data.pedidos != null) {
                         val pedidos = entrega.data.pedidos
 
                         val pcabs: MutableList<PCab> = mutableListOf()
@@ -61,58 +63,31 @@ class TraspasosViewModel @Inject constructor(
                         val entregas: MutableList<Entrega> = mutableListOf()
 
                         pedidos.stream().forEach {
-                            pcabs.add(
-                                PCab(
-                                    it.idPedido,
-                                    it.fechaEntrega.toString(),
-                                    if (it.entregado) 1 else 0,
-                                    it.nombre,
-                                    it.incidencia,
-                                    it.latitud.toFloat(),
-                                    it.altitud.toFloat(),
-                                    it.descripcion,
-                                    it.imagenDescripcion,
-                                    id,
-                                    it.cliente.idCliente,
-                                    it.idEntrega,
-                                    it.cliente.direccion.idDireccion,
-                                    false
-                                )
-                            )
-                            clientes.add(
-                                Cliente(
-                                    it.cliente.idCliente,
-                                    it.cliente.dni,
-                                    it.cliente.telefono,
-                                    it.cliente.nombre
-                                )
-                            )
+                            val pedido = ModelMapperInstance.mapper.map(it,PCab::class.java)
+                            pedido.incidencia = if(it.entregado) 1 else 0
+                            pedido.idUsuario = id
+                            pedido.incidencia = it.incidencia
+                            pedido.idCliente = it.cliente.idCliente
+                            pedido.idDireccion = it.cliente.direccion.idDireccion
+
+                            pcabs.add(pedido)
+
+                            clientes.add(ModelMapperInstance.mapper.map(it.cliente,Cliente::class.java))
+
                             it.bultos.stream().forEach { it2 ->
-                                bultos.add(
-                                    PLin(
-                                        it2.idBulto,
-                                        it2.refBulto,
-                                        it2.descripcion,
-                                        it2.unidades,
-                                        it.idPedido
-                                    )
-                                )
+                                val bulto = ModelMapperInstance.mapper.map(it2,PLin::class.java)
+                                bulto.idPedido = it.idPedido
+                                bultos.add(bulto)
                             }
-                            direcciones.add(
-                                Direccion(
-                                    it.cliente.direccion.idDireccion,
-                                    it.cliente.direccion.tipoCalle,
-                                    it.cliente.direccion.nombreCalle,
-                                    it.cliente.direccion.portal,
-                                    it.cliente.direccion.numero,
-                                    it.cliente.direccion.poblacion,
-                                    it.cliente.direccion.municipio,
-                                    it.cliente.direccion.codigoPostal,
-                                    it.cliente.idCliente
-                                )
-                            )
+
+                            val direccion = ModelMapperInstance.mapper.map(it.cliente.direccion,Direccion::class.java)
+                            direccion.idCliente = it.cliente.idCliente
+                            direcciones.add(direccion)
+
                             entregas.add(Entrega(it.idEntrega, "", "", 0f, 0f))
                         }
+
+                        Log.i("pedidos2","$pcabs")
 
                         pcabs.stream().forEach { dao.insertarPedido(it) }
                         clientes.stream().forEach { dao.insertarCliente(it) }
@@ -120,15 +95,11 @@ class TraspasosViewModel @Inject constructor(
                         direcciones.stream().forEach { dao.insertarDireccion(it) }
                         entregas.stream().forEach { dao.insertarEntrega(it) }
 
-                        _pedidos.value = dao.getPedidosHoy(id, LocalDate.now().toString()).stream()
-                            .filter { it.pedido.incidencia != 100 }
-                            .sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }
-                            .collect(Collectors.toList())
+                        _pedidos.value = dao.getPedidosHoy(id, LocalDate.now().toString()).stream().filter { it.pedido.incidencia != 100 }.sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
                         eventosViewModel.setState(EventosUIState.Done)
                     } else {
-                        eventosViewModel.setState(EventosUIState.Error(R.string.errorDatos))
                         _pedidos.value = listOf()
-                        eventosViewModel.setState(EventosUIState.Done)
+                        eventosViewModel.setState(EventosUIState.Error(R.string.errorDatos))
                     }
                 } else {
                     val id = uDao.getId()
@@ -140,16 +111,7 @@ class TraspasosViewModel @Inject constructor(
         } catch (e: Exception) {
             if (isInternetAvailable(context)) {
                 val id2 = uDao.getId()
-                val err = ErrorLog(
-                    "obtenerPedidos",
-                    "App",
-                    "$e",
-                    "",
-                    id2,
-                    BuildConfig.VERSION_CODE,
-                    "",
-                    LocalDate.now().toString()
-                )
+                val err = ErrorLog("obtenerPedidos","App","$e","",id2,BuildConfig.VERSION_CODE,"",LocalDate.now().toString())
                 viewModelScope.launch {
                     repositorio.mandarError(err)
                 }
@@ -158,3 +120,5 @@ class TraspasosViewModel @Inject constructor(
         }
     }
 }
+
+
