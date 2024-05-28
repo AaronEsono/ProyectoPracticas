@@ -8,6 +8,7 @@ import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.resultados.Respuesta
+import com.example.practicaaaron.clases.entidades.TransferirPedido
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
@@ -49,6 +50,9 @@ interface ApiServicio {
 
     @PUT("mandarError")
     suspend fun mandarError(@Body errorLog: ErrorLog)
+
+    @PUT("transferirPedido")
+    suspend fun transferirPedido(@Body transferirPedido: TransferirPedido)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

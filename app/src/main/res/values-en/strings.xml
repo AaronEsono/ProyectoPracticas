@@ -80,4 +80,6 @@
     <string name="pedidosBase">The deliveries have been made</string>
     <string name="pedidosEntregados">Orders delivered</string>
     <string name="traspasos">Transfers</string>
+    <string name="traspasoshechos">Transfers made</string>
+    <string name="actualizaciones">Transfers have been successfully updated.</string>
 </resources>

@@ -119,4 +119,7 @@
 
     <string name="pedidosBase">Los repartos e incidencias se han entregado</string>
     <string name="pedidosEntregados">Pedidos entregados</string>
+
+    <string name="traspasoshechos">Traspasos hechos</string>
+    <string name="actualizaciones">Los traspasos se han actualizado correctamente.</string>
 </resources>

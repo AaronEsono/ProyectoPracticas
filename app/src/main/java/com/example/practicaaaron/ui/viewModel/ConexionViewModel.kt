@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
+import com.example.practicaaaron.clases.basedatos.repositorio.TraspasosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entrega.Entrega
 import com.example.practicaaaron.clases.errores.ErrorLog
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class ConexionViewModel @Inject constructor(
     private val pDao: PedidosRepositorioOffline,
     private val uDao: UsuarioRepositorioOffline,
+    private val tDao: TraspasosRepositorioOffline,
     private val eventosViewModel: EventosViewModel = EventosViewModel()
 ):ViewModel(){
 
@@ -40,8 +42,9 @@ class ConexionViewModel @Inject constructor(
             val pedidosIncidencias: MutableList<PedidoActualizar> = mutableListOf()
             val id = uDao.getId()
             val incidencias = pDao.incidenciasPendientes(id)
+            val traspasos = tDao.cogerTodos()
 
-            if (pedidos.isNotEmpty() || incidencias.isNotEmpty()) {
+            if (pedidos.isNotEmpty() || incidencias.isNotEmpty() || traspasos.isNotEmpty()) {
                 eventosViewModel.setState(EventosUIState.Cargando)
                 try {
                     delay(3000)
@@ -58,6 +61,10 @@ class ConexionViewModel @Inject constructor(
                         }
                     }
 
+                    traspasos.forEach {
+                        repositorio.transferirPedido(it)
+                    }
+
                     incidencias.forEach {
                         pedidosIncidencias.add(PedidoActualizar(it.idPedido,it.incidencia,it.idUsuario))
                     }
@@ -69,6 +76,7 @@ class ConexionViewModel @Inject constructor(
                         }
                     }
 
+                    tDao.borrarTodos()
                 eventosViewModel.setState(EventosUIState.Success(R.string.pedidosBase,R.string.pedidosEntregados,LocalDate.now(),-1,1,true))
                 }catch (e:Exception){
                     if(isInternetAvailable(context)){

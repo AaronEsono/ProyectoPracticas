@@ -6,6 +6,7 @@ import com.example.practicaaaron.clases.basedatos.bbdd.BaseDatos
 import com.example.practicaaaron.clases.basedatos.dao.DataUsuarioDao
 import com.example.practicaaaron.clases.basedatos.dao.EstadisticaDao
 import com.example.practicaaaron.clases.basedatos.dao.PedidosDao
+import com.example.practicaaaron.clases.basedatos.dao.TraspasosDao
 import com.example.practicaaaron.clases.basedatos.dao.UsuarioDao
 import dagger.Module
 import dagger.Provides
@@ -48,5 +49,9 @@ import javax.inject.Singleton
     @Provides
     @Singleton
     fun provideYourPedidoDao(db:BaseDatos): PedidosDao = db.PedidoDao()
+
+    @Provides
+    @Singleton
+    fun provideYourTraspasoDao(db: BaseDatos):TraspasosDao = db.TraspasoDao()
 }
 

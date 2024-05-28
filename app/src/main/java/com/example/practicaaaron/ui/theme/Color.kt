@@ -21,7 +21,7 @@ val colorError = Color(0xFFF14444)
 val completado = Color(0xFFABFFC1)
 val completadoIcono = Color(0xFF00BE33)
 
-val ausente = Color(0xFFfccd74)
+val ausente = Color(0xFFFCE574)
 val ausenteIcono = Color(0xFFFF0000)
 
 val perdido = Color(0xFF68DCFF)
@@ -31,6 +31,6 @@ val direccionErronea = Color(0xFFFF93FB)
 val direccionErroneaIcono = Color(0xFFD900FF)
 
 val rechazo = Color(0xFFFF7373)
-val rechazoIcono = Color(0xFF000000)
+val rechazoIcono = Color(0xFFFFD500)
 
 val seleccionado = Color(0xFFb8c3e6)

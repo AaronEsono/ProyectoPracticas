@@ -99,7 +99,7 @@ class TraspasosViewModel @Inject constructor(
                         eventosViewModel.setState(EventosUIState.Done)
                     } else {
                         _pedidos.value = listOf()
-                        eventosViewModel.setState(EventosUIState.Error(R.string.errorDatos))
+                        eventosViewModel.setState(EventosUIState.Error(R.string.noPedidos2))
                     }
                 } else {
                     val id = uDao.getId()

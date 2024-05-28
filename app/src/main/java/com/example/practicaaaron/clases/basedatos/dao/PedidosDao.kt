@@ -86,4 +86,7 @@ interface PedidosDao {
     @Query("SELECT * from pedidos WHERE porEntregar = 1 and idUsuario = :id")
     fun incidenciasPendientes(id:Int):List<PCab>
 
+    @Query("UPDATE PEDIDOS set idUsuario=:idEntrega where idPedido = :idPedido and idUsuario=:idUsuario")
+    fun transferirPedidos(idUsuario:Int,idPedido:Int,idEntrega: Int)
+
 }

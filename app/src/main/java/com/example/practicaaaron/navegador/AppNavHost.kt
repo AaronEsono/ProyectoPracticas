@@ -2,7 +2,6 @@ package com.example.practicaaaron.navegador
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -36,7 +35,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +54,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.practicaaaron.R
 import com.example.practicaaaron.pantallas.PantallaInfoProducto
@@ -65,6 +62,7 @@ import com.example.practicaaaron.pantallas.VentanaPrincipal
 import com.example.practicaaaron.pantallas.VentanaLogin
 import com.example.practicaaaron.pantallas.VentanaPerfil
 import com.example.practicaaaron.pantallas.Hecho
+import com.example.practicaaaron.pantallas.PantallaCambio
 import com.example.practicaaaron.pantallas.PantallaMapa
 import com.example.practicaaaron.pantallas.PantallaMenuFuturo
 import com.example.practicaaaron.pantallas.PantallaTraspasos
@@ -93,6 +91,7 @@ sealed class Pantallas(var route:String){
     data object Informacion:Pantallas("informacion")
     data object Futuro:Pantallas("futuro")
     data object Traspasos:Pantallas("traspasos")
+    data object Cambio:Pantallas("cambio")
 }
 
 enum class Estados(val numero:Int){
@@ -278,7 +277,10 @@ fun Navegacion(navController: NavHostController){
                 PantallaMenuFuturo(navController)
             }
             composable(Pantallas.Traspasos.route){
-                PantallaTraspasos()
+                PantallaTraspasos(navController)
+            }
+            composable(Pantallas.Cambio.route){
+                PantallaCambio(navController)
             }
         }
 }

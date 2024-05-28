@@ -56,7 +56,7 @@ fun DialogoConseguido(
                     TextButton(
                         onClick = {
                             if(id == -1){
-
+                                navHostController.navigate("menu")
                             }
                             else if(todos != 0){
                                 navHostController.navigate("pedidos/${fecha}/${id}")

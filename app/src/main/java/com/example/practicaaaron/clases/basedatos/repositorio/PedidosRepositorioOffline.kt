@@ -40,4 +40,6 @@ class PedidosRepositorioOffline @Inject constructor(private val pedidosDao: Pedi
     fun entregasEnLocal():List<Entrega> = pedidosDao.devolverEnLocal()
     fun devolverIdPedido(idEntrega:Int) = pedidosDao.devolverId(idEntrega)
     fun incidenciasPendientes(id:Int) = pedidosDao.incidenciasPendientes(id)
+
+    fun transefirPedido(idE:Int,idPedido:Int,idDes:Int) = pedidosDao.transferirPedidos(idE,idPedido,idDes)
 }

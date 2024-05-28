@@ -59,7 +59,7 @@ class PedidosViewModel @Inject constructor(
                 if (isInternetAvailable(context)) {
                     val entrega = repositorio.recuperarPedidos(id, fecha) ?: DataPedido()
 
-                    if (entrega.data.retcode != -3) {
+                    if (entrega.data.pedidos != null) {
                         val pedidos = entrega.data.pedidos
 
                         val pcabs: MutableList<PCab> = mutableListOf()
@@ -134,7 +134,7 @@ class PedidosViewModel @Inject constructor(
                         setInfo(_pedidos.value)
                         eventosViewModel.setState(EventosUIState.Done)
                     } else {
-                        eventosViewModel.setState(EventosUIState.Error(R.string.errorDatos))
+                        eventosViewModel.setState(EventosUIState.Error(R.string.noPedidos2))
                         _pedidos.value = listOf()
                     }
                 } else {

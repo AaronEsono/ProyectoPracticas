@@ -2,6 +2,7 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +37,7 @@ import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.pedidos.Perfiles
 import com.example.practicaaaron.clases.usuarios.Opcion
 import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
+import com.example.practicaaaron.clases.utilidades.listadoTraspasos
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.viewModel.MenuViewModel
 import java.time.LocalDate

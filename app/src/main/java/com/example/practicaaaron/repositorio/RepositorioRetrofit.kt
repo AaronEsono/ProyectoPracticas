@@ -10,6 +10,7 @@ import com.example.practicaaaron.clases.incidencias.Entregado
 import com.example.practicaaaron.clases.pedidos.DataPedido
 import com.example.practicaaaron.clases.pedidos.PedidoActualizar
 import com.example.practicaaaron.clases.resultados.Respuesta
+import com.example.practicaaaron.clases.entidades.TransferirPedido
 import com.example.practicaaaron.clases.usuarios.Data
 import com.example.practicaaaron.clases.usuarios.UsuarioLogin
 import com.example.practicaaaron.clases.usuarios.Usuarios
@@ -51,4 +52,9 @@ class RepositorioRetrofit(
     suspend fun mandarError(errorLog: ErrorLog){
         apiServicio.create(ApiServicio::class.java).mandarError(errorLog)
     }
+
+    suspend fun transferirPedido(transferirPedido: TransferirPedido){
+        apiServicio.create(ApiServicio::class.java).transferirPedido(transferirPedido)
+    }
+
 }
