@@ -2,7 +2,6 @@ package com.example.practicaaaron.ui.viewModel
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,7 +17,6 @@ import com.example.practicaaaron.clases.utilidades.isInternetAvailable
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -47,10 +45,8 @@ class ConexionViewModel @Inject constructor(
             if (pedidos.isNotEmpty() || incidencias.isNotEmpty() || traspasos.isNotEmpty()) {
                 eventosViewModel.setState(EventosUIState.Cargando)
                 try {
-                    delay(3000)
                     pedidos.forEach {
                         val idEntregaP = pDao.devolverIdPedido(it.idEntrega)
-                        Log.i("pedidos","$idEntregaP")
                         pedidosEntrega.add(Entrega(it.fotoEntrega,it.latitud,it.altitud,it.codigoBarras,idEntregaP,it.firma,id))
                     }
 

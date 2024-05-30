@@ -34,3 +34,4 @@ val rechazo = Color(0xFFFF7373)
 val rechazoIcono = Color(0xFFFFD500)
 
 val seleccionado = Color(0xFFb8c3e6)
+val colorBoton = Color(0xFF1AAFFF)

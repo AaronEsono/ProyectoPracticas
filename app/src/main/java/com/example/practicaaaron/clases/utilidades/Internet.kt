@@ -6,7 +6,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -21,8 +20,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 
 sealed class ConnectionState {
-    object Available : ConnectionState()
-    object Unavailable : ConnectionState()
+    data object Available : ConnectionState()
+    data object Unavailable : ConnectionState()
 }
 
 val Context.currentConnectivityState: ConnectionState
@@ -102,10 +101,9 @@ fun ConnectivityStatus(conexionViewModel: ConexionViewModel = hiltViewModel(), n
     val context = LocalContext.current
 
     if (!isConnected) {
-        noConexion()
+        NoConexion()
     }else{
         val ruta = navHostController.currentBackStackEntry?.destination?.route
-        Log.i("ruta","$ruta")
         if(ruta != "login")
             conexionViewModel.mandarEnLocal(context)
     }

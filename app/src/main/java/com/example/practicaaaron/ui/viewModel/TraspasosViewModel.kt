@@ -2,7 +2,6 @@ package com.example.practicaaaron.ui.viewModel
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +9,9 @@ import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.modulos.ModelMapperInstance
 import com.example.practicaaaron.clases.basedatos.repositorio.PedidosRepositorioOffline
+import com.example.practicaaaron.clases.basedatos.repositorio.TraspasosRepositorioOffline
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
+import com.example.practicaaaron.clases.entidades.TransferirPedido
 import com.example.practicaaaron.clases.entidades.pedidos.Cliente
 import com.example.practicaaaron.clases.entidades.pedidos.Direccion
 import com.example.practicaaaron.clases.entidades.pedidos.Entrega
@@ -35,6 +36,7 @@ import javax.inject.Inject
 class TraspasosViewModel @Inject constructor(
     private val dao: PedidosRepositorioOffline,
     private val uDao: UsuarioRepositorioOffline,
+    private val tDao:TraspasosRepositorioOffline,
     private val eventosViewModel: EventosViewModel = EventosViewModel()
 ) : ViewModel() {
 
@@ -43,6 +45,14 @@ class TraspasosViewModel @Inject constructor(
 
     private val _pedidos = MutableStateFlow<List<PedidoEntero>>(mutableListOf())
     val pedidos: StateFlow<List<PedidoEntero>> get() = _pedidos.asStateFlow()
+
+    private val _pedidosMarcados = MutableStateFlow<MutableList<Int>>(mutableListOf())
+
+    private val _cuantos = MutableStateFlow(0)
+    val cuantos:StateFlow<Int> get() = _cuantos.asStateFlow()
+
+    private val _guardado = MutableStateFlow(false)
+    val guardado:StateFlow<Boolean> get() = _guardado.asStateFlow()
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getPedidosTraspasos(context: Context) {
@@ -63,8 +73,8 @@ class TraspasosViewModel @Inject constructor(
                         val entregas: MutableList<Entrega> = mutableListOf()
 
                         pedidos.stream().forEach {
-                            val pedido = ModelMapperInstance.mapper.map(it,PCab::class.java)
-                            pedido.incidencia = if(it.entregado) 1 else 0
+                            val modelMapper = ModelMapperInstance()
+                            val pedido = modelMapper.map(it,PCab::class.java)
                             pedido.idUsuario = id
                             pedido.incidencia = it.incidencia
                             pedido.idCliente = it.cliente.idCliente
@@ -72,22 +82,20 @@ class TraspasosViewModel @Inject constructor(
 
                             pcabs.add(pedido)
 
-                            clientes.add(ModelMapperInstance.mapper.map(it.cliente,Cliente::class.java))
+                            clientes.add(modelMapper.map(it.cliente,Cliente::class.java))
 
                             it.bultos.stream().forEach { it2 ->
-                                val bulto = ModelMapperInstance.mapper.map(it2,PLin::class.java)
+                                val bulto = modelMapper.map(it2,PLin::class.java)
                                 bulto.idPedido = it.idPedido
                                 bultos.add(bulto)
                             }
 
-                            val direccion = ModelMapperInstance.mapper.map(it.cliente.direccion,Direccion::class.java)
+                            val direccion = modelMapper.map(it.cliente.direccion,Direccion::class.java)
                             direccion.idCliente = it.cliente.idCliente
                             direcciones.add(direccion)
 
                             entregas.add(Entrega(it.idEntrega, "", "", 0f, 0f))
                         }
-
-                        Log.i("pedidos2","$pcabs")
 
                         pcabs.stream().forEach { dao.insertarPedido(it) }
                         clientes.stream().forEach { dao.insertarCliente(it) }
@@ -102,7 +110,6 @@ class TraspasosViewModel @Inject constructor(
                         eventosViewModel.setState(EventosUIState.Error(R.string.noPedidos2))
                     }
                 } else {
-                    val id = uDao.getId()
                     _pedidos.value = dao.pedidosNoHechos(id,LocalDate.now().toString())
                     _pedidos.value = _pedidos.value.stream().sorted { o1, o2 -> o1.pedido.incidencia - o2.pedido.incidencia }.collect(Collectors.toList())
                     eventosViewModel.setState(EventosUIState.Error(R.string.noConexion))
@@ -119,6 +126,40 @@ class TraspasosViewModel @Inject constructor(
             eventosViewModel.setState(EventosUIState.Error(R.string.algo))
         }
     }
+
+    fun aniadirPedido(id:Int){
+        _pedidosMarcados.value.add(id)
+        _cuantos.value = _pedidosMarcados.value.size
+    }
+
+    fun eliminarPedido(id:Int){
+        _pedidosMarcados.value.remove(id)
+        _cuantos.value = _pedidosMarcados.value.size
+    }
+
+    fun borrarTraspasosDesechos(){
+        viewModelScope.launch (Dispatchers.IO){
+            tDao.borrarHechos()
+        }
+    }
+
+    fun guardarDatos(){
+        viewModelScope.launch (Dispatchers.IO){
+            eventosViewModel.setState(EventosUIState.Cargando)
+            val traspasos = mutableListOf<TransferirPedido>()
+            val id = uDao.getId()
+
+            _pedidosMarcados.value.forEach {
+                traspasos.add(TransferirPedido(id,it,-1,false))
+            }
+
+            traspasos.forEach {
+                tDao.insertar(it)
+            }
+            _guardado.value = true
+        }
+    }
+
 }
 
 

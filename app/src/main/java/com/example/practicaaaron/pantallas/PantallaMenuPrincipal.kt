@@ -2,7 +2,6 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
@@ -22,8 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,8 +32,6 @@ import androidx.navigation.NavHostController
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.pedidos.Perfiles
 import com.example.practicaaaron.clases.usuarios.Opcion
-import com.example.practicaaaron.clases.utilidades.AnimatedPreloader
-import com.example.practicaaaron.clases.utilidades.listadoTraspasos
 import com.example.practicaaaron.ui.theme.colorPrimario
 import com.example.practicaaaron.ui.viewModel.MenuViewModel
 import java.time.LocalDate
@@ -59,8 +53,7 @@ fun VentanaPrincipal(
 
     val opcionesAdmin = listOf(
         Opcion(R.drawable.iconoconsultar, R.string.consultar, R.string.dConsultar, "usuarios"),
-        Opcion(R.drawable.icono2, R.string.estadisticas, R.string.dEstadisticas, "estadistica"),
-        Opcion(R.drawable.icono3, R.string.transportes, R.string.dTransportes, "usuarios"),
+        Opcion(R.drawable.icono2, R.string.estadisticas, R.string.dEstadisticas, "estadistica")
     )
 
     LaunchedEffect(true) {

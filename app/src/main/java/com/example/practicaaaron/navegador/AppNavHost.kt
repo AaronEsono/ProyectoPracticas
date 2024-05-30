@@ -222,7 +222,7 @@ fun Navegacion(navController: NavHostController){
                     navArgument("fecha") { type = NavType.StringType },
                     navArgument("id") { type = NavType.IntType }
                 )
-            ) { it ->
+            ) {
                 val dateString = it.arguments?.getString("fecha")
                 val date = dateString?.let { it2 ->
                     LocalDate.parse(it2, DateTimeFormatter.ISO_LOCAL_DATE)
@@ -280,7 +280,7 @@ fun Navegacion(navController: NavHostController){
                 PantallaTraspasos(navController)
             }
             composable(Pantallas.Cambio.route){
-                PantallaCambio(navController)
+                PantallaCambio()
             }
         }
 }

@@ -19,7 +19,7 @@ import com.example.practicaaaron.clases.entidades.pedidos.PLin
 
 @Database(
     entities = [Usuario::class, DataUsuario::class, EstadisticaUsuario::class,Cliente::class,Direccion::class,Entrega::class,PCab::class,PLin::class,TransferirPedido::class],
-    version = 13,
+    version = 14,
     exportSchema = false
 )
 abstract class BaseDatos : RoomDatabase() {

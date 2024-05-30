@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.practicaaaron.clases.utilidades.LocationService
 import com.example.practicaaaron.ui.viewModel.MapaViewModel
-import com.example.practicaaaron.ui.viewModel.OpcionesViewModel
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng

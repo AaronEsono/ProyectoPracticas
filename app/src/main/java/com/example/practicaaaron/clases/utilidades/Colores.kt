@@ -28,5 +28,3 @@ val coloresIncidencias = listOf(
     ColoresIncidencias(Icons.Rounded.AcUnit, 20, R.string.ausente, "Ausente",0f, ausente,ausenteIcono),
     ColoresIncidencias(Icons.Rounded.AccountCircle,40, R.string.direccionErronea, "dirección errónea",0f,direccionErronea,direccionErroneaIcono)
 )
-
-var listadoTraspasos:MutableList<Int> = mutableListOf()

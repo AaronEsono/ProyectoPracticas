@@ -2,10 +2,10 @@ package com.example.practicaaaron.ui.viewModel
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.practicaaaron.BuildConfig
 import com.example.practicaaaron.R
 import com.example.practicaaaron.clases.basedatos.modulos.ModelMapperInstance
 import com.example.practicaaaron.clases.basedatos.repositorio.DataUsuarioRepositorioOffline
@@ -14,9 +14,9 @@ import com.example.practicaaaron.clases.basedatos.repositorio.TraspasosRepositor
 import com.example.practicaaaron.clases.basedatos.repositorio.UsuarioRepositorioOffline
 import com.example.practicaaaron.clases.entidades.DataUsuario
 import com.example.practicaaaron.clases.entidades.TransferirPedido
+import com.example.practicaaaron.clases.errores.ErrorLog
 import com.example.practicaaaron.clases.usuarios.DataUser
 import com.example.practicaaaron.clases.utilidades.isInternetAvailable
-import com.example.practicaaaron.clases.utilidades.listadoTraspasos
 import com.example.practicaaaron.repositorio.RepositorioRetrofit
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -56,8 +56,9 @@ class PantallasCambioViewModel @Inject constructor(
                         _usuarios.value = _usuarios.value.stream().filter { it.tipoPerfil == 1 && it.idUsuario != id }.collect(Collectors.toList())
                         val usuariosDao:MutableList<DataUsuario> = mutableListOf()
 
+                        val modelmapper = ModelMapperInstance()
                         _usuarios.value.forEach {
-                            usuariosDao.add(ModelMapperInstance.mapper.map(it, DataUsuario::class.java))
+                            usuariosDao.add(modelmapper.map(it, DataUsuario::class.java))
                         }
 
                         usuariosDao.forEach { pDao.insertar(it) }
@@ -80,6 +81,12 @@ class PantallasCambioViewModel @Inject constructor(
             }
         }catch (e:Exception){
             eventosViewModel.setState(EventosUIState.Error(-1))
+            if(isInternetAvailable(context)){
+                viewModelScope.launch (Dispatchers.IO){
+                    val id = uDao.getId()
+                    repositorio.mandarError(ErrorLog("conseguirPersonas","App",e.toString(),"",id,BuildConfig.VERSION_CODE,context.toString(),LocalDate.now().toString()))
+                }
+            }
         }
     }
 
@@ -88,32 +95,39 @@ class PantallasCambioViewModel @Inject constructor(
         try {
             viewModelScope.launch (Dispatchers.IO){
                 eventosViewModel.setState(EventosUIState.Cargando)
-                val datos = listadoTraspasos
+                val datos = tDao.pasarPedidos()
                 val id = uDao.getId()
 
                 val traspaso = TransferirPedido(id,0,idRecepcion)
 
                 if(isInternetAvailable(context)){
                     datos.forEach {
-                        traspaso.idPedido = it
+                        traspaso.idPedido = it.idPedido
+                        tDao.actualizar(traspaso)
+
                         repositorio.transferirPedido(traspaso)
                         dDao.transefirPedido(traspaso.idUsuario,traspaso.idPedido,traspaso.idDestinatario)
                     }
+                    tDao.borrarHechos()
                     eventosViewModel.setState(EventosUIState.Success(R.string.actualizaciones,R.string.traspasoshechos,LocalDate.now(),-1,-1,true))
                 }else{
                     datos.forEach {
-                        traspaso.idPedido = it
-                        tDao.insertar(traspaso)
+                        traspaso.idPedido = it.idPedido
+                        traspaso.porEntregar = true
+                        tDao.actualizar(traspaso)
                         dDao.transefirPedido(traspaso.idUsuario,traspaso.idPedido,traspaso.idDestinatario)
                     }
-                    eventosViewModel.setState(EventosUIState.Error(R.string.noConexion))
+                    eventosViewModel.setState(EventosUIState.Success(R.string.actualizaciones,R.string.traspasoshechos,LocalDate.now(),-1,-1,true))
                 }
-                listadoTraspasos = mutableListOf()
             }
         }catch(e:Exception){
             eventosViewModel.setState(EventosUIState.Error(-1))
+            if(isInternetAvailable(context)){
+                viewModelScope.launch (Dispatchers.IO){
+                    val id = uDao.getId()
+                    repositorio.mandarError(ErrorLog("hacerIntercambio","App",e.toString(),"",id,BuildConfig.VERSION_CODE,"$id $context",LocalDate.now().toString()))
+                }
+            }
         }
     }
-
-
 }

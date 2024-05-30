@@ -2,7 +2,6 @@ package com.example.practicaaaron.pantallas
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
@@ -12,7 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,12 +23,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,7 +44,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.practicaaaron.clases.entidades.pedidos.PedidoEntero
 import com.example.practicaaaron.clases.utilidades.coloresIncidencias
-import com.example.practicaaaron.clases.utilidades.listadoTraspasos
+import com.example.practicaaaron.ui.theme.colorBarraEncima
+import com.example.practicaaaron.ui.theme.colorBoton
 import com.example.practicaaaron.ui.theme.seleccionado
 import com.example.practicaaaron.ui.viewModel.TraspasosViewModel
 import java.time.LocalDate
@@ -57,37 +58,64 @@ fun PantallaTraspasos(navHostController: NavHostController,traspasosViewModel: T
 
     val pedidos = traspasosViewModel.pedidos.collectAsState().value
     val context = LocalContext.current
+    val cuantos = traspasosViewModel.cuantos.collectAsState().value
+    val guardado = traspasosViewModel.guardado.collectAsState().value
+
+    val ocupacion = remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect (true){
+        traspasosViewModel.borrarTraspasosDesechos()
         traspasosViewModel.getPedidosTraspasos(context)
     }
 
     Column (modifier = Modifier
         .fillMaxSize()
-        .padding(0.dp, 60.dp, 0.dp, 0.dp)
-        .verticalScroll(rememberScrollState()),
+        .padding(0.dp, 65.dp, 0.dp, 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally){
 
-        Spacer(modifier = Modifier.padding(0.dp,6.dp))
-        pedidos.forEach { 
-            CartaTraspaso(pedido = it)
-        }
 
-        if(pedidos.isNotEmpty() || listadoTraspasos.isNotEmpty()){
-            Button(onClick = {
-                navHostController.navigate("cambio")
-            }) {
-                Text(text = "Aceptar")
+        Column (modifier = Modifier
+            .fillMaxHeight(ocupacion.floatValue)
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())){
+            pedidos.forEach {
+                CartaTraspaso(pedido = it,traspasosViewModel)
             }
         }
+
+        if (pedidos.isNotEmpty() && cuantos > 0) {
+            ocupacion.floatValue = 0.9f
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(colorBarraEncima),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(onClick = {
+                    traspasosViewModel.guardarDatos()
+                }, colors = ButtonDefaults.buttonColors(
+                    containerColor = colorBoton
+                )) {
+                    Text(text = "Aceptar")
+                }
+            }
+        }else{
+            ocupacion.floatValue = 1f
+        }
     }
+
+    if(guardado)
+        navHostController.navigate("cambio")
+
 }
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CartaTraspaso(
-    pedido: PedidoEntero
+    pedido: PedidoEntero,
+    traspasosViewModel: TraspasosViewModel
 ) {
 
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
@@ -109,13 +137,13 @@ fun CartaTraspaso(
         .clickable {
             seleccion.value = !seleccion.value
             if (seleccion.value) {
-                listadoTraspasos.add(pedido.pedido.idPedido)
+                traspasosViewModel.aniadirPedido(pedido.pedido.idPedido)
             } else {
-                listadoTraspasos.remove(pedido.pedido.idPedido)
+                traspasosViewModel.eliminarPedido(pedido.pedido.idPedido)
             }
         }) {
 
-        Crossfade(targetState = seleccion.value, label = "") { it ->
+        Crossfade(targetState = seleccion.value, label = "") {
             if (it) {
                 Column(
                     modifier = Modifier

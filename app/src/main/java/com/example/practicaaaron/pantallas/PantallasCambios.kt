@@ -35,14 +35,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.practicaaaron.clases.usuarios.DataUser
 import com.example.practicaaaron.ui.theme.seleccionado
 import com.example.practicaaaron.ui.viewModel.PantallasCambioViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PantallaCambio(navController: NavHostController, pantallasCambioViewModel: PantallasCambioViewModel = hiltViewModel()){
+fun PantallaCambio(pantallasCambioViewModel: PantallasCambioViewModel = hiltViewModel()){
 
     val usuarios = pantallasCambioViewModel.usuarios.collectAsState().value
     val seleccionar = remember{ mutableIntStateOf(-1) }
@@ -59,8 +58,8 @@ fun PantallaCambio(navController: NavHostController, pantallasCambioViewModel: P
         usuarios.forEach {
             CartaUsuario(it,seleccionar)
         }
-        if(seleccionar.value != -1){
-            Button(onClick = {pantallasCambioViewModel.hacerIntercambio(seleccionar.value,contexto)}) {
+        if(seleccionar.intValue != -1){
+            Button(onClick = {pantallasCambioViewModel.hacerIntercambio(seleccionar.intValue,contexto)}) {
                 Text(text = "Aceptar")
             }
         }

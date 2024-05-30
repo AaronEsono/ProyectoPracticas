@@ -1,10 +1,7 @@
 package com.example.practicaaaron.ui.viewModel
 
-import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.util.Log
-import androidx.media3.common.util.UnstableApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +21,7 @@ class EventosViewModel  @Inject constructor(): ViewModel() {
     }
 }
 
-sealed class EventosUIState(){
+sealed class EventosUIState{
     data class Error(val texto:Int): EventosUIState()
     data object Cargando: EventosUIState()
     data object Done: EventosUIState()

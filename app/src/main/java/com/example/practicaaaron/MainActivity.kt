@@ -1,7 +1,6 @@
 package com.example.practicaaaron
 
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,11 +12,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.example.practicaaaron.clases.utilidades.Cargando
 import com.example.practicaaaron.clases.utilidades.ConnectivityStatus
 import com.example.practicaaaron.clases.utilidades.DialogoConseguido
-import com.example.practicaaaron.clases.utilidades.Entregando
 import com.example.practicaaaron.clases.utilidades.MensajeError
-import com.example.practicaaaron.clases.utilidades.cargando
 import com.example.practicaaaron.navegador.AppNavHost
 import com.example.practicaaaron.ui.theme.PracticaAaronTheme
 import com.example.practicaaaron.ui.theme.colorPrimario
@@ -37,7 +35,6 @@ class MainActivity : ComponentActivity() {
     private val eventosViewModel:EventosViewModel by viewModels()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    @SuppressLint("StateFlowValueCalledInComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +49,7 @@ class MainActivity : ComponentActivity() {
                     color = colorPrimario
                 ) {
                     when(uiState){
-                        EventosUIState.Cargando -> {cargando()}
+                        EventosUIState.Cargando -> {Cargando()}
                         is EventosUIState.Error -> {MensajeError(texto = uiState.texto){eventosViewModel.setState(EventosUIState.Done)}}
                         is EventosUIState.Success -> {DialogoConseguido(texto = uiState.texto,uiState.textoTitulo,navController,uiState.fecha,uiState.id,uiState.todos,uiState.entrega){eventosViewModel.setState(EventosUIState.Done)}}
                         EventosUIState.Done -> {}

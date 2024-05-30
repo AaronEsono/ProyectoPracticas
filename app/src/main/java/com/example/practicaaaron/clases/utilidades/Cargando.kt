@@ -16,7 +16,7 @@ import androidx.compose.ui.zIndex
 import com.example.practicaaaron.R
 
 @Composable
-fun cargando(){
+fun Cargando(){
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -36,7 +36,7 @@ fun cargando(){
 }
 
 @Composable
-fun noConexion(){
+fun NoConexion(){
     Box(
         modifier = Modifier
             .fillMaxSize()

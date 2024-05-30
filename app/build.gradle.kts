@@ -144,5 +144,4 @@ dependencies {
 
     //ModelMapper
     implementation("org.modelmapper:modelmapper:3.1.0")
-
 }
