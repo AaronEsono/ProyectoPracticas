@@ -61,6 +61,10 @@ fun PantallaTraspasos(navHostController: NavHostController,traspasosViewModel: T
     val cuantos = traspasosViewModel.cuantos.collectAsState().value
     val guardado = traspasosViewModel.guardado.collectAsState().value
 
+    // Cuando haces un traspaso, queda en modo pendiente
+    // Cuando el usuario receptor entre, se irá a traspasos
+    // El receptor confirmará o cancelará
+
     val ocupacion = remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect (true){
